@@ -1,11 +1,6 @@
 [workspace]
 
 members = [
-    "computecore",
-    "computedefs",
-    "computenetwork",
-    "computestorage",
-    "hcsrs",
+    "hcsapis",
     "hcsrscli",
-    "hypervdevicevirtualization",
 ]

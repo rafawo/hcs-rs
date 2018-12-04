@@ -18,19 +18,20 @@ For this wrapper to build properly, the following requirements need to be met by
 
 ## Workspace layout
 
-**_Note: The table includes the paths in the Windows SDK for the header and lib files based on the default installation path `c:\Program Files (x86)\Windows Kits\10`._**
-
-| hcsrs library crate | Overview | HCS API C Header file | .h path in SDK | .lib path in SDK |
-| -- | -- | -- | -- | -- |
-| [computecore](/src/computecore) | APIs for the core HCS functionality to manage compute systems. | computecore.h | C:\Program Files (x86)\Windows Kits\10\Include\10.0.17763.0\um\computecore.h | C:\Program Files (x86)\Windows Kits\10\Lib\10.0.17763.0\um\x64\computecore.lib |
-| [computedefs](/src/computedefs) | Types and definitions used by the HCS APIs. | computedefs.h | C:\Program Files (x86)\Windows Kits\10\Include\10.0.17763.0\um\computedefs.h | C:\Program Files (x86)\Windows Kits\10\Lib\10.0.17763.0\um\x64\computedefs.lib |
-| [computenetwork](/src/computenetwork) | Types definitions and APIs to interact with the HCN (Host Compute Network). | computenetwork.h | C:\Program Files (x86)\Windows Kits\10\Include\10.0.17763.0\um\computenetwork.h | C:\Program Files (x86)\Windows Kits\10\Lib\10.0.17763.0\um\x64\computenetwork.lib |
-| [computestorage](/src/computestorage) | APIs for the HCS storage management. | computestorage.h | C:\Program Files (x86)\Windows Kits\10\Include\10.0.17763.0\um\computestorage.h | C:\Program Files (x86)\Windows Kits\10\Lib\10.0.17763.0\um\x64\computestorage.lib |
-| [hypervdevicevirtualization](/src/hypervdevicevirtualization) | Types definitions and APIs for device emulation/virtualization. | hypervdevicevirtualization.h | C:\Program Files (x86)\Windows Kits\10\Include\10.0.17763.0\um\hypervdevicevirtualization.h | C:\Program Files (x86)\Windows Kits\10\Lib\10.0.17763.0\um\x64\vmdevicehost.lib |
-
-Additionally, the following table describes any extra crates defined in this project that do not map directly to the Windows SDK:
-
 | hcsrs crate | Overview |
 | -- | -- |
-| [hcsrs](/src/hcsrs) | Main crate of the project, with handy Rust abstractions and helpers for the HCS APIs. |
+| [hcsapis](/src/hcsapis) | Rust abstractions for all the HCS APIs, together with handy helpers. |
 | [hcsrscli](/src/hcsrscli) | Command Line tool that exposes useful functionality, using the underlying HCS APIs. |
+
+## Wrapped Windows 10 SDK APIs
+
+The following table describes the relevant Windows 10 SDK files that this project is wrapping:
+**_Note: The table includes the paths in the Windows SDK for the header and lib files based on the default installation path `c:\Program Files (x86)\Windows Kits\10`._**
+
+| hcsrs rust file | Overview | HCS API C Header file | .h path in SDK | .lib path in SDK |
+| -- | -- | -- | -- | -- |
+| [computecore.rs](/src/hcsapis/computecore.rs) | APIs for the core HCS functionality to manage compute systems. | computecore.h | C:\Program Files (x86)\Windows Kits\10\Include\10.0.17763.0\um\computecore.h | C:\Program Files (x86)\Windows Kits\10\Lib\10.0.17763.0\um\x64\computecore.lib |
+| [computedefs.rs](/src/hcsapis/computedefs.rs) | Types and definitions used by the HCS APIs. | computedefs.h | C:\Program Files (x86)\Windows Kits\10\Include\10.0.17763.0\um\computedefs.h | C:\Program Files (x86)\Windows Kits\10\Lib\10.0.17763.0\um\x64\computedefs.lib |
+| [computenetwork.rs](/src/hcsapis/computenetwork.rs) | Types definitions and APIs to interact with the HCN (Host Compute Network). | computenetwork.h | C:\Program Files (x86)\Windows Kits\10\Include\10.0.17763.0\um\computenetwork.h | C:\Program Files (x86)\Windows Kits\10\Lib\10.0.17763.0\um\x64\computenetwork.lib |
+| [computestorage.rs](/src/hcsapis/computestorage.rs) | APIs for the HCS storage management. | computestorage.h | C:\Program Files (x86)\Windows Kits\10\Include\10.0.17763.0\um\computestorage.h | C:\Program Files (x86)\Windows Kits\10\Lib\10.0.17763.0\um\x64\computestorage.lib |
+| [hypervdevicevirtualization.rs](/src/hcsapis/hypervdevicevirtualization.rs) | Types definitions and APIs for device emulation/virtualization. | hypervdevicevirtualization.h | C:\Program Files (x86)\Windows Kits\10\Include\10.0.17763.0\um\hypervdevicevirtualization.h | C:\Program Files (x86)\Windows Kits\10\Lib\10.0.17763.0\um\x64\vmdevicehost.lib |
