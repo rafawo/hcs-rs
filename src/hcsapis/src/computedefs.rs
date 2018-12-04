@@ -1,6 +1,7 @@
 //! This file contains Rust abstractions for the public types and definitions used by the Host Compute APIs.
 extern crate libc;
 
+pub type BOOLEAN = libc::c_uchar;
 pub type VOID = libc::c_void;
 pub type DWORD = libc::c_ulong;
 pub type HANDLE = *mut VOID;
@@ -21,6 +22,7 @@ pub type HcsOperation = HANDLE;
 pub type HcsCallback = HANDLE;
 
 /// Type of an operation. These correspond to the functions that invoke the operation.
+#[repr(C)]
 pub enum HcsOperationType {
     None = -1,
     Enumerate = 0,
@@ -47,6 +49,7 @@ pub type HcsOperationCompletion = extern "C" fn(operation: HcsOperation, context
 
 /// Events indicated to callbacks registered by HcsRegisterComputeSystemCallback or
 /// HcsRegisterProcessCallback (since Windows 1809).
+#[repr(C)]
 pub enum HcsEventType {
     Invalid = 0x00000000,
 
@@ -67,6 +70,7 @@ pub enum HcsEventType {
 }
 
 /// Provides information about an event that occurred on a compute system or process.
+#[repr(C)]
 pub struct HcsEvent {
     /// Type of Event (see HcsEventType)
     pub event_type: HcsEventType,
@@ -79,6 +83,7 @@ pub struct HcsEvent {
 }
 
 /// Options for an event callback registration
+#[repr(C)]
 pub enum HcsEventOptions {
     None = 0x00000000,
     EnableOperationCallbacks = 0x00000001,
@@ -88,6 +93,7 @@ pub enum HcsEventOptions {
 pub type HcsEventCallback = extern "C" fn(event: *const HcsEvent, context: *mut VOID);
 
 /// Flags applicable to HcsNotifications
+#[repr(C)]
 pub enum HcsNotificationFlag {
     Success = 0x00000000,
     Failure = 0x80000000,
@@ -95,6 +101,7 @@ pub enum HcsNotificationFlag {
 
 /// Notifications indicated to callbacks registered by HcsRegisterComputeSystemCallback or
 /// HcsRegisterProcessCallback (until Windows 1803).
+#[repr(C)]
 pub enum HcsNotifications {
     Invalid = 0x00000000,
 
@@ -133,6 +140,7 @@ pub type HcsNotificationCallback = extern "C" fn(
 );
 
 /// Struct containing information about a process created by HcsStartProcessInComputeSystem
+#[repr(C)]
 pub struct HcsProcessInformation {
     /// Identifier of the created process
     pub process_id: DWORD,
