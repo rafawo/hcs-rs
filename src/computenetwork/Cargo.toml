@@ -1,0 +1,6 @@
+[package]
+name = "computenetwork"
+version = "0.1.0"
+authors = ["rafawo <rafawo1@hotmail.com>"]
+
+[dependencies]
