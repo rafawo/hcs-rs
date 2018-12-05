@@ -18,16 +18,17 @@ pub enum HdvDeviceType {
     PCI = 1,
 }
 
-#[repr(C)] #[derive(Debug)]
+#[repr(C)]
+#[derive(Debug)]
 pub struct HdvPciPnpId {
-    vendor_id: u16,
-    device_id: u16,
-    revision_id: u8,
-    prog_if: u8,
-    sub_class: u8,
-    base_class: u8,
-    sub_vendor_id: u16,
-    sub_system_id: u16,
+    pub vendor_id: u16,
+    pub device_id: u16,
+    pub revision_id: u8,
+    pub prog_if: u8,
+    pub sub_class: u8,
+    pub base_class: u8,
+    pub sub_vendor_id: u16,
+    pub sub_system_id: u16,
 }
 
 #[allow(non_camel_case_types)]
@@ -99,6 +100,7 @@ pub type HDV_PCI_WRITE_INTERCEPTED_MEMORY = extern "C" fn(
     length: u64,
     value: *const BYTE,
 ) -> HRESULT;
+
 #[repr(C)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum HdvPciInterfaceVersion {
@@ -107,17 +109,17 @@ pub enum HdvPciInterfaceVersion {
 }
 
 pub struct HdvPciDeviceInterface {
-    version: HdvPciInterfaceVersion,
-    initialize: HDV_PCI_DEVICE_INITIALIZE,
-    teardown: HDV_PCI_DEVICE_TEARDOWN,
-    set_configuration: HDV_PCI_DEVICE_SET_CONFIGURATION,
-    get_details: HDV_PCI_DEVICE_GET_DETAILS,
-    start: HDV_PCI_DEVICE_START,
-    stop: HDV_PCI_DEVICE_STOP,
-    read_config_space: HDV_PCI_READ_CONFIG_SPACE,
-    write_config_space: HDV_PCI_WRITE_CONFIG_SPACE,
-    read_intercepted_memory: HDV_PCI_READ_INTERCEPTED_MEMORY,
-    write_intercepted_memory: HDV_PCI_WRITE_INTERCEPTED_MEMORY,
+    pub version: HdvPciInterfaceVersion,
+    pub initialize: HDV_PCI_DEVICE_INITIALIZE,
+    pub teardown: HDV_PCI_DEVICE_TEARDOWN,
+    pub set_configuration: HDV_PCI_DEVICE_SET_CONFIGURATION,
+    pub get_details: HDV_PCI_DEVICE_GET_DETAILS,
+    pub start: HDV_PCI_DEVICE_START,
+    pub stop: HDV_PCI_DEVICE_STOP,
+    pub read_config_space: HDV_PCI_READ_CONFIG_SPACE,
+    pub write_config_space: HDV_PCI_WRITE_CONFIG_SPACE,
+    pub read_intercepted_memory: HDV_PCI_READ_INTERCEPTED_MEMORY,
+    pub write_intercepted_memory: HDV_PCI_WRITE_INTERCEPTED_MEMORY,
 }
 
 #[allow(non_camel_case_types)]

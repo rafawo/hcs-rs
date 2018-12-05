@@ -79,7 +79,8 @@ pub enum HcsEventType {
 }
 
 /// Provides information about an event that occurred on a compute system or process.
-#[repr(C)] #[derive(Debug)]
+#[repr(C)]
+#[derive(Debug)]
 pub struct HcsEvent {
     /// Type of Event (see HcsEventType)
     pub event_type: HcsEventType,
@@ -154,7 +155,8 @@ pub type HCS_NOTIFICATION_CALLBACK = extern "C" fn(
 );
 
 /// Struct containing information about a process created by HcsStartProcessInComputeSystem
-#[repr(C)] #[derive(Debug)]
+#[repr(C)]
+#[derive(Debug)]
 pub struct HcsProcessInformation {
     /// Identifier of the created process
     pub process_id: DWORD,
