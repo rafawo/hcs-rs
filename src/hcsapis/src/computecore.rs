@@ -31,7 +31,7 @@ extern "C" {
     /// Returns the handle to compute system associated with an operation.
     pub fn HcsGetComputeSystemFromOperation(operation: HCS_OPERATION) -> HCS_SYSTEM;
 
-    // Returns the handle to the process associated with an operation
+    /// Returns the handle to the process associated with an operation
     pub fn HcsGetProcessFromOperation(operation: HCS_OPERATION) -> HCS_PROCESS;
 
     /// Returns the type of an operation.
