@@ -4,4 +4,4 @@ version = "0.1.0"
 authors = ["rafawo <rafawo1@hotmail.com>"]
 
 [dependencies]
-libc = "0.2.44"
+winapi = { version = "0.3.6", features = ["winuser"] }

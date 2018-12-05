@@ -1,25 +1,38 @@
 //! This file contains Rust abstractions for the public types and definitions used by the Host Compute APIs.
-extern crate libc;
 
-pub type BOOLEAN = libc::c_uchar;
-pub type VOID = libc::c_void;
-pub type DWORD = libc::c_ulong;
-pub type HANDLE = *mut VOID;
-pub type HRESULT = libc::c_long;
-pub type WCHAR = libc::wchar_t;
-pub type PCWSTR = *const WCHAR;
+extern crate winapi;
+extern crate std;
+
+use computedefs::winapi::shared::ntdef::{
+    HANDLE,
+    HRESULT,
+    PCWSTR,
+    VOID,
+};
+
+use computedefs::winapi::shared::minwindef::DWORD;
+
+#[allow(overflowing_literals)]
+pub const HCS_E_PROCESS_INFO_NOT_AVAILABLE: HRESULT = 0x8037011D;
+
+#[allow(overflowing_literals)]
+pub const HCS_E_SERVICE_DISCONNECT: HRESULT = 0x8037011E;
 
 /// Handle to a compute system
-pub type HcsSystem = HANDLE;
+#[allow(non_camel_case_types)]
+pub type HCS_SYSTEM = HANDLE;
 
 /// Handle to a process running in a compute system
-pub type HcsProcess = HANDLE;
+#[allow(non_camel_case_types)]
+pub type HCS_PROCESS = HANDLE;
 
 /// Handle to an operation on a compute system
-pub type HcsOperation = HANDLE;
+#[allow(non_camel_case_types)]
+pub type HCS_OPERATION = HANDLE;
 
 /// Handle to a callback registered on a compute system or process handle.
-pub type HcsCallback = HANDLE;
+#[allow(non_camel_case_types)]
+pub type HCS_CALLBACK = HANDLE;
 
 /// Type of an operation. These correspond to the functions that invoke the operation.
 #[repr(C)]
@@ -42,10 +55,11 @@ pub enum HcsOperationType {
     ModifyProcess = 14,
 }
 
-pub const HCS_INVALID_OPERATION_ID: i32 = -1;
+pub const HCS_INVALID_OPERATION_ID: u64 = std::u64::MAX;
 
 /// Function type for the completion callback of an operation.
-pub type HcsOperationCompletion = extern "C" fn(operation: HcsOperation, context: *mut VOID);
+#[allow(non_camel_case_types)]
+pub type HCS_OPERATION_COMPLETION = extern "C" fn(operation: HCS_OPERATION, context: *mut VOID);
 
 /// Events indicated to callbacks registered by HcsRegisterComputeSystemCallback or
 /// HcsRegisterProcessCallback (since Windows 1809).
@@ -79,7 +93,7 @@ pub struct HcsEvent {
     pub event_data: PCWSTR,
 
     /// Handle to a completed operation (if Type is HcsEventType::OperationCallback).
-    pub operation: HcsOperation,
+    pub operation: HCS_OPERATION,
 }
 
 /// Options for an event callback registration
@@ -90,7 +104,8 @@ pub enum HcsEventOptions {
 }
 
 /// Function type for compute system event callbacks
-pub type HcsEventCallback = extern "C" fn(event: *const HcsEvent, context: *mut VOID);
+#[allow(non_camel_case_types)]
+pub type HCS_EVENT_CALLBACK = extern "C" fn(event: *const HcsEvent, context: *mut VOID);
 
 /// Flags applicable to HcsNotifications
 #[repr(C)]
@@ -132,7 +147,8 @@ pub enum HcsNotifications {
 }
 
 /// Function type for compute system notification callbacks
-pub type HcsNotificationCallback = extern "C" fn(
+#[allow(non_camel_case_types)]
+pub type HCS_NOTIFICATION_CALLBACK = extern "C" fn(
     notification_type: DWORD,
     context: *mut VOID,
     notifications_status: HRESULT,
