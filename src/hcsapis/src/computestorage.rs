@@ -1,4 +1,4 @@
-//! This file contains the types definitions and APIs to interact with storage management in HCS.
+//! This file contains the APIs to interact with storage management in HCS.
 
 use winapi::shared::ntdef::{BOOLEAN, HANDLE, HRESULT, PCWSTR, PWSTR};
 
