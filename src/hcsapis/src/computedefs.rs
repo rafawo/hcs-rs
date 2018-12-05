@@ -1,11 +1,10 @@
 //! This file contains Rust abstractions for the public types and definitions used by the Host Compute APIs.
 
 extern crate std;
-extern crate winapi;
 
-use computedefs::winapi::shared::ntdef::{HANDLE, HRESULT, PCWSTR, VOID};
+use winapi::shared::ntdef::{HANDLE, HRESULT, PCWSTR, VOID};
 
-use computedefs::winapi::shared::minwindef::DWORD;
+use winapi::shared::minwindef::DWORD;
 
 #[allow(overflowing_literals)]
 pub const HCS_E_PROCESS_INFO_NOT_AVAILABLE: HRESULT = 0x8037011D;

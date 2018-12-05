@@ -1,12 +1,10 @@
 //! This file contains Rust abstractions for the public computecore APIs.
 
-extern crate winapi;
-
-use computecore::winapi::shared::ntdef::{BOOLEAN, HANDLE, HRESULT, PCWSTR, PWSTR, VOID};
 use computedefs::*;
+use winapi::shared::ntdef::{BOOLEAN, HANDLE, HRESULT, PCWSTR, PWSTR, VOID};
 
-use computecore::winapi::shared::minwindef::DWORD;
-use computecore::winapi::um::winnt::SECURITY_DESCRIPTOR;
+use winapi::shared::minwindef::DWORD;
+use winapi::um::winnt::SECURITY_DESCRIPTOR;
 
 extern "C" {
 
