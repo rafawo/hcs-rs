@@ -28,7 +28,8 @@ pub type HCS_OPERATION = HANDLE;
 pub type HCS_CALLBACK = HANDLE;
 
 /// Type of an operation. These correspond to the functions that invoke the operation.
-#[repr(C)] #[derive(Debug)]
+#[repr(C)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum HcsOperationType {
     None = -1,
     Enumerate = 0,
@@ -56,7 +57,8 @@ pub type HCS_OPERATION_COMPLETION = extern "C" fn(operation: HCS_OPERATION, cont
 
 /// Events indicated to callbacks registered by HcsRegisterComputeSystemCallback or
 /// HcsRegisterProcessCallback (since Windows 1809).
-#[repr(C)] #[derive(Debug)]
+#[repr(C)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum HcsEventType {
     Invalid = 0x00000000,
 
@@ -90,7 +92,8 @@ pub struct HcsEvent {
 }
 
 /// Options for an event callback registration
-#[repr(C)] #[derive(Debug)]
+#[repr(C)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum HcsEventOptions {
     None = 0x00000000,
     EnableOperationCallbacks = 0x00000001,
@@ -101,7 +104,8 @@ pub enum HcsEventOptions {
 pub type HCS_EVENT_CALLBACK = extern "C" fn(event: *const HcsEvent, context: *mut VOID);
 
 /// Flags applicable to HcsNotifications
-#[repr(C)] #[derive(Debug)]
+#[repr(C)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum HcsNotificationFlag {
     Success = 0x00000000,
     Failure = 0x80000000,
@@ -109,7 +113,8 @@ pub enum HcsNotificationFlag {
 
 /// Notifications indicated to callbacks registered by HcsRegisterComputeSystemCallback or
 /// HcsRegisterProcessCallback (until Windows 1803).
-#[repr(C)] #[derive(Debug)]
+#[repr(C)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum HcsNotifications {
     Invalid = 0x00000000,
 

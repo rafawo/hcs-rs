@@ -11,7 +11,8 @@ pub type HDV_HOST = *const VOID;
 #[allow(non_camel_case_types)]
 pub type HDV_DEVICE = *const VOID;
 
-#[repr(C)] #[derive(Debug)]
+#[repr(C)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum HdvDeviceType {
     Undefined = 0,
     PCI = 1,
@@ -32,7 +33,8 @@ pub struct HdvPciPnpId {
 #[allow(non_camel_case_types)]
 pub type PHDV_PCI_PNP_ID = *mut HdvPciPnpId;
 
-#[repr(C)] #[derive(Debug)]
+#[repr(C)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum HdvPciBarSelector {
     Bar0 = 0,
     Bar1 = 1,
@@ -97,7 +99,8 @@ pub type HDV_PCI_WRITE_INTERCEPTED_MEMORY = extern "C" fn(
     length: u64,
     value: *const BYTE,
 ) -> HRESULT;
-
+#[repr(C)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum HdvPciInterfaceVersion {
     VersionInvalid = 0,
     Version1 = 1,

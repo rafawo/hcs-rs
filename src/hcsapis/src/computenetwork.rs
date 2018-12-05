@@ -5,7 +5,8 @@ use winapi::shared::minwindef::DWORD;
 use winapi::shared::ntdef::{BOOLEAN, HRESULT, PCWSTR, PWSTR, VOID};
 
 /// Notifications indicated to callbacks
-#[repr(C)] #[derive(Debug)]
+#[repr(C)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum HcsNotifications {
     Invalid = 0x00000000,
 
