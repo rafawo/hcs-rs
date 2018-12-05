@@ -19,7 +19,7 @@ pub enum HdvDeviceType {
 }
 
 #[repr(C)]
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone)]
 pub struct HdvPciPnpId {
     pub vendor_id: u16,
     pub device_id: u16,
