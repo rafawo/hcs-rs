@@ -11,13 +11,13 @@ pub type HDV_HOST = *const VOID;
 #[allow(non_camel_case_types)]
 pub type HDV_DEVICE = *const VOID;
 
-#[repr(C)]
+#[repr(C)] #[derive(Debug)]
 pub enum HdvDeviceType {
     Undefined = 0,
     PCI = 1,
 }
 
-#[repr(C)]
+#[repr(C)] #[derive(Debug)]
 pub struct HdvPciPnpId {
     vendor_id: u16,
     device_id: u16,
@@ -32,7 +32,7 @@ pub struct HdvPciPnpId {
 #[allow(non_camel_case_types)]
 pub type PHDV_PCI_PNP_ID = *mut HdvPciPnpId;
 
-#[repr(C)]
+#[repr(C)] #[derive(Debug)]
 pub enum HdvPciBarSelector {
     Bar0 = 0,
     Bar1 = 1,
