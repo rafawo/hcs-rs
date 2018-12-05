@@ -2,9 +2,8 @@
 
 extern crate std;
 
-use winapi::shared::ntdef::{HANDLE, HRESULT, PCWSTR, VOID};
-
 use winapi::shared::minwindef::DWORD;
+use winapi::shared::ntdef::{HANDLE, HRESULT, PCWSTR, VOID};
 
 #[allow(overflowing_literals)]
 pub const HCS_E_PROCESS_INFO_NOT_AVAILABLE: HRESULT = 0x8037011D;
