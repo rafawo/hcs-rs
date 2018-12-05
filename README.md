@@ -1,4 +1,4 @@
-# hcsrs
+# hcs-rs
 Rust wrapper of Host Compute Service API
 
 ## Overview
