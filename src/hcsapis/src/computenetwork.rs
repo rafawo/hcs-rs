@@ -230,14 +230,14 @@ extern "C" {
         errorRecord: *mut PWSTR,
     ) -> HRESULT;
 
-    /// Modify the settings of a PolcyList
+    /// Modify the settings of a PolicyList
     pub fn HcnModifyLoadBalancer(
         loadBalancer: HCN_LOADBALANCER,
         settings: PCWSTR,
         errorRecord: *mut PWSTR,
     ) -> HRESULT;
 
-    /// Query PolcyList settings
+    /// Query PolicyList settings
     pub fn HcnQueryLoadBalancerProperties(
         loadBalancer: HCN_LOADBALANCER,
         query: PCWSTR,
