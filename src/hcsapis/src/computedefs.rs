@@ -1,7 +1,5 @@
 //! This file contains Rust abstractions for the public types and definitions used by the Host Compute APIs.
 
-extern crate std;
-
 use winapi::shared::minwindef::DWORD;
 use winapi::shared::ntdef::{HANDLE, HRESULT, PCWSTR, VOID};
 

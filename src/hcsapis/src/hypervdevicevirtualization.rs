@@ -1,6 +1,6 @@
 //! This file contains types definitions and APIs to interact with the Hyper-V device virtualization support.
 
-use computedefs::*;
+use crate::computedefs::*;
 use winapi::shared::guiddef::GUID;
 use winapi::shared::minwindef::{BOOL, BYTE};
 use winapi::shared::ntdef::{BOOLEAN, HRESULT, LPCWSTR, PVOID, VOID};
