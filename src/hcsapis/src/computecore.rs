@@ -5,6 +5,7 @@ use winapi::shared::minwindef::DWORD;
 use winapi::shared::ntdef::{BOOLEAN, HANDLE, HRESULT, PCWSTR, PWSTR, VOID};
 use winapi::um::winnt::SECURITY_DESCRIPTOR;
 
+#[link(name = "computecore")]
 extern "C" {
 
     /// Enumerates existing compute systems.

@@ -2,6 +2,7 @@
 
 use winapi::shared::ntdef::{BOOLEAN, HANDLE, HRESULT, PCWSTR, PWSTR};
 
+#[link(name = "computestorage")]
 extern "C" {
 
     /// Imports a container layer.

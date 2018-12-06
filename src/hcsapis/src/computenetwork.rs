@@ -80,6 +80,7 @@ pub type HCN_SERVICE = *const VOID;
 #[allow(non_camel_case_types)]
 pub type PHCN_SERVICE = *mut HCN_SERVICE;
 
+#[link(name = "computenetwork")]
 extern "C" {
 
     /// Return a list of existing Networks

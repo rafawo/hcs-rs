@@ -125,6 +125,7 @@ pub struct HdvPciDeviceInterface {
 #[allow(non_camel_case_types)]
 pub type PHDV_PCI_DEVICE_INTERFACE = *mut HdvPciDeviceInterface;
 
+#[link(name = "vmdevicehost")]
 extern "C" {
 
     pub fn HdvInitializeDeviceHost(
