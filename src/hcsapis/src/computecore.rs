@@ -51,7 +51,7 @@ extern "C" {
     /// Waits for the completion of an operation and returns the result.
     pub fn HcsWaitForOperationResult(
         operation: HCS_OPERATION,
-        timeout_ms: DWORD,
+        timeoutMs: DWORD,
         resultDocument: *mut PWSTR,
     ) -> HRESULT;
 
@@ -79,7 +79,7 @@ extern "C" {
         id: PCWSTR,
         configuration: PCWSTR,
         operation: HCS_OPERATION,
-        security_descriptor: *const SECURITY_DESCRIPTOR,
+        securityDescriptor: *const SECURITY_DESCRIPTOR,
         computeSystem: *mut HCS_SYSTEM,
     ) -> HRESULT;
 
