@@ -1,5 +1,3 @@
-extern crate winapi;
-
 #[allow(dead_code)]
 pub mod computecore;
 
