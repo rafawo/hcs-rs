@@ -11,4 +11,4 @@ keywords = ["windows", "hcs", "host compute service", "hyper-v", "windows contai
 build = "build.rs"
 
 [dependencies]
-winapi = { version = "0.3.6", features = ["winuser"] }
+libc = "0.2.44"

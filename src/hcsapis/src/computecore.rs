@@ -1,327 +1,325 @@
 //! This file contains Rust abstractions for the public computecore APIs.
 
 use crate::computedefs::*;
-use winapi::shared::minwindef::DWORD;
-use winapi::shared::ntdef::{BOOLEAN, HANDLE, HRESULT, PCWSTR, PWSTR, VOID};
-use winapi::um::winnt::SECURITY_DESCRIPTOR;
+use crate::windefs::*;
 
 #[link(name = "computecore")]
 extern "C" {
 
     /// Enumerates existing compute systems.
-    pub fn HcsEnumerateComputeSystems(query: PCWSTR, operation: HCS_OPERATION) -> HRESULT;
+    pub fn HcsEnumerateComputeSystems(query: PCWStr, operation: HcsOperation) -> HResult;
 
     /// Creates a new operation.
     pub fn HcsCreateOperation(
-        context: *const VOID,
-        callback: HCS_OPERATION_COMPLETION,
-    ) -> HCS_OPERATION;
+        context: *const Void,
+        callback: HcsOperationCompletion,
+    ) -> HcsOperation;
 
     /// Closes an operation.
-    pub fn HcsCloseOperation(operation: HCS_OPERATION);
+    pub fn HcsCloseOperation(operation: HcsOperation);
 
     /// Returns the context pointer of an operation.
-    pub fn HcsGetOperationContext(operation: HCS_OPERATION) -> *mut VOID;
+    pub fn HcsGetOperationContext(operation: HcsOperation) -> *mut Void;
 
     /// Sets the context pointer for an operation.
-    pub fn HcsSetOperationContext(operation: HCS_OPERATION, context: *const VOID) -> HRESULT;
+    pub fn HcsSetOperationContext(operation: HcsOperation, context: *const Void) -> HResult;
 
     /// Returns the handle to compute system associated with an operation.
-    pub fn HcsGetComputeSystemFromOperation(operation: HCS_OPERATION) -> HCS_SYSTEM;
+    pub fn HcsGetComputeSystemFromOperation(operation: HcsOperation) -> HcsSystem;
 
     /// Returns the handle to the process associated with an operation
-    pub fn HcsGetProcessFromOperation(operation: HCS_OPERATION) -> HCS_PROCESS;
+    pub fn HcsGetProcessFromOperation(operation: HcsOperation) -> HcsProcess;
 
     /// Returns the type of an operation.
-    pub fn HcsGetOperationType(operation: HCS_OPERATION) -> HcsOperationType;
+    pub fn HcsGetOperationType(operation: HcsOperation) -> HcsOperationType;
 
     /// Returns the ID that uniquely identifies an operation.
-    pub fn HcsGetOperationId(operation: HCS_OPERATION) -> u64;
+    pub fn HcsGetOperationId(operation: HcsOperation) -> u64;
 
     /// Returns the result of an operation.
-    pub fn HcsGetOperationResult(operation: HCS_OPERATION, resultDocument: *mut PWSTR) -> HRESULT;
+    pub fn HcsGetOperationResult(operation: HcsOperation, resultDocument: *mut PWStr) -> HResult;
 
     /// Returns the result of an operation, including the process information for HcsCreateProcess
     /// and HcsGetProcessInfo.
     pub fn HcsGetOperationResultAndProcessInfo(
-        operation: HCS_OPERATION,
+        operation: HcsOperation,
         processInformation: *mut HcsProcessInformation,
-        resultDocument: *mut PWSTR,
-    ) -> HRESULT;
+        resultDocument: *mut PWStr,
+    ) -> HResult;
 
     /// Waits for the completion of an operation and returns the result.
     pub fn HcsWaitForOperationResult(
-        operation: HCS_OPERATION,
-        timeoutMs: DWORD,
-        resultDocument: *mut PWSTR,
-    ) -> HRESULT;
+        operation: HcsOperation,
+        timeoutMs: DWord,
+        resultDocument: *mut PWStr,
+    ) -> HResult;
 
     /// Waits for the completion of an operation and returns the result, including the process information
     /// for HcsCreateProcess and HcsGetProcessInfo.
     pub fn HcsWaitForOperationResultAndProcessInfo(
-        operation: HCS_OPERATION,
-        timeoutMs: DWORD,
+        operation: HcsOperation,
+        timeoutMs: DWord,
         processInformation: *mut HcsProcessInformation,
-        resultDocument: *mut PWSTR,
-    ) -> HRESULT;
+        resultDocument: *mut PWStr,
+    ) -> HResult;
 
     /// Sets a callback that is invoked on completion of an operation.
     pub fn HcsSetOperationCallback(
-        operation: HCS_OPERATION,
-        context: *const VOID,
-        callback: HCS_OPERATION_COMPLETION,
-    ) -> HRESULT;
+        operation: HcsOperation,
+        context: *const Void,
+        callback: HcsOperationCompletion,
+    ) -> HResult;
 
     /// Cancels an operation
-    pub fn HcsCancelOperation(operation: HCS_OPERATION) -> HRESULT;
+    pub fn HcsCancelOperation(operation: HcsOperation) -> HResult;
 
     /// Creates a new compute system.
     pub fn HcsCreateComputeSystem(
-        id: PCWSTR,
-        configuration: PCWSTR,
-        operation: HCS_OPERATION,
-        securityDescriptor: *const SECURITY_DESCRIPTOR,
-        computeSystem: *mut HCS_SYSTEM,
-    ) -> HRESULT;
+        id: PCWStr,
+        configuration: PCWStr,
+        operation: HcsOperation,
+        securityDescriptor: *const SecurityDescriptor,
+        computeSystem: *mut HcsSystem,
+    ) -> HResult;
 
     /// Opens a handle to an existing compute system.
     pub fn HcsOpenComputeSystem(
-        id: PCWSTR,
-        requestedAccess: DWORD,
-        computeSystem: HCS_SYSTEM,
-    ) -> HRESULT;
+        id: PCWStr,
+        requestedAccess: DWord,
+        computeSystem: HcsSystem,
+    ) -> HResult;
 
     /// Closes a handle to a compute system.
-    pub fn HcsCloseComputeSystem(computeSystem: HCS_SYSTEM);
+    pub fn HcsCloseComputeSystem(computeSystem: HcsSystem);
 
     /// Starts a compute system.
     pub fn HcsStartComputeSystem(
-        computeSystem: HCS_SYSTEM,
-        operation: HCS_OPERATION,
-        options: PCWSTR,
-    ) -> HRESULT;
+        computeSystem: HcsSystem,
+        operation: HcsOperation,
+        options: PCWStr,
+    ) -> HResult;
 
     /// Cleanly shuts down a compute system.
     pub fn HcsShutDownComputeSystem(
-        computeSystem: HCS_SYSTEM,
-        operation: HCS_OPERATION,
-        options: PCWSTR,
-    ) -> HRESULT;
+        computeSystem: HcsSystem,
+        operation: HcsOperation,
+        options: PCWStr,
+    ) -> HResult;
 
     /// Forcefully terminates a compute system.
     pub fn HcsTerminateComputeSystem(
-        computeSystem: HCS_SYSTEM,
-        operation: HCS_OPERATION,
-        options: PCWSTR,
-    ) -> HRESULT;
+        computeSystem: HcsSystem,
+        operation: HcsOperation,
+        options: PCWStr,
+    ) -> HResult;
 
     /// Pauses the execution of a compute system.
     pub fn HcsPauseComputeSystem(
-        computeSystem: HCS_SYSTEM,
-        operation: HCS_OPERATION,
-        options: PCWSTR,
-    ) -> HRESULT;
+        computeSystem: HcsSystem,
+        operation: HcsOperation,
+        options: PCWStr,
+    ) -> HResult;
 
     /// Resumes the execution of a compute system.
     pub fn HcsResumeComputeSystem(
-        computeSystem: HCS_SYSTEM,
-        operation: HCS_OPERATION,
-        options: PCWSTR,
-    ) -> HRESULT;
+        computeSystem: HcsSystem,
+        operation: HcsOperation,
+        options: PCWStr,
+    ) -> HResult;
 
     /// Saves the state of a compute system.
     pub fn HcsSaveComputeSystem(
-        computeSystem: HCS_SYSTEM,
-        operation: HCS_OPERATION,
-        options: PCWSTR,
-    ) -> HRESULT;
+        computeSystem: HcsSystem,
+        operation: HcsOperation,
+        options: PCWStr,
+    ) -> HResult;
 
     /// Returns properties of a compute system.
     pub fn HcsGetComputeSystemProperties(
-        computeSystem: HCS_SYSTEM,
-        operation: HCS_OPERATION,
-        propertyQuery: PCWSTR,
-    ) -> HRESULT;
+        computeSystem: HcsSystem,
+        operation: HcsOperation,
+        propertyQuery: PCWStr,
+    ) -> HResult;
 
     /// Modifies settings of a compute system.
     pub fn HcsModifyComputeSystem(
-        computeSystem: HCS_SYSTEM,
-        operation: HCS_OPERATION,
-        configuration: PCWSTR,
-        identity: HANDLE,
-    ) -> HRESULT;
+        computeSystem: HcsSystem,
+        operation: HcsOperation,
+        configuration: PCWStr,
+        identity: Handle,
+    ) -> HResult;
 
     /// Registers a callback function to receive notifications for the compute system.
     pub fn HcsSetComputeSystemCallback(
-        computeSystem: HCS_SYSTEM,
+        computeSystem: HcsSystem,
         callbackOptions: HcsEventOptions,
-        context: *const VOID,
-        callback: HCS_EVENT_CALLBACK,
-    ) -> HRESULT;
+        context: *const Void,
+        callback: HcsEventCallback,
+    ) -> HResult;
 
     /// Starts a process in a compute system.
     pub fn HcsCreateProcess(
-        computeSystem: HCS_SYSTEM,
-        processParameters: PCWSTR,
-        operation: HCS_OPERATION,
-        securityDescriptor: *const SECURITY_DESCRIPTOR,
-        process: *mut HCS_PROCESS,
-    ) -> HRESULT;
+        computeSystem: HcsSystem,
+        processParameters: PCWStr,
+        operation: HcsOperation,
+        securityDescriptor: *const SecurityDescriptor,
+        process: *mut HcsProcess,
+    ) -> HResult;
 
     /// Opens an existing process in a compute system
     pub fn HcsOpenProcess(
-        computeSystem: HCS_SYSTEM,
-        processId: DWORD,
-        requestedAccess: DWORD,
-        process: HCS_PROCESS,
-    ) -> HRESULT;
+        computeSystem: HcsSystem,
+        processId: DWord,
+        requestedAccess: DWord,
+        process: HcsProcess,
+    ) -> HResult;
 
     /// Closes the handle to a process in a compute system
-    pub fn HcsCloseProcess(process: HCS_PROCESS);
+    pub fn HcsCloseProcess(process: HcsProcess);
 
     /// Terminates a process in a compute system
     pub fn HcsTerminateProcess(
-        process: HCS_PROCESS,
-        operation: HCS_OPERATION,
-        options: PCWSTR,
-    ) -> HRESULT;
+        process: HcsProcess,
+        operation: HcsOperation,
+        options: PCWStr,
+    ) -> HResult;
 
     /// Sends a signal to a process in a compute system
     pub fn HcsSignalProcess(
-        process: HCS_PROCESS,
-        operation: HCS_OPERATION,
-        options: PCWSTR,
-    ) -> HRESULT;
+        process: HcsProcess,
+        operation: HcsOperation,
+        options: PCWStr,
+    ) -> HResult;
 
     /// Returns the initial startup info of a process in a compute system
-    pub fn HcsGetProcessInfo(process: HCS_PROCESS, operation: HCS_OPERATION) -> HRESULT;
+    pub fn HcsGetProcessInfo(process: HcsProcess, operation: HcsOperation) -> HResult;
 
     /// Returns the properties of a process in a compute system
     pub fn HcsGetProcessProperties(
-        process: HCS_PROCESS,
-        operation: HCS_OPERATION,
-        propertyQuery: PCWSTR,
-    ) -> HRESULT;
+        process: HcsProcess,
+        operation: HcsOperation,
+        propertyQuery: PCWStr,
+    ) -> HResult;
 
     /// Modifies the parameters of a process in a compute system
     pub fn HcsModifyProcess(
-        process: HCS_PROCESS,
-        operation: HCS_OPERATION,
-        settings: PCWSTR,
-    ) -> HRESULT;
+        process: HcsProcess,
+        operation: HcsOperation,
+        settings: PCWStr,
+    ) -> HResult;
 
     /// Registers a callback function to receive notifications for a process in a compute system
     pub fn HcsSetProcessCallback(
-        process: HCS_PROCESS,
+        process: HcsProcess,
         callbackOptions: HcsEventOptions,
-        context: *mut VOID,
-        callback: HCS_EVENT_CALLBACK,
-    ) -> HRESULT;
+        context: *mut Void,
+        callback: HcsEventCallback,
+    ) -> HResult;
 
     /// Returns properties of the Host Compute Service
-    pub fn HcsGetServiceProperties(propertyQuery: PCWSTR, result: *mut PWSTR) -> HRESULT;
+    pub fn HcsGetServiceProperties(propertyQuery: PCWStr, result: *mut PWStr) -> HResult;
 
     /// Modifies settings of the Host Compute Service
-    pub fn HcsModifyServiceSettings(settings: PCWSTR, result: *mut PWSTR) -> HRESULT;
+    pub fn HcsModifyServiceSettings(settings: PCWStr, result: *mut PWStr) -> HResult;
 
     /// Submits a WER report
-    pub fn HcsSubmitWerReport(settings: PCWSTR) -> HRESULT;
+    pub fn HcsSubmitWerReport(settings: PCWStr) -> HResult;
 
     /// Creates an empty guest-state file (.vmgs) for a VM.
-    pub fn HcsCreateEmptyGuestStateFile(guestStateFilePath: PCWSTR) -> HRESULT;
+    pub fn HcsCreateEmptyGuestStateFile(guestStateFilePath: PCWStr) -> HResult;
 
     /// Creates an empty runtime-state file (.vmrs) for a VM.
-    pub fn HcsCreateEmptyRuntimeStateFile(runtimeStateFilePath: PCWSTR) -> HRESULT;
+    pub fn HcsCreateEmptyRuntimeStateFile(runtimeStateFilePath: PCWStr) -> HResult;
 
     /// Adds an entry to a file's ACL that grants access for a VM.
-    pub fn HcsGrantVmAccess(vmId: PCWSTR, filePath: PCWSTR) -> HRESULT;
+    pub fn HcsGrantVmAccess(vmId: PCWStr, filePath: PCWStr) -> HResult;
 
     /// Removes an entry to a file's ACL that granted access for a VM.
-    pub fn HcsRevokeVmAccess(vmId: PCWSTR, filePath: PCWSTR) -> HRESULT;
+    pub fn HcsRevokeVmAccess(vmId: PCWStr, filePath: PCWStr) -> HResult;
 
-    pub fn IsHcsEnumerateComputeSystemsPresent() -> BOOLEAN;
+    pub fn IsHcsEnumerateComputeSystemsPresent() -> Boolean;
 
-    pub fn IsHcsCreateOperationPresent() -> BOOLEAN;
+    pub fn IsHcsCreateOperationPresent() -> Boolean;
 
-    pub fn IsHcsCloseOperationPresent() -> BOOLEAN;
+    pub fn IsHcsCloseOperationPresent() -> Boolean;
 
-    pub fn IsHcsGetOperationContextPresent() -> BOOLEAN;
+    pub fn IsHcsGetOperationContextPresent() -> Boolean;
 
-    pub fn IsHcsSetOperationContextPresent() -> BOOLEAN;
+    pub fn IsHcsSetOperationContextPresent() -> Boolean;
 
-    pub fn IsHcsGetComputeSystemFromOperationPresent() -> BOOLEAN;
+    pub fn IsHcsGetComputeSystemFromOperationPresent() -> Boolean;
 
-    pub fn IsHcsGetProcessFromOperationPresent() -> BOOLEAN;
+    pub fn IsHcsGetProcessFromOperationPresent() -> Boolean;
 
-    pub fn IsHcsGetOperationTypePresent() -> BOOLEAN;
+    pub fn IsHcsGetOperationTypePresent() -> Boolean;
 
-    pub fn IsHcsGetOperationIdPresent() -> BOOLEAN;
+    pub fn IsHcsGetOperationIdPresent() -> Boolean;
 
-    pub fn IsHcsGetOperationResultPresent() -> BOOLEAN;
+    pub fn IsHcsGetOperationResultPresent() -> Boolean;
 
-    pub fn IsHcsGetOperationResultAndProcessInfoPresent() -> BOOLEAN;
+    pub fn IsHcsGetOperationResultAndProcessInfoPresent() -> Boolean;
 
-    pub fn IsHcsWaitForOperationResultPresent() -> BOOLEAN;
+    pub fn IsHcsWaitForOperationResultPresent() -> Boolean;
 
-    pub fn IsHcsWaitForOperationResultAndProcessInfoPresent() -> BOOLEAN;
+    pub fn IsHcsWaitForOperationResultAndProcessInfoPresent() -> Boolean;
 
-    pub fn IsHcsSetOperationCallbackPresent() -> BOOLEAN;
+    pub fn IsHcsSetOperationCallbackPresent() -> Boolean;
 
-    pub fn IsHcsCancelOperationPresent() -> BOOLEAN;
+    pub fn IsHcsCancelOperationPresent() -> Boolean;
 
-    pub fn IsHcsCreateComputeSystemPresent() -> BOOLEAN;
+    pub fn IsHcsCreateComputeSystemPresent() -> Boolean;
 
-    pub fn IsHcsOpenComputeSystemPresent() -> BOOLEAN;
+    pub fn IsHcsOpenComputeSystemPresent() -> Boolean;
 
-    pub fn IsHcsCloseComputeSystemPresent() -> BOOLEAN;
+    pub fn IsHcsCloseComputeSystemPresent() -> Boolean;
 
-    pub fn IsHcsStartComputeSystemPresent() -> BOOLEAN;
+    pub fn IsHcsStartComputeSystemPresent() -> Boolean;
 
-    pub fn IsHcsShutDownComputeSystemPresent() -> BOOLEAN;
+    pub fn IsHcsShutDownComputeSystemPresent() -> Boolean;
 
-    pub fn IsHcsTerminateComputeSystemPresent() -> BOOLEAN;
+    pub fn IsHcsTerminateComputeSystemPresent() -> Boolean;
 
-    pub fn IsHcsPauseComputeSystemPresent() -> BOOLEAN;
+    pub fn IsHcsPauseComputeSystemPresent() -> Boolean;
 
-    pub fn IsHcsResumeComputeSystemPresent() -> BOOLEAN;
+    pub fn IsHcsResumeComputeSystemPresent() -> Boolean;
 
-    pub fn IsHcsSaveComputeSystemPresent() -> BOOLEAN;
+    pub fn IsHcsSaveComputeSystemPresent() -> Boolean;
 
-    pub fn IsHcsGetComputeSystemPropertiesPresent() -> BOOLEAN;
+    pub fn IsHcsGetComputeSystemPropertiesPresent() -> Boolean;
 
-    pub fn IsHcsModifyComputeSystemPresent() -> BOOLEAN;
+    pub fn IsHcsModifyComputeSystemPresent() -> Boolean;
 
-    pub fn IsHcsSetComputeSystemCallbackPresent() -> BOOLEAN;
+    pub fn IsHcsSetComputeSystemCallbackPresent() -> Boolean;
 
-    pub fn IsHcsCreateProcessPresent() -> BOOLEAN;
+    pub fn IsHcsCreateProcessPresent() -> Boolean;
 
-    pub fn IsHcsOpenProcessPresent() -> BOOLEAN;
+    pub fn IsHcsOpenProcessPresent() -> Boolean;
 
-    pub fn IsHcsCloseProcessPresent() -> BOOLEAN;
+    pub fn IsHcsCloseProcessPresent() -> Boolean;
 
-    pub fn IsHcsTerminateProcessPresent() -> BOOLEAN;
+    pub fn IsHcsTerminateProcessPresent() -> Boolean;
 
-    pub fn IsHcsSignalProcessPresent() -> BOOLEAN;
+    pub fn IsHcsSignalProcessPresent() -> Boolean;
 
-    pub fn IsHcsGetProcessInfoPresent() -> BOOLEAN;
+    pub fn IsHcsGetProcessInfoPresent() -> Boolean;
 
-    pub fn IsHcsGetProcessPropertiesPresent() -> BOOLEAN;
+    pub fn IsHcsGetProcessPropertiesPresent() -> Boolean;
 
-    pub fn IsHcsModifyProcessPresent() -> BOOLEAN;
+    pub fn IsHcsModifyProcessPresent() -> Boolean;
 
-    pub fn IsHcsSetProcessCallbackPresent() -> BOOLEAN;
+    pub fn IsHcsSetProcessCallbackPresent() -> Boolean;
 
-    pub fn IsHcsGetServicePropertiesPresent() -> BOOLEAN;
+    pub fn IsHcsGetServicePropertiesPresent() -> Boolean;
 
-    pub fn IsHcsModifyServiceSettingsPresent() -> BOOLEAN;
+    pub fn IsHcsModifyServiceSettingsPresent() -> Boolean;
 
-    pub fn IsHcsSubmitWerReportPresent() -> BOOLEAN;
+    pub fn IsHcsSubmitWerReportPresent() -> Boolean;
 
-    pub fn IsHcsCreateEmptyGuestStateFilePresent() -> BOOLEAN;
+    pub fn IsHcsCreateEmptyGuestStateFilePresent() -> Boolean;
 
-    pub fn IsHcsCreateEmptyRuntimeStateFilePresent() -> BOOLEAN;
+    pub fn IsHcsCreateEmptyRuntimeStateFilePresent() -> Boolean;
 
-    pub fn IsHcsGrantVmAccessPresent() -> BOOLEAN;
+    pub fn IsHcsGrantVmAccessPresent() -> Boolean;
 
-    pub fn IsHcsRevokeVmAccessPresent() -> BOOLEAN;
+    pub fn IsHcsRevokeVmAccessPresent() -> Boolean;
 }

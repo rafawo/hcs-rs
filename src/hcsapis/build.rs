@@ -13,22 +13,25 @@ fn main() {
 
     let root_win10_sdk_path = match var("WIN10SDK_PATH") {
         Ok(path) => path,
-        Err(_) => String::from("c:\\Program Files (x86)\\Windows Kits\\10")
+        Err(_) => String::from("c:\\Program Files (x86)\\Windows Kits\\10"),
     };
 
     let win10_sdk_version = match var("WIN10SDK_VERSION") {
         Ok(path) => path,
-        Err(_) => String::from("10.0.17763.0")
+        Err(_) => String::from("10.0.17763.0"),
     };
 
     let lib_names = vec![
-        String::from("computecore.lib"),
-        String::from("computenetwork.lib"),
-        String::from("computestorage.lib"),
-        String::from("vmdevicehost.lib"),
+        String::from("computecore"),
+        String::from("computenetwork"),
+        String::from("computestorage"),
+        String::from("vmdevicehost"),
     ];
 
-    let lib_root_path = format!("{}\\Lib\\{}\\um\\x64", root_win10_sdk_path, win10_sdk_version);
+    let lib_root_path = format!(
+        "{}\\Lib\\{}\\um\\x64",
+        root_win10_sdk_path, win10_sdk_version
+    );
 
     for lib_name in lib_names {
         println!("cargo:rustc-link-lib=dylib={}", lib_name);

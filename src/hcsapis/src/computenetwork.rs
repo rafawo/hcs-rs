@@ -1,8 +1,6 @@
 //! This file contains types definitions and APIs used to interact with the HCN.
 
-use winapi::shared::guiddef::REFGUID;
-use winapi::shared::minwindef::DWORD;
-use winapi::shared::ntdef::{BOOLEAN, HRESULT, PCWSTR, PWSTR, VOID};
+use crate::windefs::*;
 
 /// Notifications indicated to callbacks
 #[repr(C)]
@@ -29,20 +27,20 @@ pub enum HcsNotifications {
 
 /// Handle to a callback registered on an hns object
 #[allow(non_camel_case_types)]
-pub type HCN_CALLBACK = *const VOID;
+pub type HCN_CALLBACK = *const Void;
 
 /// Function type for HNS notification callbacks
 #[allow(non_camel_case_types)]
 pub type HCN_NOTIFICATION_CALLBACK = extern "C" fn(
-    notificationType: DWORD,
-    context: *mut VOID,
-    notificationStatus: HRESULT,
-    notificationData: PCWSTR,
+    notificationType: DWord,
+    context: *mut Void,
+    notificationStatus: HResult,
+    notificationData: PCWStr,
 );
 
 /// Context handle referencing a Network in HNS
 #[allow(non_camel_case_types)]
-pub type HCN_NETWORK = *const VOID;
+pub type HCN_NETWORK = *const Void;
 
 /// Context handle referencing a pointer to a Network in HNS
 #[allow(non_camel_case_types)]
@@ -50,7 +48,7 @@ pub type PHCN_NETWORK = *mut HCN_NETWORK;
 
 /// Context handle referencing a Namespace in HNS
 #[allow(non_camel_case_types)]
-pub type HCN_NAMESPACE = *const VOID;
+pub type HCN_NAMESPACE = *const Void;
 
 /// Context handle referencing a pointer to a Namespace in HNS
 #[allow(non_camel_case_types)]
@@ -58,7 +56,7 @@ pub type PHCN_NAMESPACE = *mut HCN_NAMESPACE;
 
 /// Context handle referencing an Endpoint in HNS
 #[allow(non_camel_case_types)]
-pub type HCN_ENDPOINT = *const VOID;
+pub type HCN_ENDPOINT = *const Void;
 
 /// Context handle referencing a pointer to an Endpoint in HNS
 #[allow(non_camel_case_types)]
@@ -66,7 +64,7 @@ pub type PHCN_ENDPOINT = *mut HCN_ENDPOINT;
 
 /// Context handle referencing a LoadBalancer in HNS
 #[allow(non_camel_case_types)]
-pub type HCN_LOADBALANCER = *const VOID;
+pub type HCN_LOADBALANCER = *const Void;
 
 /// Context handle referencing a pointer to a LoadBalancer in HNS
 #[allow(non_camel_case_types)]
@@ -74,7 +72,7 @@ pub type PHCN_LOADBALANCER = *mut HCN_LOADBALANCER;
 
 /// Context handle referencing the HNS service
 #[allow(non_camel_case_types)]
-pub type HCN_SERVICE = *const VOID;
+pub type HCN_SERVICE = *const Void;
 
 /// Context handle referencing the HNS service
 #[allow(non_camel_case_types)]
@@ -85,241 +83,245 @@ extern "C" {
 
     /// Return a list of existing Networks
     pub fn HcnEnumerateNetworks(
-        query: PCWSTR,
-        networks: *mut PWSTR,
-        rrrorRecord: *mut PWSTR,
-    ) -> HRESULT;
+        query: PCWStr,
+        networks: *mut PWStr,
+        rrrorRecord: *mut PWStr,
+    ) -> HResult;
 
     /// Create a Network
     pub fn HcnCreateNetwork(
-        id: REFGUID,
-        settings: PCWSTR,
+        id: *const Guid,
+        settings: PCWStr,
         network: PHCN_NETWORK,
-        errorRecord: *mut PWSTR,
-    ) -> HRESULT;
+        errorRecord: *mut PWStr,
+    ) -> HResult;
 
     /// Lookup an existing network
-    pub fn HcnOpenNetwork(id: REFGUID, network: PHCN_NETWORK, errorRecord: *mut PWSTR) -> HRESULT;
+    pub fn HcnOpenNetwork(
+        id: *const Guid,
+        network: PHCN_NETWORK,
+        errorRecord: *mut PWStr,
+    ) -> HResult;
 
     /// Modify the settings of a Network
     pub fn HcnModifyNetwork(
         network: HCN_NETWORK,
-        settings: PCWSTR,
-        errorRecord: *mut PWSTR,
-    ) -> HRESULT;
+        settings: PCWStr,
+        errorRecord: *mut PWStr,
+    ) -> HResult;
 
     /// Query Network settings
     pub fn HcnQueryNetworkProperties(
         network: HCN_NETWORK,
-        query: PCWSTR,
-        properties: *mut PWSTR,
-        errorRecord: *mut PWSTR,
-    ) -> HRESULT;
+        query: PCWStr,
+        properties: *mut PWStr,
+        errorRecord: *mut PWStr,
+    ) -> HResult;
 
     /// Delete a Network
-    pub fn HcnDeleteNetwork(id: REFGUID, errorRecord: *mut PWSTR) -> HRESULT;
+    pub fn HcnDeleteNetwork(id: *const Guid, errorRecord: *mut PWStr) -> HResult;
 
     /// Close a handle to a Network
-    pub fn HcnCloseNetwork(network: HCN_NETWORK) -> HRESULT;
+    pub fn HcnCloseNetwork(network: HCN_NETWORK) -> HResult;
 
     /// Return a list of existing Namespaces
     pub fn HcnEnumerateNamespaces(
-        query: PCWSTR,
-        namespaces: *mut PWSTR,
-        errorRecord: *mut PWSTR,
-    ) -> HRESULT;
+        query: PCWStr,
+        namespaces: *mut PWStr,
+        errorRecord: *mut PWStr,
+    ) -> HResult;
 
     /// Create a Namespace
     pub fn HcnCreateNamespace(
-        id: REFGUID,
-        settings: PCWSTR,
+        id: *const Guid,
+        settings: PCWStr,
         namespace: PHCN_NAMESPACE,
-        errorRecord: *mut PWSTR,
-    ) -> HRESULT;
+        errorRecord: *mut PWStr,
+    ) -> HResult;
 
     /// Lookup an existing Namespace
     pub fn HcnOpenNamespace(
-        id: REFGUID,
+        id: *const Guid,
         namespace: PHCN_NAMESPACE,
-        errorRecord: *mut PWSTR,
-    ) -> HRESULT;
+        errorRecord: *mut PWStr,
+    ) -> HResult;
 
     /// Modify the settings of a Namespace
     pub fn HcnModifyNamespace(
         namespace: HCN_NAMESPACE,
-        settings: PCWSTR,
-        errorRecord: *mut PWSTR,
-    ) -> HRESULT;
+        settings: PCWStr,
+        errorRecord: *mut PWStr,
+    ) -> HResult;
 
     /// Query Namespace settings
     pub fn HcnQueryNamespaceProperties(
         namespace: HCN_NAMESPACE,
-        query: PCWSTR,
-        properties: *mut PWSTR,
-        errorRecord: *mut PWSTR,
-    ) -> HRESULT;
+        query: PCWStr,
+        properties: *mut PWStr,
+        errorRecord: *mut PWStr,
+    ) -> HResult;
 
     /// Delete a Namespace
-    pub fn HcnDeleteNamespace(id: REFGUID, errorRecord: *mut PWSTR) -> HRESULT;
+    pub fn HcnDeleteNamespace(id: *const Guid, errorRecord: *mut PWStr) -> HResult;
 
     /// Close a handle to a Namespace
-    pub fn HcnCloseNamespace(namespace: HCN_NAMESPACE) -> HRESULT;
+    pub fn HcnCloseNamespace(namespace: HCN_NAMESPACE) -> HResult;
 
     /// Return a list of existing Endpoints
     pub fn HcnEnumerateEndpoints(
-        query: PCWSTR,
-        endpoints: *mut PWSTR,
-        errorRecord: *mut PWSTR,
-    ) -> HRESULT;
+        query: PCWStr,
+        endpoints: *mut PWStr,
+        errorRecord: *mut PWStr,
+    ) -> HResult;
 
     /// Create an Endpoint
     pub fn HcnCreateEndpoint(
         network: HCN_NETWORK,
-        id: REFGUID,
-        settings: PCWSTR,
+        id: *const Guid,
+        settings: PCWStr,
         endpoint: PHCN_ENDPOINT,
-        errorRecord: *mut PWSTR,
-    ) -> HRESULT;
+        errorRecord: *mut PWStr,
+    ) -> HResult;
 
     /// Lookup an existing Endpoint
     pub fn HcnOpenEndpoint(
-        id: REFGUID,
+        id: *const Guid,
         endpoint: PHCN_ENDPOINT,
-        errorRecord: *mut PWSTR,
-    ) -> HRESULT;
+        errorRecord: *mut PWStr,
+    ) -> HResult;
 
     /// Modify the settings of an Endpoint
     pub fn HcnModifyEndpoint(
         endpoint: HCN_ENDPOINT,
-        settings: PCWSTR,
-        errorRecord: *mut PWSTR,
-    ) -> HRESULT;
+        settings: PCWStr,
+        errorRecord: *mut PWStr,
+    ) -> HResult;
 
     /// Query Endpoint properties
     pub fn HcnQueryEndpointProperties(
         endpoint: HCN_ENDPOINT,
-        query: PCWSTR,
-        properties: *mut PWSTR,
-        errorRecord: *mut PWSTR,
-    ) -> HRESULT;
+        query: PCWStr,
+        properties: *mut PWStr,
+        errorRecord: *mut PWStr,
+    ) -> HResult;
 
     /// Delete an Endpoint
-    pub fn HcnDeleteEndpoint(id: REFGUID, errorRecord: *mut PWSTR) -> HRESULT;
+    pub fn HcnDeleteEndpoint(id: *const Guid, errorRecord: *mut PWStr) -> HResult;
 
     /// Close a handle to an Endpoint
-    pub fn HcnCloseEndpoint(endpoint: HCN_ENDPOINT) -> HRESULT;
+    pub fn HcnCloseEndpoint(endpoint: HCN_ENDPOINT) -> HResult;
 
     /// Return a list of existing LoadBalancers
     pub fn HcnEnumerateLoadBalancers(
-        query: PCWSTR,
-        loadBalancer: *mut PWSTR,
-        errorRecord: *mut PWSTR,
-    ) -> HRESULT;
+        query: PCWStr,
+        loadBalancer: *mut PWStr,
+        errorRecord: *mut PWStr,
+    ) -> HResult;
 
     /// Create a LoadBalancer
     pub fn HcnCreateLoadBalancer(
-        id: REFGUID,
-        settings: PCWSTR,
+        id: *const Guid,
+        settings: PCWStr,
         loadBalancer: PHCN_LOADBALANCER,
-        errorRecord: *mut PWSTR,
-    ) -> HRESULT;
+        errorRecord: *mut PWStr,
+    ) -> HResult;
 
     /// Lookup an existing LoadBalancer
     pub fn HcnOpenLoadBalancer(
-        id: REFGUID,
+        id: *const Guid,
         loadBalancer: PHCN_LOADBALANCER,
-        errorRecord: *mut PWSTR,
-    ) -> HRESULT;
+        errorRecord: *mut PWStr,
+    ) -> HResult;
 
     /// Modify the settings of a PolicyList
     pub fn HcnModifyLoadBalancer(
         loadBalancer: HCN_LOADBALANCER,
-        settings: PCWSTR,
-        errorRecord: *mut PWSTR,
-    ) -> HRESULT;
+        settings: PCWStr,
+        errorRecord: *mut PWStr,
+    ) -> HResult;
 
     /// Query PolicyList settings
     pub fn HcnQueryLoadBalancerProperties(
         loadBalancer: HCN_LOADBALANCER,
-        query: PCWSTR,
-        properties: *mut PWSTR,
-        errorRecord: *mut PWSTR,
-    ) -> HRESULT;
+        query: PCWStr,
+        properties: *mut PWStr,
+        errorRecord: *mut PWStr,
+    ) -> HResult;
 
     /// Delete a LoadBalancer
-    pub fn HcnDeleteLoadBalancer(id: REFGUID, errorRecord: *mut PWSTR) -> HRESULT;
+    pub fn HcnDeleteLoadBalancer(id: *const Guid, errorRecord: *mut PWStr) -> HResult;
 
     /// Close a handle to a LoadBalancer
-    pub fn HcnCloseLoadBalancer(loadBalancer: HCN_LOADBALANCER) -> HRESULT;
+    pub fn HcnCloseLoadBalancer(loadBalancer: HCN_LOADBALANCER) -> HResult;
 
     /// Registers a callback function to receive notifications of service-wide events
     pub fn HcnRegisterServiceCallback(
         callback: HCN_NOTIFICATION_CALLBACK,
-        context: *const VOID,
+        context: *const Void,
         callbackHandle: *mut HCN_CALLBACK,
-    ) -> HRESULT;
+    ) -> HResult;
 
     /// Unregisters from service-wide notifications
-    pub fn HcnUnregisterServiceCallback(callbackHandle: *const HCN_CALLBACK) -> HRESULT;
+    pub fn HcnUnregisterServiceCallback(callbackHandle: *const HCN_CALLBACK) -> HResult;
 
-    pub fn IsHcnEnumerateNetworksPresent() -> BOOLEAN;
+    pub fn IsHcnEnumerateNetworksPresent() -> Boolean;
 
-    pub fn IsHcnCreateNetworkPresent() -> BOOLEAN;
+    pub fn IsHcnCreateNetworkPresent() -> Boolean;
 
-    pub fn IsHcnOpenNetworkPresent() -> BOOLEAN;
+    pub fn IsHcnOpenNetworkPresent() -> Boolean;
 
-    pub fn IsHcnModifyNetworkPresent() -> BOOLEAN;
+    pub fn IsHcnModifyNetworkPresent() -> Boolean;
 
-    pub fn IsHcnQueryNetworkPropertiesPresent() -> BOOLEAN;
+    pub fn IsHcnQueryNetworkPropertiesPresent() -> Boolean;
 
-    pub fn IsHcnDeleteNetworkPresent() -> BOOLEAN;
+    pub fn IsHcnDeleteNetworkPresent() -> Boolean;
 
-    pub fn IsHcnCloseNetworkPresent() -> BOOLEAN;
+    pub fn IsHcnCloseNetworkPresent() -> Boolean;
 
-    pub fn IsHcnEnumerateNamespacesPresent() -> BOOLEAN;
+    pub fn IsHcnEnumerateNamespacesPresent() -> Boolean;
 
-    pub fn IsHcnCreateNamespacePresent() -> BOOLEAN;
+    pub fn IsHcnCreateNamespacePresent() -> Boolean;
 
-    pub fn IsHcnOpenNamespacePresent() -> BOOLEAN;
+    pub fn IsHcnOpenNamespacePresent() -> Boolean;
 
-    pub fn IsHcnModifyNamespacePresent() -> BOOLEAN;
+    pub fn IsHcnModifyNamespacePresent() -> Boolean;
 
-    pub fn IsHcnQueryNamespacePropertiesPresent() -> BOOLEAN;
+    pub fn IsHcnQueryNamespacePropertiesPresent() -> Boolean;
 
-    pub fn IsHcnDeleteNamespacePresent() -> BOOLEAN;
+    pub fn IsHcnDeleteNamespacePresent() -> Boolean;
 
-    pub fn IsHcnCloseNamespacePresent() -> BOOLEAN;
+    pub fn IsHcnCloseNamespacePresent() -> Boolean;
 
-    pub fn IsHcnEnumerateEndpointsPresent() -> BOOLEAN;
+    pub fn IsHcnEnumerateEndpointsPresent() -> Boolean;
 
-    pub fn IsHcnCreateEndpointPresent() -> BOOLEAN;
+    pub fn IsHcnCreateEndpointPresent() -> Boolean;
 
-    pub fn IsHcnOpenEndpointPresent() -> BOOLEAN;
+    pub fn IsHcnOpenEndpointPresent() -> Boolean;
 
-    pub fn IsHcnModifyEndpointPresent() -> BOOLEAN;
+    pub fn IsHcnModifyEndpointPresent() -> Boolean;
 
-    pub fn IsHcnQueryEndpointPropertiesPresent() -> BOOLEAN;
+    pub fn IsHcnQueryEndpointPropertiesPresent() -> Boolean;
 
-    pub fn IsHcnDeleteEndpointPresent() -> BOOLEAN;
+    pub fn IsHcnDeleteEndpointPresent() -> Boolean;
 
-    pub fn IsHcnCloseEndpointPresent() -> BOOLEAN;
+    pub fn IsHcnCloseEndpointPresent() -> Boolean;
 
-    pub fn IsHcnEnumerateLoadBalancersPresent() -> BOOLEAN;
+    pub fn IsHcnEnumerateLoadBalancersPresent() -> Boolean;
 
-    pub fn IsHcnCreateLoadBalancerPresent() -> BOOLEAN;
+    pub fn IsHcnCreateLoadBalancerPresent() -> Boolean;
 
-    pub fn IsHcnOpenLoadBalancerPresent() -> BOOLEAN;
+    pub fn IsHcnOpenLoadBalancerPresent() -> Boolean;
 
-    pub fn IsHcnModifyLoadBalancerPresent() -> BOOLEAN;
+    pub fn IsHcnModifyLoadBalancerPresent() -> Boolean;
 
-    pub fn IsHcnQueryLoadBalancerPropertiesPresent() -> BOOLEAN;
+    pub fn IsHcnQueryLoadBalancerPropertiesPresent() -> Boolean;
 
-    pub fn IsHcnDeleteLoadBalancerPresent() -> BOOLEAN;
+    pub fn IsHcnDeleteLoadBalancerPresent() -> Boolean;
 
-    pub fn IsHcnCloseLoadBalancerPresent() -> BOOLEAN;
+    pub fn IsHcnCloseLoadBalancerPresent() -> Boolean;
 
-    pub fn IsHcnRegisterServiceCallbackPresent() -> BOOLEAN;
+    pub fn IsHcnRegisterServiceCallbackPresent() -> Boolean;
 
-    pub fn IsHcnUnregisterServiceCallbackPresent() -> BOOLEAN;
+    pub fn IsHcnUnregisterServiceCallbackPresent() -> Boolean;
 
 }

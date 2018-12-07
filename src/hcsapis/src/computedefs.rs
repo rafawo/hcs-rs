@@ -1,29 +1,24 @@
 //! This file contains Rust abstractions for the public types and definitions used by the Host Compute APIs.
 
-use winapi::shared::minwindef::DWORD;
-use winapi::shared::ntdef::{HANDLE, HRESULT, PCWSTR, VOID};
+use crate::windefs::*;
 
 #[allow(overflowing_literals)]
-pub const HCS_E_PROCESS_INFO_NOT_AVAILABLE: HRESULT = 0x8037011D;
+pub const HCS_E_PROCESS_INFO_NOT_AVAILABLE: HResult = 0x8037011D;
 
 #[allow(overflowing_literals)]
-pub const HCS_E_SERVICE_DISCONNECT: HRESULT = 0x8037011E;
+pub const HCS_E_SERVICE_DISCONNECT: HResult = 0x8037011E;
 
 /// Handle to a compute system
-#[allow(non_camel_case_types)]
-pub type HCS_SYSTEM = HANDLE;
+pub type HcsSystem = Handle;
 
 /// Handle to a process running in a compute system
-#[allow(non_camel_case_types)]
-pub type HCS_PROCESS = HANDLE;
+pub type HcsProcess = Handle;
 
 /// Handle to an operation on a compute system
-#[allow(non_camel_case_types)]
-pub type HCS_OPERATION = HANDLE;
+pub type HcsOperation = Handle;
 
 /// Handle to a callback registered on a compute system or process handle.
-#[allow(non_camel_case_types)]
-pub type HCS_CALLBACK = HANDLE;
+pub type HcsCallback = Handle;
 
 /// Type of an operation. These correspond to the functions that invoke the operation.
 #[repr(C)]
@@ -50,8 +45,7 @@ pub enum HcsOperationType {
 pub const HCS_INVALID_OPERATION_ID: u64 = std::u64::MAX;
 
 /// Function type for the completion callback of an operation.
-#[allow(non_camel_case_types)]
-pub type HCS_OPERATION_COMPLETION = extern "C" fn(operation: HCS_OPERATION, context: *mut VOID);
+pub type HcsOperationCompletion = extern "C" fn(operation: HcsOperation, context: PVoid);
 
 /// Events indicated to callbacks registered by HcsRegisterComputeSystemCallback or
 /// HcsRegisterProcessCallback (since Windows 1809).
@@ -60,7 +54,7 @@ pub type HCS_OPERATION_COMPLETION = extern "C" fn(operation: HCS_OPERATION, cont
 pub enum HcsEventType {
     Invalid = 0x00000000,
 
-    /// Events for HCS_SYSTEM handles
+    /// Events for HcsSystem handles
     SystemExited = 0x00000001,
     SystemCrashInitiated = 0x00000002,
     SystemCrashReport = 0x00000003,
@@ -68,7 +62,7 @@ pub enum HcsEventType {
     SystemSiloJobCreated = 0x00000005,
     SystemGuestConnectionClosed = 0x00000006,
 
-    /// Events for HCS_PROCESS handles
+    /// Events for HcsProcess handles
     ProcessExited = 0x00010000,
 
     /// Common Events
@@ -84,10 +78,10 @@ pub struct HcsEvent {
     pub event_type: HcsEventType,
 
     /// Provides additional data for the event.
-    pub event_data: PCWSTR,
+    pub event_data: PCWStr,
 
     /// Handle to a completed operation (if Type is HcsEventType::OperationCallback).
-    pub operation: HCS_OPERATION,
+    pub operation: HcsOperation,
 }
 
 /// Options for an event callback registration
@@ -99,8 +93,7 @@ pub enum HcsEventOptions {
 }
 
 /// Function type for compute system event callbacks
-#[allow(non_camel_case_types)]
-pub type HCS_EVENT_CALLBACK = extern "C" fn(event: *const HcsEvent, context: *mut VOID);
+pub type HcsEventCallback = extern "C" fn(event: *const HcsEvent, context: PVoid);
 
 /// Flags applicable to HcsNotifications
 #[repr(C)]
@@ -117,7 +110,7 @@ pub enum HcsNotificationFlag {
 pub enum HcsNotifications {
     Invalid = 0x00000000,
 
-    /// Notifications for HCS_SYSTEM handles
+    /// Notifications for HcsSystem handles
     SystemExited = 0x00000001,
     SystemCreateCompleted = 0x00000002,
     SystemStartCompleted = 0x00000003,
@@ -133,7 +126,7 @@ pub enum HcsNotifications {
     SystemCrashInitiated = 0x0000000D,
     SystemGuestConnectionClosed = 0x0000000E,
 
-    /// Notifications for HCS_PROCESS handles
+    /// Notifications for HcsProcess handles
     ProcessExited = 0x00010000,
 
     /// Common notifications
@@ -145,11 +138,11 @@ pub enum HcsNotifications {
 
 /// Function type for compute system notification callbacks
 #[allow(non_camel_case_types)]
-pub type HCS_NOTIFICATION_CALLBACK = extern "C" fn(
-    notification_type: DWORD,
-    context: *mut VOID,
-    notifications_status: HRESULT,
-    notification_data: PCWSTR,
+pub type HcsNotificationCallback = extern "C" fn(
+    notification_type: DWord,
+    context: PVoid,
+    notifications_status: HResult,
+    notification_data: PCWStr,
 );
 
 /// Struct containing information about a process created by HcsStartProcessInComputeSystem
@@ -157,15 +150,15 @@ pub type HCS_NOTIFICATION_CALLBACK = extern "C" fn(
 #[derive(Debug, Copy, Clone)]
 pub struct HcsProcessInformation {
     /// Identifier of the created process
-    pub process_id: DWORD,
-    reserved: DWORD,
+    pub process_id: DWord,
+    reserved: DWord,
 
     /// If created, standard input handle of the process
-    pub std_input: HANDLE,
+    pub std_input: Handle,
 
     /// If created, standard output handle of the process
-    pub std_output: HANDLE,
+    pub std_output: Handle,
 
     /// If created, standard error handle of the process
-    pub std_error: HANDLE,
+    pub std_error: Handle,
 }
