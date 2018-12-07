@@ -3,17 +3,14 @@
 use crate::computedefs::*;
 use crate::windefs::*;
 
-#[allow(non_camel_case_types)]
-pub type HDV_HOST = *const Void;
-
-#[allow(non_camel_case_types)]
-pub type HDV_DEVICE = *const Void;
+pub type HdvHost = *const Void;
+pub type HdvDevice = *const Void;
 
 #[repr(C)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum HdvDeviceType {
     Undefined = 0,
-    PCI = 1,
+    Pci = 1,
 }
 
 #[repr(C)]
@@ -29,8 +26,7 @@ pub struct HdvPciPnpId {
     pub sub_system_id: u16,
 }
 
-#[allow(non_camel_case_types)]
-pub type PHDV_PCI_PNP_ID = *mut HdvPciPnpId;
+pub type PHdvPciPnpId = *mut HdvPciPnpId;
 
 #[repr(C)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
@@ -43,46 +39,34 @@ pub enum HdvPciBarSelector {
     Bar5 = 5,
 }
 
-#[allow(non_camel_case_types)]
 pub const HDV_PCI_BAR_COUNT: u32 = 6;
+pub type HdvPciDeviceInitialize = extern "C" fn(deviceContext: *mut Void) -> HResult;
+pub type HdvPciDeviceTeardown = extern "C" fn(deviceContext: *mut Void);
 
-#[allow(non_camel_case_types)]
-pub type HDV_PCI_DEVICE_INITIALIZE = extern "C" fn(deviceContext: *mut Void) -> HResult;
-
-#[allow(non_camel_case_types)]
-pub type HDV_PCI_DEVICE_TEARDOWN = extern "C" fn(deviceContext: *mut Void);
-
-#[allow(non_camel_case_types)]
-pub type HDV_PCI_DEVICE_SET_CONFIGURATION = extern "C" fn(
+pub type HdvPciDeviceSetConfiguration = extern "C" fn(
     deviceContext: *mut Void,
     configurationValueCount: u32,
     configurationValues: *const PCWStr,
 ) -> HResult;
 
-#[allow(non_camel_case_types)]
-pub type HDV_PCI_DEVICE_GET_DETAILS = extern "C" fn(
+pub type HdvPciDeviceGetDetails = extern "C" fn(
     deviceContext: *mut Void,
-    pnpId: PHDV_PCI_PNP_ID,
+    pnpId: PHdvPciPnpId,
     probedBarsCount: u32,
     probedBars: *mut u32,
 ) -> HResult;
 
-#[allow(non_camel_case_types)]
-pub type HDV_PCI_DEVICE_START = extern "C" fn(deviceContext: *mut Void) -> HResult;
+pub type HdvPciDeviceStart = extern "C" fn(deviceContext: *mut Void) -> HResult;
 
-#[allow(non_camel_case_types)]
-pub type HDV_PCI_DEVICE_STOP = extern "C" fn(deviceContext: *mut Void);
+pub type HdvPciDeviceStop = extern "C" fn(deviceContext: *mut Void);
 
-#[allow(non_camel_case_types)]
-pub type HDV_PCI_READ_CONFIG_SPACE =
+pub type HdvPciReadConfigSpace =
     extern "C" fn(deviceContext: *mut Void, offset: u32, value: *mut u32) -> HResult;
 
-#[allow(non_camel_case_types)]
-pub type HDV_PCI_WRITE_CONFIG_SPACE =
+pub type HdvPciWriteConfigSpace =
     extern "C" fn(deviceContext: *mut Void, offset: u32, value: u32) -> HResult;
 
-#[allow(non_camel_case_types)]
-pub type HDV_PCI_READ_INTERCEPTED_MEMORY = extern "C" fn(
+pub type HdvPciReadInterceptedMemory = extern "C" fn(
     deviceContext: *mut Void,
     barIndex: HdvPciBarSelector,
     offset: u64,
@@ -90,8 +74,7 @@ pub type HDV_PCI_READ_INTERCEPTED_MEMORY = extern "C" fn(
     value: *mut Byte,
 ) -> HResult;
 
-#[allow(non_camel_case_types)]
-pub type HDV_PCI_WRITE_INTERCEPTED_MEMORY = extern "C" fn(
+pub type HdvPciWriteInterceptedMemory = extern "C" fn(
     deviceContext: *mut Void,
     barIndex: HdvPciBarSelector,
     offset: u64,
@@ -108,70 +91,67 @@ pub enum HdvPciInterfaceVersion {
 
 pub struct HdvPciDeviceInterface {
     pub version: HdvPciInterfaceVersion,
-    pub initialize: HDV_PCI_DEVICE_INITIALIZE,
-    pub teardown: HDV_PCI_DEVICE_TEARDOWN,
-    pub set_configuration: HDV_PCI_DEVICE_SET_CONFIGURATION,
-    pub get_details: HDV_PCI_DEVICE_GET_DETAILS,
-    pub start: HDV_PCI_DEVICE_START,
-    pub stop: HDV_PCI_DEVICE_STOP,
-    pub read_config_space: HDV_PCI_READ_CONFIG_SPACE,
-    pub write_config_space: HDV_PCI_WRITE_CONFIG_SPACE,
-    pub read_intercepted_memory: HDV_PCI_READ_INTERCEPTED_MEMORY,
-    pub write_intercepted_memory: HDV_PCI_WRITE_INTERCEPTED_MEMORY,
+    pub initialize: HdvPciDeviceInitialize,
+    pub teardown: HdvPciDeviceTeardown,
+    pub set_configuration: HdvPciDeviceSetConfiguration,
+    pub get_details: HdvPciDeviceGetDetails,
+    pub start: HdvPciDeviceStart,
+    pub stop: HdvPciDeviceStop,
+    pub read_config_space: HdvPciReadConfigSpace,
+    pub write_config_space: HdvPciWriteConfigSpace,
+    pub read_intercepted_memory: HdvPciReadInterceptedMemory,
+    pub write_intercepted_memory: HdvPciWriteInterceptedMemory,
 }
 
 #[allow(non_camel_case_types)]
-pub type PHDV_PCI_DEVICE_INTERFACE = *mut HdvPciDeviceInterface;
+pub type PHDV_Pci_DEVICE_INTERFACE = *mut HdvPciDeviceInterface;
 
 #[link(name = "vmdevicehost")]
 extern "C" {
 
     pub fn HdvInitializeDeviceHost(
         computeSystem: HcsSystem,
-        deviceHostHandle: *mut HDV_HOST,
+        deviceHostHandle: *mut HdvHost,
     ) -> HResult;
 
-    pub fn HdvTeardownDeviceHost(deviceHostHandle: HDV_HOST) -> HResult;
+    pub fn HdvTeardownDeviceHost(deviceHostHandle: HdvHost) -> HResult;
 
     pub fn HdvCreateDeviceInstance(
-        deviceHostHandle: HDV_HOST,
+        deviceHostHandle: HdvHost,
         deviceType: HdvDeviceType,
         deviceClassId: *const Guid,
         deviceInstanceId: *const Guid,
         deviceInterface: *const Void,
         deviceContext: *mut Void,
-        deviceHandle: *mut HDV_DEVICE,
+        deviceHandle: *mut HdvDevice,
     ) -> HResult;
 
     pub fn HdvReadGuestMemory(
-        requestor: HDV_DEVICE,
+        requestor: HdvDevice,
         guestPhysicalAddress: u64,
         ByteCount: u32,
         buffer: *mut Byte,
     ) -> HResult;
 
     pub fn HdvWriteGuestMemory(
-        requestor: HDV_DEVICE,
+        requestor: HdvDevice,
         guestPhysicalAddress: u64,
         ByteCount: u32,
         buffer: *const Byte,
     ) -> HResult;
 
     pub fn HdvCreateGuestMemoryAperture(
-        requestor: HDV_DEVICE,
+        requestor: HdvDevice,
         guestPhysicalAddress: u64,
         ByteCount: u32,
         writeProtected: Bool,
         mappedAddress: *mut PVoid,
     ) -> HResult;
 
-    pub fn HdvDestroyGuestMemoryAperture(requestor: HDV_DEVICE, mappedAddress: PVoid) -> HResult;
+    pub fn HdvDestroyGuestMemoryAperture(requestor: HdvDevice, mappedAddress: PVoid) -> HResult;
 
-    pub fn HdvDeliverGuestInterrupt(
-        requestor: HDV_DEVICE,
-        msiAddress: u64,
-        msiData: u32,
-    ) -> HResult;
+    pub fn HdvDeliverGuestInterrupt(requestor: HdvDevice, msiAddress: u64, msiData: u32)
+        -> HResult;
 
     pub fn IsHdvInitializeDeviceHostPresent() -> Boolean;
 

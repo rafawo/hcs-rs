@@ -8,7 +8,7 @@ use crate::windefs::*;
 pub enum HcsNotifications {
     Invalid = 0x00000000,
 
-    // Notifications for HCN_SERVICE handles
+    // Notifications for HcnService handles
     NetworkPreCreate = 0x00000001,
     NetworkCreate = 0x00000002,
     NetworkPreDelete = 0x00000003,
@@ -26,12 +26,10 @@ pub enum HcsNotifications {
 }
 
 /// Handle to a callback registered on an hns object
-#[allow(non_camel_case_types)]
-pub type HCN_CALLBACK = *const Void;
+pub type HcnCallback = *const Void;
 
 /// Function type for HNS notification callbacks
-#[allow(non_camel_case_types)]
-pub type HCN_NOTIFICATION_CALLBACK = extern "C" fn(
+pub type HcnNotificationCallback = extern "C" fn(
     notificationType: DWord,
     context: *mut Void,
     notificationStatus: HResult,
@@ -39,44 +37,34 @@ pub type HCN_NOTIFICATION_CALLBACK = extern "C" fn(
 );
 
 /// Context handle referencing a Network in HNS
-#[allow(non_camel_case_types)]
-pub type HCN_NETWORK = *const Void;
+pub type HcnNetwork = *const Void;
 
 /// Context handle referencing a pointer to a Network in HNS
-#[allow(non_camel_case_types)]
-pub type PHCN_NETWORK = *mut HCN_NETWORK;
+pub type PHcnNetwork = *mut HcnNetwork;
 
 /// Context handle referencing a Namespace in HNS
-#[allow(non_camel_case_types)]
-pub type HCN_NAMESPACE = *const Void;
+pub type HcnNamespace = *const Void;
 
 /// Context handle referencing a pointer to a Namespace in HNS
-#[allow(non_camel_case_types)]
-pub type PHCN_NAMESPACE = *mut HCN_NAMESPACE;
+pub type PHcnNamespace = *mut HcnNamespace;
 
 /// Context handle referencing an Endpoint in HNS
-#[allow(non_camel_case_types)]
-pub type HCN_ENDPOINT = *const Void;
+pub type HcnEndpoint = *const Void;
 
 /// Context handle referencing a pointer to an Endpoint in HNS
-#[allow(non_camel_case_types)]
-pub type PHCN_ENDPOINT = *mut HCN_ENDPOINT;
+pub type PHcnEndpoint = *mut HcnEndpoint;
 
 /// Context handle referencing a LoadBalancer in HNS
-#[allow(non_camel_case_types)]
-pub type HCN_LOADBALANCER = *const Void;
+pub type HcnLoadBalancer = *const Void;
 
 /// Context handle referencing a pointer to a LoadBalancer in HNS
-#[allow(non_camel_case_types)]
-pub type PHCN_LOADBALANCER = *mut HCN_LOADBALANCER;
+pub type PHcnLoadBalancer = *mut HcnLoadBalancer;
 
 /// Context handle referencing the HNS service
-#[allow(non_camel_case_types)]
-pub type HCN_SERVICE = *const Void;
+pub type HcnService = *const Void;
 
 /// Context handle referencing the HNS service
-#[allow(non_camel_case_types)]
-pub type PHCN_SERVICE = *mut HCN_SERVICE;
+pub type PHcnService = *mut HcnService;
 
 #[link(name = "computenetwork")]
 extern "C" {
@@ -92,27 +80,27 @@ extern "C" {
     pub fn HcnCreateNetwork(
         id: *const Guid,
         settings: PCWStr,
-        network: PHCN_NETWORK,
+        network: PHcnNetwork,
         errorRecord: *mut PWStr,
     ) -> HResult;
 
     /// Lookup an existing network
     pub fn HcnOpenNetwork(
         id: *const Guid,
-        network: PHCN_NETWORK,
+        network: PHcnNetwork,
         errorRecord: *mut PWStr,
     ) -> HResult;
 
     /// Modify the settings of a Network
     pub fn HcnModifyNetwork(
-        network: HCN_NETWORK,
+        network: HcnNetwork,
         settings: PCWStr,
         errorRecord: *mut PWStr,
     ) -> HResult;
 
     /// Query Network settings
     pub fn HcnQueryNetworkProperties(
-        network: HCN_NETWORK,
+        network: HcnNetwork,
         query: PCWStr,
         properties: *mut PWStr,
         errorRecord: *mut PWStr,
@@ -122,7 +110,7 @@ extern "C" {
     pub fn HcnDeleteNetwork(id: *const Guid, errorRecord: *mut PWStr) -> HResult;
 
     /// Close a handle to a Network
-    pub fn HcnCloseNetwork(network: HCN_NETWORK) -> HResult;
+    pub fn HcnCloseNetwork(network: HcnNetwork) -> HResult;
 
     /// Return a list of existing Namespaces
     pub fn HcnEnumerateNamespaces(
@@ -135,27 +123,27 @@ extern "C" {
     pub fn HcnCreateNamespace(
         id: *const Guid,
         settings: PCWStr,
-        namespace: PHCN_NAMESPACE,
+        namespace: PHcnNamespace,
         errorRecord: *mut PWStr,
     ) -> HResult;
 
     /// Lookup an existing Namespace
     pub fn HcnOpenNamespace(
         id: *const Guid,
-        namespace: PHCN_NAMESPACE,
+        namespace: PHcnNamespace,
         errorRecord: *mut PWStr,
     ) -> HResult;
 
     /// Modify the settings of a Namespace
     pub fn HcnModifyNamespace(
-        namespace: HCN_NAMESPACE,
+        namespace: HcnNamespace,
         settings: PCWStr,
         errorRecord: *mut PWStr,
     ) -> HResult;
 
     /// Query Namespace settings
     pub fn HcnQueryNamespaceProperties(
-        namespace: HCN_NAMESPACE,
+        namespace: HcnNamespace,
         query: PCWStr,
         properties: *mut PWStr,
         errorRecord: *mut PWStr,
@@ -165,7 +153,7 @@ extern "C" {
     pub fn HcnDeleteNamespace(id: *const Guid, errorRecord: *mut PWStr) -> HResult;
 
     /// Close a handle to a Namespace
-    pub fn HcnCloseNamespace(namespace: HCN_NAMESPACE) -> HResult;
+    pub fn HcnCloseNamespace(namespace: HcnNamespace) -> HResult;
 
     /// Return a list of existing Endpoints
     pub fn HcnEnumerateEndpoints(
@@ -176,30 +164,30 @@ extern "C" {
 
     /// Create an Endpoint
     pub fn HcnCreateEndpoint(
-        network: HCN_NETWORK,
+        network: HcnNetwork,
         id: *const Guid,
         settings: PCWStr,
-        endpoint: PHCN_ENDPOINT,
+        endpoint: PHcnEndpoint,
         errorRecord: *mut PWStr,
     ) -> HResult;
 
     /// Lookup an existing Endpoint
     pub fn HcnOpenEndpoint(
         id: *const Guid,
-        endpoint: PHCN_ENDPOINT,
+        endpoint: PHcnEndpoint,
         errorRecord: *mut PWStr,
     ) -> HResult;
 
     /// Modify the settings of an Endpoint
     pub fn HcnModifyEndpoint(
-        endpoint: HCN_ENDPOINT,
+        endpoint: HcnEndpoint,
         settings: PCWStr,
         errorRecord: *mut PWStr,
     ) -> HResult;
 
     /// Query Endpoint properties
     pub fn HcnQueryEndpointProperties(
-        endpoint: HCN_ENDPOINT,
+        endpoint: HcnEndpoint,
         query: PCWStr,
         properties: *mut PWStr,
         errorRecord: *mut PWStr,
@@ -209,7 +197,7 @@ extern "C" {
     pub fn HcnDeleteEndpoint(id: *const Guid, errorRecord: *mut PWStr) -> HResult;
 
     /// Close a handle to an Endpoint
-    pub fn HcnCloseEndpoint(endpoint: HCN_ENDPOINT) -> HResult;
+    pub fn HcnCloseEndpoint(endpoint: HcnEndpoint) -> HResult;
 
     /// Return a list of existing LoadBalancers
     pub fn HcnEnumerateLoadBalancers(
@@ -222,27 +210,27 @@ extern "C" {
     pub fn HcnCreateLoadBalancer(
         id: *const Guid,
         settings: PCWStr,
-        loadBalancer: PHCN_LOADBALANCER,
+        loadBalancer: PHcnLoadBalancer,
         errorRecord: *mut PWStr,
     ) -> HResult;
 
     /// Lookup an existing LoadBalancer
     pub fn HcnOpenLoadBalancer(
         id: *const Guid,
-        loadBalancer: PHCN_LOADBALANCER,
+        loadBalancer: PHcnLoadBalancer,
         errorRecord: *mut PWStr,
     ) -> HResult;
 
     /// Modify the settings of a PolicyList
     pub fn HcnModifyLoadBalancer(
-        loadBalancer: HCN_LOADBALANCER,
+        loadBalancer: HcnLoadBalancer,
         settings: PCWStr,
         errorRecord: *mut PWStr,
     ) -> HResult;
 
     /// Query PolicyList settings
     pub fn HcnQueryLoadBalancerProperties(
-        loadBalancer: HCN_LOADBALANCER,
+        loadBalancer: HcnLoadBalancer,
         query: PCWStr,
         properties: *mut PWStr,
         errorRecord: *mut PWStr,
@@ -252,17 +240,17 @@ extern "C" {
     pub fn HcnDeleteLoadBalancer(id: *const Guid, errorRecord: *mut PWStr) -> HResult;
 
     /// Close a handle to a LoadBalancer
-    pub fn HcnCloseLoadBalancer(loadBalancer: HCN_LOADBALANCER) -> HResult;
+    pub fn HcnCloseLoadBalancer(loadBalancer: HcnLoadBalancer) -> HResult;
 
     /// Registers a callback function to receive notifications of service-wide events
     pub fn HcnRegisterServiceCallback(
-        callback: HCN_NOTIFICATION_CALLBACK,
+        callback: HcnNotificationCallback,
         context: *const Void,
-        callbackHandle: *mut HCN_CALLBACK,
+        callbackHandle: *mut HcnCallback,
     ) -> HResult;
 
     /// Unregisters from service-wide notifications
-    pub fn HcnUnregisterServiceCallback(callbackHandle: *const HCN_CALLBACK) -> HResult;
+    pub fn HcnUnregisterServiceCallback(callbackHandle: *const HcnCallback) -> HResult;
 
     pub fn IsHcnEnumerateNetworksPresent() -> Boolean;
 
