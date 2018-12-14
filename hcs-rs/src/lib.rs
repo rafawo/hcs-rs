@@ -1,19 +1,21 @@
-#[allow(dead_code)]
-pub mod computecore;
-
-#[allow(dead_code)]
 pub mod computedefs;
+pub mod computenetworkdefs;
+pub mod hypervdevicevirtualizationdefs;
 
 #[allow(dead_code)]
-pub mod computenetwork;
+pub(crate) mod computecore_bindings;
 
 #[allow(dead_code)]
-pub mod computestorage;
+pub(crate) mod computenetwork_bindings;
 
 #[allow(dead_code)]
-pub mod hypervdevicevirtualization;
+pub(crate) mod computestorage_bindings;
 
-mod windefs {
+#[allow(dead_code)]
+pub(crate) mod hypervdevicevirtualization_bindings;
+
+#[allow(dead_code)]
+pub(crate) mod windefs {
     use libc;
 
     pub type Bool = libc::c_int;

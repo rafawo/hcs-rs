@@ -1,10 +1,9 @@
-//! This file contains the APIs to interact with storage management in HCS.
+//! This module contains the Rust FFI bindings for the APIs to interact with storage management in HCS.
 
 use crate::windefs::*;
 
 #[link(name = "computestorage")]
 extern "C" {
-
     /// Imports a container layer.
     pub fn HcsImportLayer(
         layerPath: PCWStr,
@@ -82,5 +81,4 @@ extern "C" {
     pub fn IsHcsFormatWritableLayerVhdPresent() -> Boolean;
 
     pub fn IsHcsGetLayerVhdMountPathPresent() -> Boolean;
-
 }

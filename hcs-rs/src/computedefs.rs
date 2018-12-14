@@ -1,4 +1,4 @@
-//! This file contains Rust abstractions for the public types and definitions used by the Host Compute APIs.
+//! This module contains Rust abstractions for the public types and definitions used by the Host Compute APIs.
 
 use crate::windefs::*;
 

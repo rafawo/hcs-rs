@@ -1,11 +1,10 @@
-//! This file contains Rust abstractions for the public computecore APIs.
+//! This module contains Rust FFI bindings for the public computecore APIs.
 
 use crate::computedefs::*;
 use crate::windefs::*;
 
 #[link(name = "computecore")]
 extern "C" {
-
     /// Enumerates existing compute systems.
     pub fn HcsEnumerateComputeSystems(query: PCWStr, operation: HcsOperation) -> HResult;
 
