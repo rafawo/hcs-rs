@@ -1,6 +1,6 @@
 [workspace]
 
 members = [
-    "hcsapis",
-    "hcsrscli",
+    "hcs-rs",
+    "hcs-cli",
 ]
