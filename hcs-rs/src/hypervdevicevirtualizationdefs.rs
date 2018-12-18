@@ -102,5 +102,4 @@ pub struct HdvPciDeviceInterface {
     pub write_intercepted_memory: HdvPciWriteInterceptedMemory,
 }
 
-#[allow(non_camel_case_types)]
-pub type PHDV_Pci_DEVICE_INTERFACE = *mut HdvPciDeviceInterface;
+pub type PHdvPciDeviceInterface = *mut HdvPciDeviceInterface;

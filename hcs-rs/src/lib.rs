@@ -2,6 +2,8 @@ pub mod computedefs;
 pub mod computenetworkdefs;
 pub mod hypervdevicevirtualizationdefs;
 
+pub mod computestorage;
+
 #[allow(dead_code)]
 pub(crate) mod computecore_bindings;
 
@@ -61,5 +63,30 @@ pub(crate) mod windefs {
         pub group: PSId,
         pub sacl: *mut Acl,
         pub dacl: *mut Acl,
+    }
+}
+
+/// Common result codes that can be returned by the HCS APIs
+#[derive(Debug, PartialEq)]
+pub enum ResultCode {
+    Success,
+    OutOfMemory,
+    FileNotFound,
+    Fail,
+    InvalidArgument,
+    Unexpected,
+    WindowsHResult(windefs::HResult),
+}
+
+#[allow(overflowing_literals)]
+pub(crate) fn hresult_to_result_code(hresult: &windefs::HResult) -> ResultCode {
+    match hresult {
+        0 => ResultCode::Success,
+        0x8007000E => ResultCode::OutOfMemory,
+        0x80070002 => ResultCode::FileNotFound,
+        0x80004005 => ResultCode::Fail,
+        0x80070057 => ResultCode::InvalidArgument,
+        0x8000FFFF => ResultCode::Unexpected,
+        other => ResultCode::WindowsHResult(other.clone()),
     }
 }
