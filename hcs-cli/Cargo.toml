@@ -1,8 +1,0 @@
-[package]
-name = "hcs-cli"
-version = "0.1.0"
-authors = ["rafawo <rafawo1@hotmail.com>"]
-edition = "2018"
-Publish = false
-
-[dependencies]
