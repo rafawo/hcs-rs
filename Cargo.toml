@@ -12,6 +12,6 @@ categories = ["api-bindings", "os::windows-apis"]
 build = "build.rs"
 
 [dependencies]
-libc = "0.2.44"
 widestring = "0.4.0"
+winapi = { version = "0.3.6", features = ["winbase"] }
 virtdisk-rs = "0.1.2"
