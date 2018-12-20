@@ -3,6 +3,7 @@ pub mod computenetworkdefs;
 pub mod hypervdevicevirtualizationdefs;
 
 pub mod computestorage;
+pub mod vhdutilities;
 
 #[allow(dead_code)]
 pub(crate) mod computecore_bindings;
