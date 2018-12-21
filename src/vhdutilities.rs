@@ -3,7 +3,12 @@
 use virtdisk_rs::virtdisk::*;
 use virtdisk_rs::virtdiskdefs::*;
 
-const GUID_NULL: virtdisk_rs::windefs::Guid = VIRTUAL_STORAGE_TYPE_VENDOR_UNKNOWN;
+const GUID_NULL: virtdisk_rs::windefs::Guid = virtdisk_rs::windefs::Guid {
+    Data1: 0x00000000,
+    Data2: 0x0000,
+    Data3: 0x0000,
+    Data4: [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00],
+};
 
 /// Opens a VHD for use as a container sandbox and returns a safe wrapper over the handle.
 pub fn open_vhd(filename: &str, read_only: bool) -> Result<VirtualDisk, ResultCode> {
