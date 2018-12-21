@@ -3,6 +3,7 @@ pub mod computenetworkdefs;
 pub mod hypervdevicevirtualizationdefs;
 
 pub mod computestorage;
+pub mod diskutilities;
 pub mod vhdutilities;
 
 #[allow(dead_code)]
