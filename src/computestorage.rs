@@ -11,8 +11,7 @@
 //!
 
 use crate::computestorage_bindings::*;
-use crate::hresult_to_result_code;
-use crate::ResultCode;
+use crate::errorcodes::{hresult_to_result_code, ResultCode};
 use widestring::U16CString;
 
 pub fn import_layer(path: &str, source_folder_path: &str, layer_data: &str) -> ResultCode {
