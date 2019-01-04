@@ -14,4 +14,5 @@ build = "build.rs"
 [dependencies]
 widestring = "0.4.0"
 winapi = { version = "0.3.6", features = ["winbase"] }
-virtdisk-rs = "0.1.2"
+virtdisk-rs = "1.4.0"
+winutils-rs = "0.1.1"
