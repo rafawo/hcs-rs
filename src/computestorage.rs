@@ -11,17 +11,12 @@
 //!
 
 use crate::computestorage_bindings::*;
-use crate::errorcodes::{hresult_to_result_code, ResultCode};
-use crate::ispresent::computestorage::*;
+use crate::errorcodes::hresult_to_result_code;
 use crate::HcsResult;
 use widestring::WideCString;
 use winutils_rs::windefs::*;
 
 pub fn import_layer(path: &str, source_folder_path: &str, layer_data: &str) -> HcsResult<()> {
-    if !import_layer_is_present() {
-        return Err(ResultCode::FunctionNotPresentInPlatform);
-    }
-
     unsafe {
         match &HcsImportLayer(
             WideCString::from_str(path).unwrap().as_ptr(),
@@ -40,10 +35,6 @@ pub fn export_layer(
     layer_data: &str,
     options: &str,
 ) -> HcsResult<()> {
-    if !export_layer_is_present() {
-        return Err(ResultCode::FunctionNotPresentInPlatform);
-    }
-
     unsafe {
         match &HcsExportLayer(
             WideCString::from_str(path).unwrap().as_ptr(),
@@ -63,10 +54,6 @@ pub fn export_legacy_writable_layer(
     export_folder_path: &str,
     layer_data: &str,
 ) -> HcsResult<()> {
-    if !export_legacy_writable_layer_is_present() {
-        return Err(ResultCode::FunctionNotPresentInPlatform);
-    }
-
     unsafe {
         match &HcsExportLegacyWritableLayer(
             WideCString::from_str(mount_path).unwrap().as_ptr(),
@@ -81,10 +68,6 @@ pub fn export_legacy_writable_layer(
 }
 
 pub fn destroy_layer(layer_path: &str) -> HcsResult<()> {
-    if !destroy_layer_is_present() {
-        return Err(ResultCode::FunctionNotPresentInPlatform);
-    }
-
     unsafe {
         match &HcsDestroyLayer(WideCString::from_str(layer_path).unwrap().as_ptr()) {
             0 => Ok(()),
@@ -94,10 +77,6 @@ pub fn destroy_layer(layer_path: &str) -> HcsResult<()> {
 }
 
 pub fn setup_base_os_layer(layer_path: &str, vhd_handle: Handle, options: &str) -> HcsResult<()> {
-    if !setup_base_os_layer_is_present() {
-        return Err(ResultCode::FunctionNotPresentInPlatform);
-    }
-
     unsafe {
         match &HcsSetupBaseOSLayer(
             WideCString::from_str(layer_path).unwrap().as_ptr(),
@@ -115,10 +94,6 @@ pub fn initialize_writable_layer(
     layer_data: &str,
     options: &str,
 ) -> HcsResult<()> {
-    if !initialize_writable_layer_is_present() {
-        return Err(ResultCode::FunctionNotPresentInPlatform);
-    }
-
     unsafe {
         match &HcsInitializeWritableLayer(
             WideCString::from_str(layer_path).unwrap().as_ptr(),
@@ -137,10 +112,6 @@ pub fn initialize_legacy_writable_layer(
     layer_data: &str,
     options: &str,
 ) -> HcsResult<()> {
-    if !initialize_legacy_writable_layer_is_present() {
-        return Err(ResultCode::FunctionNotPresentInPlatform);
-    }
-
     unsafe {
         match &HcsInitializeLegacyWritableLayer(
             WideCString::from_str(mount_path).unwrap().as_ptr(),
@@ -155,10 +126,6 @@ pub fn initialize_legacy_writable_layer(
 }
 
 pub fn attach_layer_storage_filter(layer_path: &str, layer_data: &str) -> HcsResult<()> {
-    if !attach_layer_storage_filter_is_present() {
-        return Err(ResultCode::FunctionNotPresentInPlatform);
-    }
-
     unsafe {
         match &HcsAttachLayerStorageFilter(
             WideCString::from_str(layer_path).unwrap().as_ptr(),
@@ -171,10 +138,6 @@ pub fn attach_layer_storage_filter(layer_path: &str, layer_data: &str) -> HcsRes
 }
 
 pub fn detach_layer_storage_filter(layer_path: &str) -> HcsResult<()> {
-    if !detach_layer_storage_filter_is_present() {
-        return Err(ResultCode::FunctionNotPresentInPlatform);
-    }
-
     unsafe {
         match &HcsDetachLayerStorageFilter(WideCString::from_str(layer_path).unwrap().as_ptr()) {
             0 => Ok(()),
@@ -184,10 +147,6 @@ pub fn detach_layer_storage_filter(layer_path: &str) -> HcsResult<()> {
 }
 
 pub fn format_writable_layer_vhd(vhd_handle: Handle) -> HcsResult<()> {
-    if !format_writable_layer_vhd_is_present() {
-        return Err(ResultCode::FunctionNotPresentInPlatform);
-    }
-
     unsafe {
         match &HcsFormatWritableLayerVhd(vhd_handle) {
             0 => Ok(()),
@@ -197,10 +156,6 @@ pub fn format_writable_layer_vhd(vhd_handle: Handle) -> HcsResult<()> {
 }
 
 pub fn get_layer_vhd_mount_path(vhd_handle: Handle) -> HcsResult<String> {
-    if !get_layer_vhd_mount_path_is_present() {
-        return Err(ResultCode::FunctionNotPresentInPlatform);
-    }
-
     unsafe {
         let mount_path_ptr: *mut PWStr = std::ptr::null_mut();
 
