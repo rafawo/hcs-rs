@@ -10,8 +10,8 @@ pub mod computedefs;
 pub mod computenetworkdefs;
 pub mod computestorage;
 pub mod errorcodes;
-pub mod ispresent;
 pub mod hypervdevicevirtualizationdefs;
+pub mod ispresent;
 
 #[allow(dead_code)]
 pub(crate) mod computecore_bindings;
@@ -19,7 +19,6 @@ pub(crate) mod computecore_bindings;
 #[allow(dead_code)]
 pub(crate) mod computenetwork_bindings;
 
-#[allow(dead_code)]
 pub(crate) mod computestorage_bindings;
 
 #[allow(dead_code)]
