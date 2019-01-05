@@ -12,6 +12,8 @@ use winutils_rs::windefs::HResult;
 /// that can be returned by the HCS APIs.
 #[derive(Debug, PartialEq)]
 pub enum ResultCode {
+    FunctionNotPresentInPlatform,
+
     Success,
     OutOfMemory,
     FileNotFound,
