@@ -10,6 +10,7 @@ pub mod computedefs;
 pub mod computenetworkdefs;
 pub mod computestorage;
 pub mod errorcodes;
+pub mod ispresent;
 pub mod hypervdevicevirtualizationdefs;
 
 #[allow(dead_code)]
