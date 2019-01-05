@@ -23,3 +23,5 @@ pub(crate) mod computestorage_bindings;
 
 #[allow(dead_code)]
 pub(crate) mod hypervdevicevirtualization_bindings;
+
+pub type HcsResult<T> = Result<T, errorcodes::ResultCode>;

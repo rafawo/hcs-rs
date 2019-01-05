@@ -346,7 +346,7 @@ pub enum ResultCode {
     /// To use this container image, you must join the Windows Insider Program. Please see https://go.microsoft.com/fwlink/?linkid=850659 for more information.
     VmComputeWindowsInsiderRequired,
 
-        /// The virtual machine or container exited unexpectedly while starting.
+    /// The virtual machine or container exited unexpectedly while starting.
     HcsTerminatedDuringStart,
 
     /// The container operating system does not match the host operating system.

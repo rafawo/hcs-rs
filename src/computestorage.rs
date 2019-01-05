@@ -12,15 +12,20 @@
 
 use crate::computestorage_bindings::*;
 use crate::errorcodes::{hresult_to_result_code, ResultCode};
-use widestring::U16CString;
+use crate::HcsResult;
+use widestring::WideCString;
+use winutils_rs::windefs::*;
 
-pub fn import_layer(path: &str, source_folder_path: &str, layer_data: &str) -> ResultCode {
+pub fn import_layer(path: &str, source_folder_path: &str, layer_data: &str) -> HcsResult<()> {
     unsafe {
-        hresult_to_result_code(&HcsImportLayer(
-            U16CString::from_str(path).unwrap().as_ptr(),
-            U16CString::from_str(source_folder_path).unwrap().as_ptr(),
-            U16CString::from_str(layer_data).unwrap().as_ptr(),
-        ))
+        match &HcsImportLayer(
+            WideCString::from_str(path).unwrap().as_ptr(),
+            WideCString::from_str(source_folder_path).unwrap().as_ptr(),
+            WideCString::from_str(layer_data).unwrap().as_ptr(),
+        ) {
+            0 => Ok(()),
+            hresult => Err(hresult_to_result_code(&hresult)),
+        }
     }
 }
 
@@ -29,13 +34,138 @@ pub fn export_layer(
     export_folder_path: &str,
     layer_data: &str,
     options: &str,
-) -> ResultCode {
+) -> HcsResult<()> {
     unsafe {
-        hresult_to_result_code(&HcsExportLayer(
-            U16CString::from_str(path).unwrap().as_ptr(),
-            U16CString::from_str(export_folder_path).unwrap().as_ptr(),
-            U16CString::from_str(layer_data).unwrap().as_ptr(),
-            U16CString::from_str(options).unwrap().as_ptr(),
-        ))
+        match &HcsExportLayer(
+            WideCString::from_str(path).unwrap().as_ptr(),
+            WideCString::from_str(export_folder_path).unwrap().as_ptr(),
+            WideCString::from_str(layer_data).unwrap().as_ptr(),
+            WideCString::from_str(options).unwrap().as_ptr(),
+        ) {
+            0 => Ok(()),
+            hresult => Err(hresult_to_result_code(&hresult)),
+        }
+    }
+}
+
+pub fn export_legacy_writable_layer(
+    mount_path: &str,
+    folder_path: &str,
+    export_folder_path: &str,
+    layer_data: &str,
+) -> HcsResult<()> {
+    unsafe {
+        match &HcsExportLegacyWritableLayer(
+            WideCString::from_str(mount_path).unwrap().as_ptr(),
+            WideCString::from_str(folder_path).unwrap().as_ptr(),
+            WideCString::from_str(export_folder_path).unwrap().as_ptr(),
+            WideCString::from_str(layer_data).unwrap().as_ptr(),
+        ) {
+            0 => Ok(()),
+            hresult => Err(hresult_to_result_code(&hresult)),
+        }
+    }
+}
+
+pub fn destroy_layer(layer_path: &str) -> HcsResult<()> {
+    unsafe {
+        match &HcsDestroyLayer(WideCString::from_str(layer_path).unwrap().as_ptr()) {
+            0 => Ok(()),
+            hresult => Err(hresult_to_result_code(&hresult)),
+        }
+    }
+}
+
+pub fn setup_base_os_layer(layer_path: &str, vhd_handle: Handle, options: &str) -> HcsResult<()> {
+    unsafe {
+        match &HcsSetupBaseOSLayer(
+            WideCString::from_str(layer_path).unwrap().as_ptr(),
+            vhd_handle,
+            WideCString::from_str(options).unwrap().as_ptr(),
+        ) {
+            0 => Ok(()),
+            hresult => Err(hresult_to_result_code(&hresult)),
+        }
+    }
+}
+
+pub fn initialize_writable_layer(
+    layer_path: &str,
+    layer_data: &str,
+    options: &str,
+) -> HcsResult<()> {
+    unsafe {
+        match &HcsInitializeWritableLayer(
+            WideCString::from_str(layer_path).unwrap().as_ptr(),
+            WideCString::from_str(layer_data).unwrap().as_ptr(),
+            WideCString::from_str(options).unwrap().as_ptr(),
+        ) {
+            0 => Ok(()),
+            hresult => Err(hresult_to_result_code(&hresult)),
+        }
+    }
+}
+
+pub fn initialize_legacy_writable_layer(
+    mount_path: &str,
+    folder_path: &str,
+    layer_data: &str,
+    options: &str,
+) -> HcsResult<()> {
+    unsafe {
+        match &HcsInitializeLegacyWritableLayer(
+            WideCString::from_str(mount_path).unwrap().as_ptr(),
+            WideCString::from_str(folder_path).unwrap().as_ptr(),
+            WideCString::from_str(layer_data).unwrap().as_ptr(),
+            WideCString::from_str(options).unwrap().as_ptr(),
+        ) {
+            0 => Ok(()),
+            hresult => Err(hresult_to_result_code(&hresult)),
+        }
+    }
+}
+
+pub fn attach_layer_storage_filter(layer_path: &str, layer_data: &str) -> HcsResult<()> {
+    unsafe {
+        match &HcsAttachLayerStorageFilter(
+            WideCString::from_str(layer_path).unwrap().as_ptr(),
+            WideCString::from_str(layer_data).unwrap().as_ptr(),
+        ) {
+            0 => Ok(()),
+            hresult => Err(hresult_to_result_code(&hresult)),
+        }
+    }
+}
+
+pub fn detach_layer_storage_filter(layer_path: &str) -> HcsResult<()> {
+    unsafe {
+        match &HcsDetachLayerStorageFilter(WideCString::from_str(layer_path).unwrap().as_ptr()) {
+            0 => Ok(()),
+            hresult => Err(hresult_to_result_code(&hresult)),
+        }
+    }
+}
+
+pub fn format_writable_layer_vhd(vhd_handle: Handle) -> HcsResult<()> {
+    unsafe {
+        match &HcsFormatWritableLayerVhd(vhd_handle) {
+            0 => Ok(()),
+            hresult => Err(hresult_to_result_code(&hresult)),
+        }
+    }
+}
+
+pub fn get_layer_vhd_mount_path(vhd_handle: Handle) -> HcsResult<String> {
+    unsafe {
+        let mount_path_ptr: *mut PWStr = std::ptr::null_mut();
+
+        match &HcsGetLayerVhdMountPath(vhd_handle, mount_path_ptr) {
+            0 => {
+                let mount_path = WideCString::from_ptr_str(*mount_path_ptr).to_string_lossy();
+                winapi::um::combaseapi::CoTaskMemFree(mount_path_ptr as LPVoid);
+                Ok(mount_path)
+            }
+            hresult => Err(hresult_to_result_code(&hresult)),
+        }
     }
 }
