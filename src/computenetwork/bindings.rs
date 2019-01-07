@@ -8,7 +8,7 @@
 
 //! This module contains types definitions and Rust FFI bindings for the APIs used to interact with the HCN.
 
-use crate::computenetworkdefs::*;
+use super::defs::*;
 use winutils_rs::windefs::*;
 
 #[link(name = "computenetwork")]

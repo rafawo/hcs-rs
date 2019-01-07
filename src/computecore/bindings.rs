@@ -8,7 +8,7 @@
 
 //! This module contains Rust FFI bindings for the public computecore APIs.
 
-use crate::computedefs::*;
+use crate::compute::defs::*;
 use winutils_rs::windefs::*;
 
 #[link(name = "computecore")]

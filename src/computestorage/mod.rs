@@ -12,8 +12,8 @@
 pub(crate) mod bindings;
 pub mod ispresent;
 
+use crate::compute::errorcodes::hresult_to_result_code;
 use crate::computestorage::bindings::*;
-use crate::errorcodes::hresult_to_result_code;
 use crate::HcsResult;
 use widestring::WideCString;
 use winutils_rs::windefs::*;

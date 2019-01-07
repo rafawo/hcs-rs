@@ -8,8 +8,8 @@
 
 //! This module contains types definitions and Rust FFI bindings APIs to interact with the Hyper-V device virtualization support.
 
-use crate::computedefs::*;
-use crate::hypervdevicevirtualizationdefs::*;
+use super::defs::*;
+use crate::compute::defs::*;
 use winutils_rs::windefs::*;
 
 #[link(name = "vmdevicehost")]

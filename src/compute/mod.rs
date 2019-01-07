@@ -6,10 +6,5 @@
 // except according to those terms.
 // THE SOURCE CODE IS AVAILABLE UNDER THE ABOVE CHOSEN LICENSE "AS IS", WITH NO WARRANTIES.
 
-pub mod compute;
-pub mod computecore;
-pub mod computenetwork;
-pub mod computestorage;
-pub mod hypervdevicevirtualization;
-
-pub type HcsResult<T> = Result<T, compute::errorcodes::ResultCode>;
+pub mod defs;
+pub mod errorcodes;
