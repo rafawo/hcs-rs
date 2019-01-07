@@ -19,8 +19,6 @@ pub(crate) mod computecore_bindings;
 #[allow(dead_code)]
 pub(crate) mod computenetwork_bindings;
 
-pub(crate) mod computestorage_bindings;
-
 #[allow(dead_code)]
 pub(crate) mod hypervdevicevirtualization_bindings;
 
