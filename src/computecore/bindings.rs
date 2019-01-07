@@ -14,49 +14,49 @@ use winutils_rs::windefs::*;
 #[link(name = "computecore")]
 extern "C" {
     /// Enumerates existing compute systems.
-    pub fn HcsEnumerateComputeSystems(query: PCWStr, operation: HcsOperation) -> HResult;
+    pub fn HcsEnumerateComputeSystems(query: PCWStr, operation: HcsOperationHandle) -> HResult;
 
     /// Creates a new operation.
     pub fn HcsCreateOperation(
         context: *const Void,
         callback: HcsOperationCompletion,
-    ) -> HcsOperation;
+    ) -> HcsOperationHandle;
 
     /// Closes an operation.
-    pub fn HcsCloseOperation(operation: HcsOperation);
+    pub fn HcsCloseOperation(operation: HcsOperationHandle);
 
     /// Returns the context pointer of an operation.
-    pub fn HcsGetOperationContext(operation: HcsOperation) -> *mut Void;
+    pub fn HcsGetOperationContext(operation: HcsOperationHandle) -> *mut Void;
 
     /// Sets the context pointer for an operation.
-    pub fn HcsSetOperationContext(operation: HcsOperation, context: *const Void) -> HResult;
+    pub fn HcsSetOperationContext(operation: HcsOperationHandle, context: *const Void) -> HResult;
 
     /// Returns the handle to compute system associated with an operation.
-    pub fn HcsGetComputeSystemFromOperation(operation: HcsOperation) -> HcsSystem;
+    pub fn HcsGetComputeSystemFromOperation(operation: HcsOperationHandle) -> HcsSystemHandle;
 
     /// Returns the handle to the process associated with an operation
-    pub fn HcsGetProcessFromOperation(operation: HcsOperation) -> HcsProcess;
+    pub fn HcsGetProcessFromOperation(operation: HcsOperationHandle) -> HcsProcessHandle;
 
     /// Returns the type of an operation.
-    pub fn HcsGetOperationType(operation: HcsOperation) -> HcsOperationType;
+    pub fn HcsGetOperationType(operation: HcsOperationHandle) -> HcsOperationType;
 
     /// Returns the ID that uniquely identifies an operation.
-    pub fn HcsGetOperationId(operation: HcsOperation) -> u64;
+    pub fn HcsGetOperationId(operation: HcsOperationHandle) -> u64;
 
     /// Returns the result of an operation.
-    pub fn HcsGetOperationResult(operation: HcsOperation, resultDocument: *mut PWStr) -> HResult;
+    pub fn HcsGetOperationResult(operation: HcsOperationHandle, resultDocument: *mut PWStr) -> HResult;
 
     /// Returns the result of an operation, including the process information for HcsCreateProcess
     /// and HcsGetProcessInfo.
     pub fn HcsGetOperationResultAndProcessInfo(
-        operation: HcsOperation,
+        operation: HcsOperationHandle,
         processInformation: *mut HcsProcessInformation,
         resultDocument: *mut PWStr,
     ) -> HResult;
 
     /// Waits for the completion of an operation and returns the result.
     pub fn HcsWaitForOperationResult(
-        operation: HcsOperation,
+        operation: HcsOperationHandle,
         timeoutMs: DWord,
         resultDocument: *mut PWStr,
     ) -> HResult;
@@ -64,7 +64,7 @@ extern "C" {
     /// Waits for the completion of an operation and returns the result, including the process information
     /// for HcsCreateProcess and HcsGetProcessInfo.
     pub fn HcsWaitForOperationResultAndProcessInfo(
-        operation: HcsOperation,
+        operation: HcsOperationHandle,
         timeoutMs: DWord,
         processInformation: *mut HcsProcessInformation,
         resultDocument: *mut PWStr,
@@ -72,93 +72,93 @@ extern "C" {
 
     /// Sets a callback that is invoked on completion of an operation.
     pub fn HcsSetOperationCallback(
-        operation: HcsOperation,
+        operation: HcsOperationHandle,
         context: *const Void,
         callback: HcsOperationCompletion,
     ) -> HResult;
 
     /// Cancels an operation
-    pub fn HcsCancelOperation(operation: HcsOperation) -> HResult;
+    pub fn HcsCancelOperation(operation: HcsOperationHandle) -> HResult;
 
     /// Creates a new compute system.
     pub fn HcsCreateComputeSystem(
         id: PCWStr,
         configuration: PCWStr,
-        operation: HcsOperation,
+        operation: HcsOperationHandle,
         securityDescriptor: *const SecurityDescriptor,
-        computeSystem: *mut HcsSystem,
+        computeSystem: *mut HcsSystemHandle,
     ) -> HResult;
 
     /// Opens a handle to an existing compute system.
     pub fn HcsOpenComputeSystem(
         id: PCWStr,
         requestedAccess: DWord,
-        computeSystem: HcsSystem,
+        computeSystem: HcsSystemHandle,
     ) -> HResult;
 
     /// Closes a handle to a compute system.
-    pub fn HcsCloseComputeSystem(computeSystem: HcsSystem);
+    pub fn HcsCloseComputeSystem(computeSystem: HcsSystemHandle);
 
     /// Starts a compute system.
     pub fn HcsStartComputeSystem(
-        computeSystem: HcsSystem,
-        operation: HcsOperation,
+        computeSystem: HcsSystemHandle,
+        operation: HcsOperationHandle,
         options: PCWStr,
     ) -> HResult;
 
     /// Cleanly shuts down a compute system.
     pub fn HcsShutDownComputeSystem(
-        computeSystem: HcsSystem,
-        operation: HcsOperation,
+        computeSystem: HcsSystemHandle,
+        operation: HcsOperationHandle,
         options: PCWStr,
     ) -> HResult;
 
     /// Forcefully terminates a compute system.
     pub fn HcsTerminateComputeSystem(
-        computeSystem: HcsSystem,
-        operation: HcsOperation,
+        computeSystem: HcsSystemHandle,
+        operation: HcsOperationHandle,
         options: PCWStr,
     ) -> HResult;
 
     /// Pauses the execution of a compute system.
     pub fn HcsPauseComputeSystem(
-        computeSystem: HcsSystem,
-        operation: HcsOperation,
+        computeSystem: HcsSystemHandle,
+        operation: HcsOperationHandle,
         options: PCWStr,
     ) -> HResult;
 
     /// Resumes the execution of a compute system.
     pub fn HcsResumeComputeSystem(
-        computeSystem: HcsSystem,
-        operation: HcsOperation,
+        computeSystem: HcsSystemHandle,
+        operation: HcsOperationHandle,
         options: PCWStr,
     ) -> HResult;
 
     /// Saves the state of a compute system.
     pub fn HcsSaveComputeSystem(
-        computeSystem: HcsSystem,
-        operation: HcsOperation,
+        computeSystem: HcsSystemHandle,
+        operation: HcsOperationHandle,
         options: PCWStr,
     ) -> HResult;
 
     /// Returns properties of a compute system.
     pub fn HcsGetComputeSystemProperties(
-        computeSystem: HcsSystem,
-        operation: HcsOperation,
+        computeSystem: HcsSystemHandle,
+        operation: HcsOperationHandle,
         propertyQuery: PCWStr,
     ) -> HResult;
 
     /// Modifies settings of a compute system.
     pub fn HcsModifyComputeSystem(
-        computeSystem: HcsSystem,
-        operation: HcsOperation,
+        computeSystem: HcsSystemHandle,
+        operation: HcsOperationHandle,
         configuration: PCWStr,
         identity: Handle,
     ) -> HResult;
 
     /// Registers a callback function to receive notifications for the compute system.
     pub fn HcsSetComputeSystemCallback(
-        computeSystem: HcsSystem,
+        computeSystem: HcsSystemHandle,
         callbackOptions: HcsEventOptions,
         context: *const Void,
         callback: HcsEventCallback,
@@ -166,58 +166,58 @@ extern "C" {
 
     /// Starts a process in a compute system.
     pub fn HcsCreateProcess(
-        computeSystem: HcsSystem,
+        computeSystem: HcsSystemHandle,
         processParameters: PCWStr,
-        operation: HcsOperation,
+        operation: HcsOperationHandle,
         securityDescriptor: *const SecurityDescriptor,
-        process: *mut HcsProcess,
+        process: *mut HcsProcessHandle,
     ) -> HResult;
 
     /// Opens an existing process in a compute system
     pub fn HcsOpenProcess(
-        computeSystem: HcsSystem,
+        computeSystem: HcsSystemHandle,
         processId: DWord,
         requestedAccess: DWord,
-        process: HcsProcess,
+        process: HcsProcessHandle,
     ) -> HResult;
 
     /// Closes the handle to a process in a compute system
-    pub fn HcsCloseProcess(process: HcsProcess);
+    pub fn HcsCloseProcess(process: HcsProcessHandle);
 
     /// Terminates a process in a compute system
     pub fn HcsTerminateProcess(
-        process: HcsProcess,
-        operation: HcsOperation,
+        process: HcsProcessHandle,
+        operation: HcsOperationHandle,
         options: PCWStr,
     ) -> HResult;
 
     /// Sends a signal to a process in a compute system
     pub fn HcsSignalProcess(
-        process: HcsProcess,
-        operation: HcsOperation,
+        process: HcsProcessHandle,
+        operation: HcsOperationHandle,
         options: PCWStr,
     ) -> HResult;
 
     /// Returns the initial startup info of a process in a compute system
-    pub fn HcsGetProcessInfo(process: HcsProcess, operation: HcsOperation) -> HResult;
+    pub fn HcsGetProcessInfo(process: HcsProcessHandle, operation: HcsOperationHandle) -> HResult;
 
     /// Returns the properties of a process in a compute system
     pub fn HcsGetProcessProperties(
-        process: HcsProcess,
-        operation: HcsOperation,
+        process: HcsProcessHandle,
+        operation: HcsOperationHandle,
         propertyQuery: PCWStr,
     ) -> HResult;
 
     /// Modifies the parameters of a process in a compute system
     pub fn HcsModifyProcess(
-        process: HcsProcess,
-        operation: HcsOperation,
+        process: HcsProcessHandle,
+        operation: HcsOperationHandle,
         settings: PCWStr,
     ) -> HResult;
 
     /// Registers a callback function to receive notifications for a process in a compute system
     pub fn HcsSetProcessCallback(
-        process: HcsProcess,
+        process: HcsProcessHandle,
         callbackOptions: HcsEventOptions,
         context: *mut Void,
         callback: HcsEventCallback,

@@ -17,16 +17,16 @@ pub const HCS_E_PROCESS_INFO_NOT_AVAILABLE: HResult = 0x8037011D;
 pub const HCS_E_SERVICE_DISCONNECT: HResult = 0x8037011E;
 
 /// Handle to a compute system
-pub type HcsSystem = Handle;
+pub type HcsSystemHandle = Handle;
 
 /// Handle to a process running in a compute system
-pub type HcsProcess = Handle;
+pub type HcsProcessHandle = Handle;
 
 /// Handle to an operation on a compute system
-pub type HcsOperation = Handle;
+pub type HcsOperationHandle = Handle;
 
 /// Handle to a callback registered on a compute system or process handle.
-pub type HcsCallback = Handle;
+pub type HcsCallbackHandle = Handle;
 
 /// Type of an operation. These correspond to the functions that invoke the operation.
 #[repr(C)]
@@ -53,7 +53,7 @@ pub enum HcsOperationType {
 pub const HCS_INVALID_OPERATION_ID: u64 = std::u64::MAX;
 
 /// Function type for the completion callback of an operation.
-pub type HcsOperationCompletion = extern "C" fn(operation: HcsOperation, context: PVoid);
+pub type HcsOperationCompletion = extern "C" fn(operation: HcsOperationHandle, context: PVoid);
 
 /// Events indicated to callbacks registered by HcsRegisterComputeSystemCallback or
 /// HcsRegisterProcessCallback (since Windows 1809).
@@ -62,7 +62,7 @@ pub type HcsOperationCompletion = extern "C" fn(operation: HcsOperation, context
 pub enum HcsEventType {
     Invalid = 0x00000000,
 
-    /// Events for HcsSystem handles
+    /// Events for HcsSystemHandle
     SystemExited = 0x00000001,
     SystemCrashInitiated = 0x00000002,
     SystemCrashReport = 0x00000003,
@@ -70,7 +70,7 @@ pub enum HcsEventType {
     SystemSiloJobCreated = 0x00000005,
     SystemGuestConnectionClosed = 0x00000006,
 
-    /// Events for HcsProcess handles
+    /// Events for HcsProcessHandle
     ProcessExited = 0x00010000,
 
     /// Common Events
@@ -89,7 +89,7 @@ pub struct HcsEvent {
     pub event_data: PCWStr,
 
     /// Handle to a completed operation (if Type is HcsEventType::OperationCallback).
-    pub operation: HcsOperation,
+    pub operation: HcsOperationHandle,
 }
 
 /// Options for an event callback registration
@@ -118,7 +118,7 @@ pub enum HcsNotificationFlag {
 pub enum HcsNotifications {
     Invalid = 0x00000000,
 
-    /// Notifications for HcsSystem handles
+    /// Notifications for HcsSystemHandle
     SystemExited = 0x00000001,
     SystemCreateCompleted = 0x00000002,
     SystemStartCompleted = 0x00000003,
@@ -134,7 +134,7 @@ pub enum HcsNotifications {
     SystemCrashInitiated = 0x0000000D,
     SystemGuestConnectionClosed = 0x0000000E,
 
-    /// Notifications for HcsProcess handles
+    /// Notifications for HcsProcessHandle
     ProcessExited = 0x00010000,
 
     /// Common notifications

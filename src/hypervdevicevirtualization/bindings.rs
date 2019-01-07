@@ -15,7 +15,7 @@ use winutils_rs::windefs::*;
 #[link(name = "vmdevicehost")]
 extern "C" {
     pub fn HdvInitializeDeviceHost(
-        computeSystem: HcsSystem,
+        computeSystem: HcsSystemHandle,
         deviceHostHandle: *mut HdvHost,
     ) -> HResult;
 
