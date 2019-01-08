@@ -6,7 +6,6 @@
 // except according to those terms.
 // THE SOURCE CODE IS AVAILABLE UNDER THE ABOVE CHOSEN LICENSE "AS IS", WITH NO WARRANTIES.
 
-#[allow(dead_code)]
 pub(crate) mod bindings;
 pub mod defs;
 pub mod ispresent;
