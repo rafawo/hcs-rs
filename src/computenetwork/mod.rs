@@ -18,6 +18,7 @@ use widestring::WideCString;
 use winutils_rs::utilities::CoTaskMemWString;
 use winutils_rs::windefs::*;
 
+#[derive(Debug)]
 pub struct ErrorResult {
     pub error_record: String,
     pub result_code: ResultCode,
@@ -65,6 +66,70 @@ pub fn create_network(id: &Guid, settings: &str) -> HcnResult<HcnNetworkHandle> 
         ) {
             0 => Ok(network_handle),
             hresult => Err(ErrorResult::new(error_record.to_string(), hresult)),
+        }
+    }
+}
+
+pub fn open_network(id: &Guid) -> HcnResult<HcnNetworkHandle> {
+    unsafe {
+        let mut network_handle: HcnNetworkHandle = std::ptr::null_mut();
+        let error_record = CoTaskMemWString::new();
+
+        match HcnOpenNetwork(id, &mut network_handle, error_record.ptr) {
+            0 => Ok(network_handle),
+            hresult => Err(ErrorResult::new(error_record.to_string(), hresult)),
+        }
+    }
+}
+
+pub fn modify_network(network: HcnNetworkHandle, settings: &str) -> HcnResult<()> {
+    unsafe {
+        let error_record = CoTaskMemWString::new();
+
+        match HcnModifyNetwork(
+            network,
+            WideCString::from_str(settings).unwrap().as_ptr(),
+            error_record.ptr,
+        ) {
+            0 => Ok(()),
+            hresult => Err(ErrorResult::new(error_record.to_string(), hresult)),
+        }
+    }
+}
+
+pub fn query_network_properties(network: HcnNetworkHandle, query: &str) -> HcnResult<String> {
+    unsafe {
+        let properties = CoTaskMemWString::new();
+        let error_record = CoTaskMemWString::new();
+
+        match HcnQueryNetworkProperties(
+            network,
+            WideCString::from_str(query).unwrap().as_ptr(),
+            properties.ptr,
+            error_record.ptr,
+        ) {
+            0 => Ok(properties.to_string()),
+            hresult => Err(ErrorResult::new(error_record.to_string(), hresult)),
+        }
+    }
+}
+
+pub fn delete_network(id: &Guid) -> HcnResult<()> {
+    unsafe {
+        let error_record = CoTaskMemWString::new();
+
+        match HcnDeleteNetwork(id, error_record.ptr) {
+            0 => Ok(()),
+            hresult => Err(ErrorResult::new(error_record.to_string(), hresult)),
+        }
+    }
+}
+
+pub fn close_network(network: HcnNetworkHandle) -> HcnResult<()> {
+    unsafe {
+        match HcnCloseNetwork(network) {
+            0 => Ok(()),
+            hresult => Err(ErrorResult::new(String::from(""), hresult)),
         }
     }
 }
