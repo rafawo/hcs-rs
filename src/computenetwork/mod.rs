@@ -133,3 +133,100 @@ pub fn close_network(network: HcnNetworkHandle) -> HcnResult<()> {
         }
     }
 }
+
+pub fn enumerate_namespaces(query: &str) -> HcnResult<String> {
+    unsafe {
+        let namespaces = CoTaskMemWString::new();
+        let error_record = CoTaskMemWString::new();
+
+        match HcnEnumerateNamespaces(
+            WideCString::from_str(query).unwrap().as_ptr(),
+            namespaces.ptr,
+            error_record.ptr,
+        ) {
+            0 => Ok(namespaces.to_string()),
+            hresult => Err(ErrorResult::new(error_record.to_string(), hresult)),
+        }
+    }
+}
+
+pub fn create_namespace(id: &Guid, settings: &str) -> HcnResult<HcnNamespaceHandle> {
+    unsafe {
+        let mut namespace_handle: HcnNamespaceHandle = std::ptr::null_mut();
+        let error_record = CoTaskMemWString::new();
+
+        match HcnCreateNamespace(
+            id,
+            WideCString::from_str(settings).unwrap().as_ptr(),
+            &mut namespace_handle,
+            error_record.ptr,
+        ) {
+            0 => Ok(namespace_handle),
+            hresult => Err(ErrorResult::new(error_record.to_string(), hresult)),
+        }
+    }
+}
+
+pub fn open_namespace(id: &Guid) -> HcnResult<HcnNamespaceHandle> {
+    unsafe {
+        let mut namespace_handle: HcnNamespaceHandle = std::ptr::null_mut();
+        let error_record = CoTaskMemWString::new();
+
+        match HcnOpenNamespace(id, &mut namespace_handle, error_record.ptr) {
+            0 => Ok(namespace_handle),
+            hresult => Err(ErrorResult::new(error_record.to_string(), hresult)),
+        }
+    }
+}
+
+pub fn modify_namespace(namespace: HcnNamespaceHandle, settings: &str) -> HcnResult<()> {
+    unsafe {
+        let error_record = CoTaskMemWString::new();
+
+        match HcnModifyNamespace(
+            namespace,
+            WideCString::from_str(settings).unwrap().as_ptr(),
+            error_record.ptr,
+        ) {
+            0 => Ok(()),
+            hresult => Err(ErrorResult::new(error_record.to_string(), hresult)),
+        }
+    }
+}
+
+pub fn query_namespace_properties(namespace: HcnNamespaceHandle, query: &str) -> HcnResult<String> {
+    unsafe {
+        let properties = CoTaskMemWString::new();
+        let error_record = CoTaskMemWString::new();
+
+        match HcnQueryNamespaceProperties(
+            namespace,
+            WideCString::from_str(query).unwrap().as_ptr(),
+            properties.ptr,
+            error_record.ptr,
+        ) {
+            0 => Ok(properties.to_string()),
+            hresult => Err(ErrorResult::new(error_record.to_string(), hresult)),
+        }
+    }
+}
+
+pub fn delete_namespace(id: &Guid) -> HcnResult<()> {
+    unsafe {
+        let error_record = CoTaskMemWString::new();
+
+        match HcnDeleteNamespace(id, error_record.ptr) {
+            0 => Ok(()),
+            hresult => Err(ErrorResult::new(error_record.to_string(), hresult)),
+        }
+    }
+}
+
+pub fn close_namespace(namespace: HcnNamespaceHandle) -> HcnResult<()> {
+    unsafe {
+        match HcnCloseNamespace(namespace) {
+            0 => Ok(()),
+            hresult => Err(ErrorResult::new(String::from(""), hresult)),
+        }
+    }
+}
