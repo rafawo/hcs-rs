@@ -15,6 +15,7 @@ use crate::compute::errorcodes::{hresult_to_result_code, ResultCode};
 use crate::computenetwork::bindings::*;
 use crate::computenetwork::defs::*;
 use widestring::WideCString;
+use winutils_rs::utilities::CoTaskMemWString;
 use winutils_rs::windefs::*;
 
 pub struct ErrorResult {
@@ -28,27 +29,19 @@ pub type HcnResult<T> = Result<T, ErrorResult>;
 
 pub fn enumerate_networks(query: &str) -> HcnResult<String> {
     unsafe {
-        let networks_ptr: *mut PWStr = std::ptr::null_mut();
-        let error_record_ptr: *mut PWStr = std::ptr::null_mut();
+        let networks = CoTaskMemWString::new();
+        let error_record = CoTaskMemWString::new();
 
         match HcnEnumerateNetworks(
             WideCString::from_str(query).unwrap().as_ptr(),
-            networks_ptr,
-            error_record_ptr,
+            networks.ptr,
+            error_record.ptr,
         ) {
-            0 => {
-                let networks = WideCString::from_ptr_str(*networks_ptr).to_string_lossy();
-                winapi::um::combaseapi::CoTaskMemFree(networks_ptr as LPVoid);
-                Ok(networks)
-            }
-            hresult => {
-                let error_record = WideCString::from_ptr_str(*error_record_ptr).to_string_lossy();
-                winapi::um::combaseapi::CoTaskMemFree(error_record_ptr as LPVoid);
-                Err(ErrorResult {
-                    error_record,
-                    result_code: hresult_to_result_code(&hresult),
-                })
-            }
+            0 => Ok(networks.to_string()),
+            hresult => Err(ErrorResult {
+                error_record: error_record.to_string(),
+                result_code: hresult_to_result_code(&hresult),
+            }),
         }
     }
 }
@@ -56,23 +49,19 @@ pub fn enumerate_networks(query: &str) -> HcnResult<String> {
 pub fn create_network(id: &Guid, settings: &str) -> HcnResult<HcnNetworkHandle> {
     unsafe {
         let mut network_handle: HcnNetworkHandle = std::ptr::null_mut();
-        let error_record_ptr: *mut PWStr = std::ptr::null_mut();
+        let error_record = CoTaskMemWString::new();
 
         match HcnCreateNetwork(
             id,
             WideCString::from_str(settings).unwrap().as_ptr(),
             &mut network_handle,
-            error_record_ptr,
+            error_record.ptr,
         ) {
             0 => Ok(network_handle),
-            hresult => {
-                let error_record = WideCString::from_ptr_str(*error_record_ptr).to_string_lossy();
-                winapi::um::combaseapi::CoTaskMemFree(error_record_ptr as LPVoid);
-                Err(ErrorResult {
-                    error_record,
-                    result_code: hresult_to_result_code(&hresult),
-                })
-            }
+            hresult => Err(ErrorResult {
+                error_record: error_record.to_string(),
+                result_code: hresult_to_result_code(&hresult),
+            }),
         }
     }
 }

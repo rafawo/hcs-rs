@@ -18,4 +18,4 @@ winapi = { version = "0.3.6", features = [
     "winbase",
 ] }
 virtdisk-rs = "1.5.0"
-winutils-rs = "0.1.1"
+winutils-rs = "0.1.4"

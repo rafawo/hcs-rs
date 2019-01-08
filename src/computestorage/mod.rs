@@ -16,6 +16,7 @@ use crate::compute::errorcodes::hresult_to_result_code;
 use crate::computestorage::bindings::*;
 use crate::HcsResult;
 use widestring::WideCString;
+use winutils_rs::utilities::CoTaskMemWString;
 use winutils_rs::windefs::*;
 
 pub fn import_layer(path: &str, source_folder_path: &str, layer_data: &str) -> HcsResult<()> {
@@ -159,14 +160,10 @@ pub fn format_writable_layer_vhd(vhd_handle: Handle) -> HcsResult<()> {
 
 pub fn get_layer_vhd_mount_path(vhd_handle: Handle) -> HcsResult<String> {
     unsafe {
-        let mount_path_ptr: *mut PWStr = std::ptr::null_mut();
+        let mount_path = CoTaskMemWString::new();
 
-        match HcsGetLayerVhdMountPath(vhd_handle, mount_path_ptr) {
-            0 => {
-                let mount_path = WideCString::from_ptr_str(*mount_path_ptr).to_string_lossy();
-                winapi::um::combaseapi::CoTaskMemFree(mount_path_ptr as LPVoid);
-                Ok(mount_path)
-            }
+        match HcsGetLayerVhdMountPath(vhd_handle, mount_path.ptr) {
+            0 => Ok(mount_path.to_string()),
             hresult => Err(hresult_to_result_code(&hresult)),
         }
     }
