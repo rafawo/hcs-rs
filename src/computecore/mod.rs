@@ -7,7 +7,7 @@
 // THE SOURCE CODE IS AVAILABLE UNDER THE ABOVE CHOSEN LICENSE "AS IS", WITH NO WARRANTIES.
 
 //! Rust abstractions of the computecore APIs.
-//! These are only the Rust idiomatic equivalents of the C bindings.
+//! These Rust idiomatic equivalents of the C bindings.
 
 pub(crate) mod bindings;
 pub mod ispresent;

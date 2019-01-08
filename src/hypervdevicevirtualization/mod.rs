@@ -6,6 +6,9 @@
 // except according to those terms.
 // THE SOURCE CODE IS AVAILABLE UNDER THE ABOVE CHOSEN LICENSE "AS IS", WITH NO WARRANTIES.
 
+//! Rust abstractions of the hypervdevicevirtualization APIs.
+//! These Rust idiomatic equivalents of the C bindings.
+
 pub(crate) mod bindings;
 pub mod defs;
 pub mod ispresent;
