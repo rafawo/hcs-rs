@@ -18,7 +18,7 @@ extern "C" {
 
     /// Creates a new operation.
     pub fn HcsCreateOperation(
-        context: *const Void,
+        context: *mut Void,
         callback: HcsOperationCompletion,
     ) -> HcsOperationHandle;
 
@@ -29,7 +29,7 @@ extern "C" {
     pub fn HcsGetOperationContext(operation: HcsOperationHandle) -> *mut Void;
 
     /// Sets the context pointer for an operation.
-    pub fn HcsSetOperationContext(operation: HcsOperationHandle, context: *const Void) -> HResult;
+    pub fn HcsSetOperationContext(operation: HcsOperationHandle, context: *mut Void) -> HResult;
 
     /// Returns the handle to compute system associated with an operation.
     pub fn HcsGetComputeSystemFromOperation(operation: HcsOperationHandle) -> HcsSystemHandle;
@@ -44,7 +44,10 @@ extern "C" {
     pub fn HcsGetOperationId(operation: HcsOperationHandle) -> u64;
 
     /// Returns the result of an operation.
-    pub fn HcsGetOperationResult(operation: HcsOperationHandle, resultDocument: *mut PWStr) -> HResult;
+    pub fn HcsGetOperationResult(
+        operation: HcsOperationHandle,
+        resultDocument: *mut PWStr,
+    ) -> HResult;
 
     /// Returns the result of an operation, including the process information for HcsCreateProcess
     /// and HcsGetProcessInfo.
@@ -73,7 +76,7 @@ extern "C" {
     /// Sets a callback that is invoked on completion of an operation.
     pub fn HcsSetOperationCallback(
         operation: HcsOperationHandle,
-        context: *const Void,
+        context: *mut Void,
         callback: HcsOperationCompletion,
     ) -> HResult;
 
@@ -160,7 +163,7 @@ extern "C" {
     pub fn HcsSetComputeSystemCallback(
         computeSystem: HcsSystemHandle,
         callbackOptions: HcsEventOptions,
-        context: *const Void,
+        context: *mut Void,
         callback: HcsEventCallback,
     ) -> HResult;
 
