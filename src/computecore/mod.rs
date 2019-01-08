@@ -48,3 +48,148 @@ pub fn close_operation(operation: HcsOperationHandle) -> HcsResult<()> {
         Ok(())
     }
 }
+
+pub fn get_operation_context(operation: HcsOperationHandle) -> HcsResult<*mut Void> {
+    unsafe { Ok(HcsGetOperationContext(operation)) }
+}
+
+pub fn set_operation_context(operation: HcsOperationHandle, context: *mut Void) -> HcsResult<()> {
+    unsafe {
+        match HcsSetOperationContext(operation, context) {
+            0 => Ok(()),
+            hresult => Err(hresult_to_result_code(&hresult)),
+        }
+    }
+}
+
+pub fn get_compute_system_from_operation(
+    operation: HcsOperationHandle,
+) -> HcsResult<HcsSystemHandle> {
+    unsafe {
+        match HcsGetComputeSystemFromOperation(operation) {
+            handle if handle != std::ptr::null_mut() => Ok(handle),
+            _ => Err(ResultCode::HcsSystemNotFound),
+        }
+    }
+}
+
+pub fn get_process_from_operation(operation: HcsOperationHandle) -> HcsResult<HcsProcessHandle> {
+    unsafe {
+        match HcsGetProcessFromOperation(operation) {
+            handle if handle != std::ptr::null_mut() => Ok(handle),
+            _ => Err(ResultCode::Unexpected),
+        }
+    }
+}
+
+pub fn get_operation_type(operation: HcsOperationHandle) -> HcsResult<HcsOperationType> {
+    unsafe { Ok(HcsGetOperationType(operation)) }
+}
+
+pub fn get_operation_id(operation: HcsOperationHandle) -> HcsResult<u64> {
+    unsafe { Ok(HcsGetOperationId(operation)) }
+}
+
+pub fn get_operation_result(operation: HcsOperationHandle) -> HcsResult<String> {
+    let result_document_ptr: *mut PWStr = std::ptr::null_mut();
+
+    unsafe {
+        match HcsGetOperationResult(operation, result_document_ptr) {
+            0 => {
+                let result_document =
+                    WideCString::from_ptr_str(*result_document_ptr).to_string_lossy();
+                winapi::um::combaseapi::CoTaskMemFree(result_document_ptr as LPVoid);
+                Ok(result_document)
+            }
+            hresult => Err(hresult_to_result_code(&hresult)),
+        }
+    }
+}
+
+pub fn get_operation_result_and_process_info(
+    operation: HcsOperationHandle,
+) -> HcsResult<(HcsProcessInformation, String)> {
+    let result_document_ptr: *mut PWStr = std::ptr::null_mut();
+
+    unsafe {
+        let mut process_info = std::mem::zeroed::<HcsProcessInformation>();
+
+        match HcsGetOperationResultAndProcessInfo(operation, &mut process_info, result_document_ptr)
+        {
+            0 => {
+                let result_document =
+                    WideCString::from_ptr_str(*result_document_ptr).to_string_lossy();
+                winapi::um::combaseapi::CoTaskMemFree(result_document_ptr as LPVoid);
+                Ok((process_info, result_document))
+            }
+            hresult => Err(hresult_to_result_code(&hresult)),
+        }
+    }
+}
+
+pub fn wait_for_operation_result(
+    operation: HcsOperationHandle,
+    timeout_ms: DWord,
+) -> HcsResult<String> {
+    let result_document_ptr: *mut PWStr = std::ptr::null_mut();
+
+    unsafe {
+        match HcsWaitForOperationResult(operation, timeout_ms, result_document_ptr) {
+            0 => {
+                let result_document =
+                    WideCString::from_ptr_str(*result_document_ptr).to_string_lossy();
+                winapi::um::combaseapi::CoTaskMemFree(result_document_ptr as LPVoid);
+                Ok(result_document)
+            }
+            hresult => Err(hresult_to_result_code(&hresult)),
+        }
+    }
+}
+
+pub fn wait_for_operation_result_and_process_info(
+    operation: HcsOperationHandle,
+    timeout_ms: DWord,
+) -> HcsResult<(HcsProcessInformation, String)> {
+    let result_document_ptr: *mut PWStr = std::ptr::null_mut();
+
+    unsafe {
+        let mut process_info = std::mem::zeroed::<HcsProcessInformation>();
+
+        match HcsWaitForOperationResultAndProcessInfo(
+            operation,
+            timeout_ms,
+            &mut process_info,
+            result_document_ptr,
+        ) {
+            0 => {
+                let result_document =
+                    WideCString::from_ptr_str(*result_document_ptr).to_string_lossy();
+                winapi::um::combaseapi::CoTaskMemFree(result_document_ptr as LPVoid);
+                Ok((process_info, result_document))
+            }
+            hresult => Err(hresult_to_result_code(&hresult)),
+        }
+    }
+}
+
+pub fn set_operation_callback(
+    operation: HcsOperationHandle,
+    context: *mut Void,
+    callback: HcsOperationCompletion,
+) -> HcsResult<()> {
+    unsafe {
+        match HcsSetOperationCallback(operation, context, callback) {
+            0 => Ok(()),
+            hresult => Err(hresult_to_result_code(&hresult)),
+        }
+    }
+}
+
+pub fn cancel_operation(operation: HcsOperationHandle) -> HcsResult<()> {
+    unsafe {
+        match HcsCancelOperation(operation) {
+            0 => Ok(()),
+            hresult => Err(hresult_to_result_code(&hresult)),
+        }
+    }
+}
