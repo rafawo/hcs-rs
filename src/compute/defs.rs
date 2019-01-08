@@ -6,7 +6,7 @@
 // except according to those terms.
 // THE SOURCE CODE IS AVAILABLE UNDER THE ABOVE CHOSEN LICENSE "AS IS", WITH NO WARRANTIES.
 
-//! This module contains Rust abstractions for the public types and definitions used by the Host Compute APIs.
+//! Rust abstractions for the public types and definitions used by the Host Compute APIs.
 
 use winutils_rs::windefs::*;
 

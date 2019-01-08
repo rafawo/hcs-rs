@@ -6,7 +6,7 @@
 // except according to those terms.
 // THE SOURCE CODE IS AVAILABLE UNDER THE ABOVE CHOSEN LICENSE "AS IS", WITH NO WARRANTIES.
 
-//! Module that contains common definitions and error codes used by the HCS APIs.
+//! Common definitions and error codes used by the HCS APIs.
 
 pub mod defs;
 pub mod errorcodes;

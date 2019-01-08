@@ -6,6 +6,8 @@
 // except according to those terms.
 // THE SOURCE CODE IS AVAILABLE UNDER THE ABOVE CHOSEN LICENSE "AS IS", WITH NO WARRANTIES.
 
+//! Enumeration of HCS related and common error codes returned by failure paths in the HCS APIs.
+
 use winutils_rs::windefs::HResult;
 
 /// Common result codes and error codes that are specific to virtualization,

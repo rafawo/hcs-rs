@@ -6,7 +6,7 @@
 // except according to those terms.
 // THE SOURCE CODE IS AVAILABLE UNDER THE ABOVE CHOSEN LICENSE "AS IS", WITH NO WARRANTIES.
 
-//! This module contains Rust FFI bindings for the public computecore APIs.
+//! Rust FFI bindings for the public computecore APIs.
 
 use crate::compute::defs::*;
 use winutils_rs::windefs::*;

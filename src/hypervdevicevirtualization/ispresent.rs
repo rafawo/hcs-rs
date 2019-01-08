@@ -6,6 +6,9 @@
 // except according to those terms.
 // THE SOURCE CODE IS AVAILABLE UNDER THE ABOVE CHOSEN LICENSE "AS IS", WITH NO WARRANTIES.
 
+//! Rust abstractions of the "IsPresent" variants of the hypervdevicevirtualization APIs.
+//! These are used to tell if the hosting DLL is present in the system, prior to calling the real API.
+
 use super::bindings::*;
 
 pub fn initialize_device_host() -> bool {
