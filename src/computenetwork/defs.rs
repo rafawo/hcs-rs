@@ -16,7 +16,7 @@ use winutils_rs::windefs::*;
 pub enum HcnNotifications {
     Invalid = 0x00000000,
 
-    // Notifications for HcnService handles
+    // Notifications for HcnServiceHandle handles
     NetworkPreCreate = 0x00000001,
     NetworkCreate = 0x00000002,
     NetworkPreDelete = 0x00000003,
@@ -45,31 +45,31 @@ pub type HcnNotificationCallback = extern "C" fn(
 );
 
 /// Context handle referencing a Network in HNS
-pub type HcnNetwork = *const Void;
+pub type HcnNetworkHandle = *const Void;
 
 /// Context handle referencing a pointer to a Network in HNS
-pub type PHcnNetwork = *mut HcnNetwork;
+pub type PHcnNetworkHandle = *mut HcnNetworkHandle;
 
 /// Context handle referencing a Namespace in HNS
-pub type HcnNamespace = *const Void;
+pub type HcnNamespaceHandle = *const Void;
 
 /// Context handle referencing a pointer to a Namespace in HNS
-pub type PHcnNamespace = *mut HcnNamespace;
+pub type PHcnNamespaceHandle = *mut HcnNamespaceHandle;
 
 /// Context handle referencing an Endpoint in HNS
-pub type HcnEndpoint = *const Void;
+pub type HcnEndpointHandle = *const Void;
 
 /// Context handle referencing a pointer to an Endpoint in HNS
-pub type PHcnEndpoint = *mut HcnEndpoint;
+pub type PHcnEndpointHandle = *mut HcnEndpointHandle;
 
 /// Context handle referencing a LoadBalancer in HNS
-pub type HcnLoadBalancer = *const Void;
+pub type HcnLoadBalancerHandle = *const Void;
 
 /// Context handle referencing a pointer to a LoadBalancer in HNS
-pub type PHcnLoadBalancer = *mut HcnLoadBalancer;
+pub type PHcnLoadBalancerHandle = *mut HcnLoadBalancerHandle;
 
 /// Context handle referencing the HNS service
-pub type HcnService = *const Void;
+pub type HcnServiceHandle = *const Void;
 
 /// Context handle referencing the HNS service
-pub type PHcnService = *mut HcnService;
+pub type PHcnServiceHandle = *mut HcnServiceHandle;

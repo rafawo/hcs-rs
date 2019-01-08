@@ -24,27 +24,27 @@ extern "C" {
     pub fn HcnCreateNetwork(
         id: *const Guid,
         settings: PCWStr,
-        network: PHcnNetwork,
+        network: PHcnNetworkHandle,
         errorRecord: *mut PWStr,
     ) -> HResult;
 
     /// Lookup an existing network
     pub fn HcnOpenNetwork(
         id: *const Guid,
-        network: PHcnNetwork,
+        network: PHcnNetworkHandle,
         errorRecord: *mut PWStr,
     ) -> HResult;
 
     /// Modify the settings of a Network
     pub fn HcnModifyNetwork(
-        network: HcnNetwork,
+        network: HcnNetworkHandle,
         settings: PCWStr,
         errorRecord: *mut PWStr,
     ) -> HResult;
 
     /// Query Network settings
     pub fn HcnQueryNetworkProperties(
-        network: HcnNetwork,
+        network: HcnNetworkHandle,
         query: PCWStr,
         properties: *mut PWStr,
         errorRecord: *mut PWStr,
@@ -54,7 +54,7 @@ extern "C" {
     pub fn HcnDeleteNetwork(id: *const Guid, errorRecord: *mut PWStr) -> HResult;
 
     /// Close a handle to a Network
-    pub fn HcnCloseNetwork(network: HcnNetwork) -> HResult;
+    pub fn HcnCloseNetwork(network: HcnNetworkHandle) -> HResult;
 
     /// Return a list of existing Namespaces
     pub fn HcnEnumerateNamespaces(
@@ -67,27 +67,27 @@ extern "C" {
     pub fn HcnCreateNamespace(
         id: *const Guid,
         settings: PCWStr,
-        namespace: PHcnNamespace,
+        namespace: PHcnNamespaceHandle,
         errorRecord: *mut PWStr,
     ) -> HResult;
 
     /// Lookup an existing Namespace
     pub fn HcnOpenNamespace(
         id: *const Guid,
-        namespace: PHcnNamespace,
+        namespace: PHcnNamespaceHandle,
         errorRecord: *mut PWStr,
     ) -> HResult;
 
     /// Modify the settings of a Namespace
     pub fn HcnModifyNamespace(
-        namespace: HcnNamespace,
+        namespace: HcnNamespaceHandle,
         settings: PCWStr,
         errorRecord: *mut PWStr,
     ) -> HResult;
 
     /// Query Namespace settings
     pub fn HcnQueryNamespaceProperties(
-        namespace: HcnNamespace,
+        namespace: HcnNamespaceHandle,
         query: PCWStr,
         properties: *mut PWStr,
         errorRecord: *mut PWStr,
@@ -97,7 +97,7 @@ extern "C" {
     pub fn HcnDeleteNamespace(id: *const Guid, errorRecord: *mut PWStr) -> HResult;
 
     /// Close a handle to a Namespace
-    pub fn HcnCloseNamespace(namespace: HcnNamespace) -> HResult;
+    pub fn HcnCloseNamespace(namespace: HcnNamespaceHandle) -> HResult;
 
     /// Return a list of existing Endpoints
     pub fn HcnEnumerateEndpoints(
@@ -108,30 +108,30 @@ extern "C" {
 
     /// Create an Endpoint
     pub fn HcnCreateEndpoint(
-        network: HcnNetwork,
+        network: HcnNetworkHandle,
         id: *const Guid,
         settings: PCWStr,
-        endpoint: PHcnEndpoint,
+        endpoint: PHcnEndpointHandle,
         errorRecord: *mut PWStr,
     ) -> HResult;
 
     /// Lookup an existing Endpoint
     pub fn HcnOpenEndpoint(
         id: *const Guid,
-        endpoint: PHcnEndpoint,
+        endpoint: PHcnEndpointHandle,
         errorRecord: *mut PWStr,
     ) -> HResult;
 
     /// Modify the settings of an Endpoint
     pub fn HcnModifyEndpoint(
-        endpoint: HcnEndpoint,
+        endpoint: HcnEndpointHandle,
         settings: PCWStr,
         errorRecord: *mut PWStr,
     ) -> HResult;
 
     /// Query Endpoint properties
     pub fn HcnQueryEndpointProperties(
-        endpoint: HcnEndpoint,
+        endpoint: HcnEndpointHandle,
         query: PCWStr,
         properties: *mut PWStr,
         errorRecord: *mut PWStr,
@@ -141,7 +141,7 @@ extern "C" {
     pub fn HcnDeleteEndpoint(id: *const Guid, errorRecord: *mut PWStr) -> HResult;
 
     /// Close a handle to an Endpoint
-    pub fn HcnCloseEndpoint(endpoint: HcnEndpoint) -> HResult;
+    pub fn HcnCloseEndpoint(endpoint: HcnEndpointHandle) -> HResult;
 
     /// Return a list of existing LoadBalancers
     pub fn HcnEnumerateLoadBalancers(
@@ -154,27 +154,27 @@ extern "C" {
     pub fn HcnCreateLoadBalancer(
         id: *const Guid,
         settings: PCWStr,
-        loadBalancer: PHcnLoadBalancer,
+        loadBalancer: PHcnLoadBalancerHandle,
         errorRecord: *mut PWStr,
     ) -> HResult;
 
     /// Lookup an existing LoadBalancer
     pub fn HcnOpenLoadBalancer(
         id: *const Guid,
-        loadBalancer: PHcnLoadBalancer,
+        loadBalancer: PHcnLoadBalancerHandle,
         errorRecord: *mut PWStr,
     ) -> HResult;
 
     /// Modify the settings of a PolicyList
     pub fn HcnModifyLoadBalancer(
-        loadBalancer: HcnLoadBalancer,
+        loadBalancer: HcnLoadBalancerHandle,
         settings: PCWStr,
         errorRecord: *mut PWStr,
     ) -> HResult;
 
     /// Query PolicyList settings
     pub fn HcnQueryLoadBalancerProperties(
-        loadBalancer: HcnLoadBalancer,
+        loadBalancer: HcnLoadBalancerHandle,
         query: PCWStr,
         properties: *mut PWStr,
         errorRecord: *mut PWStr,
@@ -184,7 +184,7 @@ extern "C" {
     pub fn HcnDeleteLoadBalancer(id: *const Guid, errorRecord: *mut PWStr) -> HResult;
 
     /// Close a handle to a LoadBalancer
-    pub fn HcnCloseLoadBalancer(loadBalancer: HcnLoadBalancer) -> HResult;
+    pub fn HcnCloseLoadBalancer(loadBalancer: HcnLoadBalancerHandle) -> HResult;
 
     /// Registers a callback function to receive notifications of service-wide events
     pub fn HcnRegisterServiceCallback(
