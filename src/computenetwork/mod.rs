@@ -23,6 +23,15 @@ pub struct ErrorResult {
     pub result_code: ResultCode,
 }
 
+impl ErrorResult {
+    pub fn new(error_record: String, hresult: HResult) -> ErrorResult {
+        ErrorResult {
+            error_record,
+            result_code: hresult_to_result_code(&hresult),
+        }
+    }
+}
+
 /// Alias used by HCN results, which on error, contain an error record as a JSON object
 /// and the underlying returned result code.
 pub type HcnResult<T> = Result<T, ErrorResult>;
@@ -38,10 +47,7 @@ pub fn enumerate_networks(query: &str) -> HcnResult<String> {
             error_record.ptr,
         ) {
             0 => Ok(networks.to_string()),
-            hresult => Err(ErrorResult {
-                error_record: error_record.to_string(),
-                result_code: hresult_to_result_code(&hresult),
-            }),
+            hresult => Err(ErrorResult::new(error_record.to_string(), hresult)),
         }
     }
 }
@@ -58,10 +64,7 @@ pub fn create_network(id: &Guid, settings: &str) -> HcnResult<HcnNetworkHandle> 
             error_record.ptr,
         ) {
             0 => Ok(network_handle),
-            hresult => Err(ErrorResult {
-                error_record: error_record.to_string(),
-                result_code: hresult_to_result_code(&hresult),
-            }),
+            hresult => Err(ErrorResult::new(error_record.to_string(), hresult)),
         }
     }
 }
