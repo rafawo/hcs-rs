@@ -230,3 +230,105 @@ pub fn close_namespace(namespace: HcnNamespaceHandle) -> HcnResult<()> {
         }
     }
 }
+
+pub fn enumerate_endpoints(query: &str) -> HcnResult<String> {
+    unsafe {
+        let endpoints = CoTaskMemWString::new();
+        let error_record = CoTaskMemWString::new();
+
+        match HcnEnumerateEndpoints(
+            WideCString::from_str(query).unwrap().as_ptr(),
+            endpoints.ptr,
+            error_record.ptr,
+        ) {
+            0 => Ok(endpoints.to_string()),
+            hresult => Err(ErrorResult::new(error_record.to_string(), hresult)),
+        }
+    }
+}
+
+pub fn create_endpoint(
+    network: HcnNetworkHandle,
+    id: &Guid,
+    settings: &str,
+) -> HcnResult<HcnEndpointHandle> {
+    unsafe {
+        let mut endpoint_handle: HcnEndpointHandle = std::ptr::null_mut();
+        let error_record = CoTaskMemWString::new();
+
+        match HcnCreateEndpoint(
+            network,
+            id,
+            WideCString::from_str(settings).unwrap().as_ptr(),
+            &mut endpoint_handle,
+            error_record.ptr,
+        ) {
+            0 => Ok(endpoint_handle),
+            hresult => Err(ErrorResult::new(error_record.to_string(), hresult)),
+        }
+    }
+}
+
+pub fn open_endpoint(id: &Guid) -> HcnResult<HcnEndpointHandle> {
+    unsafe {
+        let mut endpoint_handle: HcnEndpointHandle = std::ptr::null_mut();
+        let error_record = CoTaskMemWString::new();
+
+        match HcnOpenEndpoint(id, &mut endpoint_handle, error_record.ptr) {
+            0 => Ok(endpoint_handle),
+            hresult => Err(ErrorResult::new(error_record.to_string(), hresult)),
+        }
+    }
+}
+
+pub fn modify_endpoint(endpoint: HcnEndpointHandle, settings: &str) -> HcnResult<()> {
+    unsafe {
+        let error_record = CoTaskMemWString::new();
+
+        match HcnModifyEndpoint(
+            endpoint,
+            WideCString::from_str(settings).unwrap().as_ptr(),
+            error_record.ptr,
+        ) {
+            0 => Ok(()),
+            hresult => Err(ErrorResult::new(error_record.to_string(), hresult)),
+        }
+    }
+}
+
+pub fn query_endpoint_properties(endpoint: HcnEndpointHandle, query: &str) -> HcnResult<String> {
+    unsafe {
+        let properties = CoTaskMemWString::new();
+        let error_record = CoTaskMemWString::new();
+
+        match HcnQueryEndpointProperties(
+            endpoint,
+            WideCString::from_str(query).unwrap().as_ptr(),
+            properties.ptr,
+            error_record.ptr,
+        ) {
+            0 => Ok(properties.to_string()),
+            hresult => Err(ErrorResult::new(error_record.to_string(), hresult)),
+        }
+    }
+}
+
+pub fn delete_endpoint(id: &Guid) -> HcnResult<()> {
+    unsafe {
+        let error_record = CoTaskMemWString::new();
+
+        match HcnDeleteEndpoint(id, error_record.ptr) {
+            0 => Ok(()),
+            hresult => Err(ErrorResult::new(error_record.to_string(), hresult)),
+        }
+    }
+}
+
+pub fn close_endpoint(endpoint: HcnEndpointHandle) -> HcnResult<()> {
+    unsafe {
+        match HcnCloseEndpoint(endpoint) {
+            0 => Ok(()),
+            hresult => Err(ErrorResult::new(String::from(""), hresult)),
+        }
+    }
+}
