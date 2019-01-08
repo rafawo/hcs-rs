@@ -37,12 +37,14 @@ The relevant Windows 10 SDK files that this project is wrapping are:
 
 All of the above are serviced through the Windows Service `Host Compute Service`, from executable **C:\Windows\System32\vmcompute.exe**.
 
+The C bindings in this crate will remain private and not public to external code. Only the Rust idiomatic wrappers are exposed.
+
 The following table describes the relevant Windows 10 SDK files that this project is wrapping and how they relate to each module:
 
-| hcs-rs | Overview | HCS API C Header file | .h path in SDK | .lib path in SDK |
+| hcs-rs file | Overview | HCS API C Header file | .h path in SDK | .lib path in SDK |
 | -- | -- | -- | -- | -- |
-| [computecore](/src/computecore) | APIs for the core HCS functionality to manage compute systems. | computecore.h | C:\Program Files (x86)\Windows Kits\10\Include\10.0.17763.0\um\computecore.h | C:\Program Files (x86)\Windows Kits\10\Lib\10.0.17763.0\um\x64\computecore.lib |
-| [computedefs](/src/computedefs) | Types and definitions used by the HCS APIs. | computedefs.h | C:\Program Files (x86)\Windows Kits\10\Include\10.0.17763.0\um\computedefs.h | C:\Program Files (x86)\Windows Kits\10\Lib\10.0.17763.0\um\x64\computedefs.lib |
-| [computenetwork](/src/computenetwork) | Types definitions and APIs to interact with the HCN (Host Compute Network). | computenetwork.h | C:\Program Files (x86)\Windows Kits\10\Include\10.0.17763.0\um\computenetwork.h | C:\Program Files (x86)\Windows Kits\10\Lib\10.0.17763.0\um\x64\computenetwork.lib |
-| [computestorage](/src/computestorage) | APIs for the HCS storage management. | computestorage.h | C:\Program Files (x86)\Windows Kits\10\Include\10.0.17763.0\um\computestorage.h | C:\Program Files (x86)\Windows Kits\10\Lib\10.0.17763.0\um\x64\computestorage.lib |
-| [hypervdevicevirtualization](/src/hypervdevicevirtualization) | Types definitions and APIs for device emulation/virtualization. | hypervdevicevirtualization.h | C:\Program Files (x86)\Windows Kits\10\Include\10.0.17763.0\um\hypervdevicevirtualization.h | C:\Program Files (x86)\Windows Kits\10\Lib\10.0.17763.0\um\x64\vmdevicehost.lib |
+| [computedefs](/src/compute/defs.rs) | Types and definitions used by the HCS APIs. | computedefs.h | C:\Program Files (x86)\Windows Kits\10\Include\10.0.17763.0\um\computedefs.h | C:\Program Files (x86)\Windows Kits\10\Lib\10.0.17763.0\um\x64\computedefs.lib |
+| [computecore](/src/computecore/mod.rs) | APIs for the core HCS functionality to manage compute systems. | computecore.h | C:\Program Files (x86)\Windows Kits\10\Include\10.0.17763.0\um\computecore.h | C:\Program Files (x86)\Windows Kits\10\Lib\10.0.17763.0\um\x64\computecore.lib |
+| [computenetwork](/src/computenetwork/mod.rs) | Types definitions and APIs to interact with the HCN (Host Compute Network). | computenetwork.h | C:\Program Files (x86)\Windows Kits\10\Include\10.0.17763.0\um\computenetwork.h | C:\Program Files (x86)\Windows Kits\10\Lib\10.0.17763.0\um\x64\computenetwork.lib |
+| [computestorage](/src/computestorage/mod.rs) | APIs for the HCS storage management. | computestorage.h | C:\Program Files (x86)\Windows Kits\10\Include\10.0.17763.0\um\computestorage.h | C:\Program Files (x86)\Windows Kits\10\Lib\10.0.17763.0\um\x64\computestorage.lib |
+| [hypervdevicevirtualization](/src/hypervdevicevirtualization/mod.rs) | Types definitions and APIs for device emulation/virtualization. | hypervdevicevirtualization.h | C:\Program Files (x86)\Windows Kits\10\Include\10.0.17763.0\um\hypervdevicevirtualization.h | C:\Program Files (x86)\Windows Kits\10\Lib\10.0.17763.0\um\x64\vmdevicehost.lib |
