@@ -16,47 +16,53 @@ use winutils_rs::windefs::*;
 extern "C" {
     pub fn HdvInitializeDeviceHost(
         computeSystem: HcsSystemHandle,
-        deviceHostHandle: *mut HdvHost,
+        deviceHostHandle: *mut HdvHostHandle,
     ) -> HResult;
 
-    pub fn HdvTeardownDeviceHost(deviceHostHandle: HdvHost) -> HResult;
+    pub fn HdvTeardownDeviceHost(deviceHostHandle: HdvHostHandle) -> HResult;
 
     pub fn HdvCreateDeviceInstance(
-        deviceHostHandle: HdvHost,
+        deviceHostHandle: HdvHostHandle,
         deviceType: HdvDeviceType,
         deviceClassId: *const Guid,
         deviceInstanceId: *const Guid,
         deviceInterface: *const Void,
         deviceContext: *mut Void,
-        deviceHandle: *mut HdvDevice,
+        deviceHandle: *mut HdvDeviceHandle,
     ) -> HResult;
 
     pub fn HdvReadGuestMemory(
-        requestor: HdvDevice,
+        requestor: HdvDeviceHandle,
         guestPhysicalAddress: u64,
         ByteCount: u32,
         buffer: *mut Byte,
     ) -> HResult;
 
     pub fn HdvWriteGuestMemory(
-        requestor: HdvDevice,
+        requestor: HdvDeviceHandle,
         guestPhysicalAddress: u64,
         ByteCount: u32,
         buffer: *const Byte,
     ) -> HResult;
 
     pub fn HdvCreateGuestMemoryAperture(
-        requestor: HdvDevice,
+        requestor: HdvDeviceHandle,
         guestPhysicalAddress: u64,
         ByteCount: u32,
         writeProtected: Bool,
         mappedAddress: *mut PVoid,
     ) -> HResult;
 
-    pub fn HdvDestroyGuestMemoryAperture(requestor: HdvDevice, mappedAddress: PVoid) -> HResult;
+    pub fn HdvDestroyGuestMemoryAperture(
+        requestor: HdvDeviceHandle,
+        mappedAddress: PVoid,
+    ) -> HResult;
 
-    pub fn HdvDeliverGuestInterrupt(requestor: HdvDevice, msiAddress: u64, msiData: u32)
-        -> HResult;
+    pub fn HdvDeliverGuestInterrupt(
+        requestor: HdvDeviceHandle,
+        msiAddress: u64,
+        msiData: u32,
+    ) -> HResult;
 
     pub fn IsHdvInitializeDeviceHostPresent() -> Boolean;
 

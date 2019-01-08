@@ -10,3 +10,21 @@
 pub(crate) mod bindings;
 pub mod defs;
 pub mod ispresent;
+
+use crate::compute::defs::*;
+use crate::compute::errorcodes::hresult_to_result_code;
+use crate::hypervdevicevirtualization::bindings::*;
+use crate::hypervdevicevirtualization::defs::*;
+use crate::HcsResult;
+use winutils_rs::windefs::*;
+
+pub fn initialize_device_host(compute_system: HcsSystemHandle) -> HcsResult<HdvHostHandle> {
+    let mut device_host_handle: HdvHostHandle = std::ptr::null_mut();
+
+    unsafe {
+        match HdvInitializeDeviceHost(compute_system, &mut device_host_handle) {
+            0 => Ok(device_host_handle),
+            hresult => Err(hresult_to_result_code(&hresult)),
+        }
+    }
+}

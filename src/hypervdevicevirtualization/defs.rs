@@ -10,8 +10,8 @@
 
 use winutils_rs::windefs::*;
 
-pub type HdvHost = *const Void;
-pub type HdvDevice = *const Void;
+pub type HdvHostHandle = *const Void;
+pub type HdvDeviceHandle = *const Void;
 
 #[repr(C)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
