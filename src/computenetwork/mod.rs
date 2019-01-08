@@ -10,3 +10,37 @@
 pub(crate) mod bindings;
 pub mod defs;
 pub mod ispresent;
+
+use crate::compute::errorcodes::{hresult_to_result_code, ResultCode};
+use crate::computenetwork::bindings::*;
+use crate::computenetwork::defs::*;
+use widestring::WideCString;
+use winutils_rs::windefs::*;
+
+/// Alias used by HCN results, which on error, contain an error record as a JSON object
+/// and the underlying returned result code.
+pub type HcnResult<T> = Result<T, (String, ResultCode)>;
+
+pub fn enumerate_networks(query: &str) -> HcnResult<String> {
+    unsafe {
+        let networks_ptr: *mut PWStr = std::ptr::null_mut();
+        let error_record_ptr: *mut PWStr = std::ptr::null_mut();
+
+        match HcnEnumerateNetworks(
+            WideCString::from_str(query).unwrap().as_ptr(),
+            networks_ptr,
+            error_record_ptr
+        ) {
+            0 => {
+                let networks = WideCString::from_ptr_str(*networks_ptr).to_string_lossy();
+                winapi::um::combaseapi::CoTaskMemFree(networks_ptr as LPVoid);
+                Ok(networks)
+            }
+            hresult => {
+                let error_record = WideCString::from_ptr_str(*error_record_ptr).to_string_lossy();
+                winapi::um::combaseapi::CoTaskMemFree(error_record_ptr as LPVoid);
+                Err((error_record, hresult_to_result_code(&hresult)))
+            }
+        }
+    }
+}
