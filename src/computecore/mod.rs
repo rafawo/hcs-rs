@@ -193,3 +193,30 @@ pub fn cancel_operation(operation: HcsOperationHandle) -> HcsResult<()> {
         }
     }
 }
+
+pub fn create_compute_system(
+    id: &str,
+    configuration: &str,
+    operation: HcsOperationHandle,
+    security_descriptor: Option<&SecurityDescriptor>,
+) -> HcsResult<HcsSystemHandle> {
+    let mut compute_system_handle: HcsSystemHandle = std::ptr::null_mut();
+
+    let security_descriptor_ptr = match security_descriptor {
+        Some(security_descriptor) => security_descriptor as *const SecurityDescriptor,
+        None => std::ptr::null_mut(),
+    };
+
+    unsafe {
+        match HcsCreateComputeSystem(
+            WideCString::from_str(id).unwrap().as_ptr(),
+            WideCString::from_str(configuration).unwrap().as_ptr(),
+            operation,
+            security_descriptor_ptr,
+            &mut compute_system_handle,
+        ) {
+            0 => Ok(compute_system_handle),
+            hresult => Err(hresult_to_result_code(&hresult)),
+        }
+    }
+}
