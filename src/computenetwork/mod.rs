@@ -17,9 +17,14 @@ use crate::computenetwork::defs::*;
 use widestring::WideCString;
 use winutils_rs::windefs::*;
 
+pub struct ErrorResult {
+    pub error_record: String,
+    pub result_code: ResultCode,
+}
+
 /// Alias used by HCN results, which on error, contain an error record as a JSON object
 /// and the underlying returned result code.
-pub type HcnResult<T> = Result<T, (String, ResultCode)>;
+pub type HcnResult<T> = Result<T, ErrorResult>;
 
 pub fn enumerate_networks(query: &str) -> HcnResult<String> {
     unsafe {
@@ -29,7 +34,7 @@ pub fn enumerate_networks(query: &str) -> HcnResult<String> {
         match HcnEnumerateNetworks(
             WideCString::from_str(query).unwrap().as_ptr(),
             networks_ptr,
-            error_record_ptr
+            error_record_ptr,
         ) {
             0 => {
                 let networks = WideCString::from_ptr_str(*networks_ptr).to_string_lossy();
@@ -39,7 +44,10 @@ pub fn enumerate_networks(query: &str) -> HcnResult<String> {
             hresult => {
                 let error_record = WideCString::from_ptr_str(*error_record_ptr).to_string_lossy();
                 winapi::um::combaseapi::CoTaskMemFree(error_record_ptr as LPVoid);
-                Err((error_record, hresult_to_result_code(&hresult)))
+                Err(ErrorResult {
+                    error_record,
+                    result_code: hresult_to_result_code(&hresult),
+                })
             }
         }
     }
