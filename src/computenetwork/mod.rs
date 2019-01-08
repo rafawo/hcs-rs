@@ -6,7 +6,6 @@
 // except according to those terms.
 // THE SOURCE CODE IS AVAILABLE UNDER THE ABOVE CHOSEN LICENSE "AS IS", WITH NO WARRANTIES.
 
-#[allow(dead_code)]
 pub(crate) mod bindings;
 pub mod defs;
 pub mod ispresent;
@@ -427,6 +426,28 @@ pub fn delete_load_balancer(id: &Guid) -> HcnResult<()> {
 pub fn close_load_balancer(load_balancer: HcnLoadBalancerHandle) -> HcnResult<()> {
     unsafe {
         match HcnCloseLoadBalancer(load_balancer) {
+            0 => Ok(()),
+            hresult => Err(ErrorResult::new(String::from(""), hresult)),
+        }
+    }
+}
+
+pub fn register_service_callback(
+    callback: HcnNotificationCallback,
+    context: *const Void,
+    callback_handle: *mut HcnCallback,
+) -> HcnResult<()> {
+    unsafe {
+        match HcnRegisterServiceCallback(callback, context, callback_handle) {
+            0 => Ok(()),
+            hresult => Err(ErrorResult::new(String::from(""), hresult)),
+        }
+    }
+}
+
+pub fn unregister_service_callback(callback_handle: *const HcnCallback) -> HcnResult<()> {
+    unsafe {
+        match HcnUnregisterServiceCallback(callback_handle) {
             0 => Ok(()),
             hresult => Err(ErrorResult::new(String::from(""), hresult)),
         }
