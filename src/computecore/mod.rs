@@ -220,3 +220,198 @@ pub fn create_compute_system(
         }
     }
 }
+
+pub fn open_compute_system(id: &str, requested_access: DWord) -> HcsResult<HcsSystemHandle> {
+    let mut compute_system_handle: HcsSystemHandle = std::ptr::null_mut();
+
+    unsafe {
+        match HcsOpenComputeSystem(
+            WideCString::from_str(id).unwrap().as_ptr(),
+            requested_access,
+            &mut compute_system_handle,
+        ) {
+            0 => Ok(compute_system_handle),
+            hresult => Err(hresult_to_result_code(&hresult)),
+        }
+    }
+}
+
+pub fn close_compute_system(compute_system: HcsSystemHandle) -> HcsResult<()> {
+    unsafe {
+        HcsCloseComputeSystem(compute_system);
+        Ok(())
+    }
+}
+
+pub fn start_compute_system(
+    compute_system: HcsSystemHandle,
+    operation: HcsOperationHandle,
+    options: Option<&str>,
+) -> HcsResult<()> {
+    let options_str = match options {
+        Some(options) => options,
+        None => "",
+    };
+
+    unsafe {
+        match HcsStartComputeSystem(
+            compute_system,
+            operation,
+            WideCString::from_str(options_str).unwrap().as_ptr(),
+        ) {
+            0 => Ok(()),
+            hresult => Err(hresult_to_result_code(&hresult)),
+        }
+    }
+}
+
+pub fn shutdown_compute_system(
+    compute_system: HcsSystemHandle,
+    operation: HcsOperationHandle,
+    options: Option<&str>,
+) -> HcsResult<()> {
+    let options_str = match options {
+        Some(options) => options,
+        None => "",
+    };
+
+    unsafe {
+        match HcsShutDownComputeSystem(
+            compute_system,
+            operation,
+            WideCString::from_str(options_str).unwrap().as_ptr(),
+        ) {
+            0 => Ok(()),
+            hresult => Err(hresult_to_result_code(&hresult)),
+        }
+    }
+}
+
+pub fn terminate_compute_system(
+    compute_system: HcsSystemHandle,
+    operation: HcsOperationHandle,
+    options: Option<&str>,
+) -> HcsResult<()> {
+    let options_str = match options {
+        Some(options) => options,
+        None => "",
+    };
+
+    unsafe {
+        match HcsTerminateComputeSystem(
+            compute_system,
+            operation,
+            WideCString::from_str(options_str).unwrap().as_ptr(),
+        ) {
+            0 => Ok(()),
+            hresult => Err(hresult_to_result_code(&hresult)),
+        }
+    }
+}
+
+pub fn pause_compute_system(
+    compute_system: HcsSystemHandle,
+    operation: HcsOperationHandle,
+    options: Option<&str>,
+) -> HcsResult<()> {
+    let options_str = match options {
+        Some(options) => options,
+        None => "",
+    };
+
+    unsafe {
+        match HcsPauseComputeSystem(
+            compute_system,
+            operation,
+            WideCString::from_str(options_str).unwrap().as_ptr(),
+        ) {
+            0 => Ok(()),
+            hresult => Err(hresult_to_result_code(&hresult)),
+        }
+    }
+}
+
+pub fn resume_compute_system(
+    compute_system: HcsSystemHandle,
+    operation: HcsOperationHandle,
+    options: Option<&str>,
+) -> HcsResult<()> {
+    let options_str = match options {
+        Some(options) => options,
+        None => "",
+    };
+
+    unsafe {
+        match HcsResumeComputeSystem(
+            compute_system,
+            operation,
+            WideCString::from_str(options_str).unwrap().as_ptr(),
+        ) {
+            0 => Ok(()),
+            hresult => Err(hresult_to_result_code(&hresult)),
+        }
+    }
+}
+
+pub fn save_compute_system(
+    compute_system: HcsSystemHandle,
+    operation: HcsOperationHandle,
+    options: Option<&str>,
+) -> HcsResult<()> {
+    let options_str = match options {
+        Some(options) => options,
+        None => "",
+    };
+
+    unsafe {
+        match HcsSaveComputeSystem(
+            compute_system,
+            operation,
+            WideCString::from_str(options_str).unwrap().as_ptr(),
+        ) {
+            0 => Ok(()),
+            hresult => Err(hresult_to_result_code(&hresult)),
+        }
+    }
+}
+
+pub fn get_compute_system_properties(
+    compute_system: HcsSystemHandle,
+    operation: HcsOperationHandle,
+    property_query: Option<&str>,
+) -> HcsResult<()> {
+    let property_query_str = match property_query {
+        Some(property_query) => property_query,
+        None => "",
+    };
+
+    unsafe {
+        match HcsGetComputeSystemProperties(
+            compute_system,
+            operation,
+            WideCString::from_str(property_query_str).unwrap().as_ptr(),
+        ) {
+            0 => Ok(()),
+            hresult => Err(hresult_to_result_code(&hresult)),
+        }
+    }
+}
+
+pub fn modify_compute_system(
+    compute_system: HcsSystemHandle,
+    operation: HcsOperationHandle,
+    configuration: &str,
+    identity: Handle,
+) -> HcsResult<()> {
+    unsafe {
+        match HcsModifyComputeSystem(
+            compute_system,
+            operation,
+            WideCString::from_str(configuration).unwrap().as_ptr(),
+            identity,
+        ) {
+            0 => Ok(()),
+            hresult => Err(hresult_to_result_code(&hresult)),
+        }
+    }
+}

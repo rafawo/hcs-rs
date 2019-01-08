@@ -96,7 +96,7 @@ extern "C" {
     pub fn HcsOpenComputeSystem(
         id: PCWStr,
         requestedAccess: DWord,
-        computeSystem: HcsSystemHandle,
+        computeSystem: *mut HcsSystemHandle,
     ) -> HResult;
 
     /// Closes a handle to a compute system.
