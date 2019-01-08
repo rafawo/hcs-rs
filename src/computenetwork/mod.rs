@@ -332,3 +332,103 @@ pub fn close_endpoint(endpoint: HcnEndpointHandle) -> HcnResult<()> {
         }
     }
 }
+
+pub fn enumerate_load_balancers(query: &str) -> HcnResult<String> {
+    unsafe {
+        let load_balancers = CoTaskMemWString::new();
+        let error_record = CoTaskMemWString::new();
+
+        match HcnEnumerateLoadBalancers(
+            WideCString::from_str(query).unwrap().as_ptr(),
+            load_balancers.ptr,
+            error_record.ptr,
+        ) {
+            0 => Ok(load_balancers.to_string()),
+            hresult => Err(ErrorResult::new(error_record.to_string(), hresult)),
+        }
+    }
+}
+
+pub fn create_load_balancer(id: &Guid, settings: &str) -> HcnResult<HcnLoadBalancerHandle> {
+    unsafe {
+        let mut load_balancer_handle: HcnLoadBalancerHandle = std::ptr::null_mut();
+        let error_record = CoTaskMemWString::new();
+
+        match HcnCreateLoadBalancer(
+            id,
+            WideCString::from_str(settings).unwrap().as_ptr(),
+            &mut load_balancer_handle,
+            error_record.ptr,
+        ) {
+            0 => Ok(load_balancer_handle),
+            hresult => Err(ErrorResult::new(error_record.to_string(), hresult)),
+        }
+    }
+}
+
+pub fn open_load_balancer(id: &Guid) -> HcnResult<HcnLoadBalancerHandle> {
+    unsafe {
+        let mut load_balancer_handle: HcnLoadBalancerHandle = std::ptr::null_mut();
+        let error_record = CoTaskMemWString::new();
+
+        match HcnOpenLoadBalancer(id, &mut load_balancer_handle, error_record.ptr) {
+            0 => Ok(load_balancer_handle),
+            hresult => Err(ErrorResult::new(error_record.to_string(), hresult)),
+        }
+    }
+}
+
+pub fn modify_load_balancer(load_balancer: HcnLoadBalancerHandle, settings: &str) -> HcnResult<()> {
+    unsafe {
+        let error_record = CoTaskMemWString::new();
+
+        match HcnModifyLoadBalancer(
+            load_balancer,
+            WideCString::from_str(settings).unwrap().as_ptr(),
+            error_record.ptr,
+        ) {
+            0 => Ok(()),
+            hresult => Err(ErrorResult::new(error_record.to_string(), hresult)),
+        }
+    }
+}
+
+pub fn query_load_balancer_properties(
+    load_balancer: HcnLoadBalancerHandle,
+    query: &str,
+) -> HcnResult<String> {
+    unsafe {
+        let properties = CoTaskMemWString::new();
+        let error_record = CoTaskMemWString::new();
+
+        match HcnQueryLoadBalancerProperties(
+            load_balancer,
+            WideCString::from_str(query).unwrap().as_ptr(),
+            properties.ptr,
+            error_record.ptr,
+        ) {
+            0 => Ok(properties.to_string()),
+            hresult => Err(ErrorResult::new(error_record.to_string(), hresult)),
+        }
+    }
+}
+
+pub fn delete_load_balancer(id: &Guid) -> HcnResult<()> {
+    unsafe {
+        let error_record = CoTaskMemWString::new();
+
+        match HcnDeleteLoadBalancer(id, error_record.ptr) {
+            0 => Ok(()),
+            hresult => Err(ErrorResult::new(error_record.to_string(), hresult)),
+        }
+    }
+}
+
+pub fn close_load_balancer(load_balancer: HcnLoadBalancerHandle) -> HcnResult<()> {
+    unsafe {
+        match HcnCloseLoadBalancer(load_balancer) {
+            0 => Ok(()),
+            hresult => Err(ErrorResult::new(String::from(""), hresult)),
+        }
+    }
+}
