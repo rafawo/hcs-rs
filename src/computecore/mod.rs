@@ -9,7 +9,6 @@
 //! Rust abstractions of the computecore APIs.
 //! These are only the Rust idiomatic equivalents of the C bindings.
 
-#[allow(dead_code)]
 pub(crate) mod bindings;
 pub mod ispresent;
 
