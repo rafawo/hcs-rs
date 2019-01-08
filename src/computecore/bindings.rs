@@ -181,7 +181,7 @@ extern "C" {
         computeSystem: HcsSystemHandle,
         processId: DWord,
         requestedAccess: DWord,
-        process: HcsProcessHandle,
+        process: *mut HcsProcessHandle,
     ) -> HResult;
 
     /// Closes the handle to a process in a compute system
