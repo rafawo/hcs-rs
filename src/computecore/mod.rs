@@ -11,6 +11,7 @@
 
 pub(crate) mod bindings;
 pub mod ispresent;
+pub mod utilities;
 
 use crate::compute::defs::*;
 use crate::compute::errorcodes::{hresult_to_result_code, ResultCode};
