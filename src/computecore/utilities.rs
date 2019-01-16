@@ -221,4 +221,70 @@ impl HcsSystem {
             callback,
         )
     }
+
+    pub fn create_process(
+        &self,
+        process_parameters: &str,
+        operation: &HcsOperation,
+        security_descriptor: Option<&SecurityDescriptor>,
+    ) -> HcsResult<HcsProcess> {
+        Ok(HcsProcess {
+            handle: computecore::create_process(
+                self.handle,
+                process_parameters,
+                operation.handle,
+                security_descriptor,
+            )?,
+        })
+    }
+
+    pub fn open_process(
+        &self,
+        process_id: DWord,
+        requested_access: DWord,
+    ) -> HcsResult<HcsProcess> {
+        Ok(HcsProcess {
+            handle: computecore::open_process(self.handle, process_id, requested_access)?,
+        })
+    }
+}
+
+impl HcsProcess {
+    pub fn terminate(&self, operation: &HcsOperation, options: Option<&str>) -> HcsResult<()> {
+        computecore::terminate_process(self.handle, operation.handle, options)
+    }
+
+    pub fn signal(&self, operation: &HcsOperation, options: Option<&str>) -> HcsResult<()> {
+        computecore::signal_process(self.handle, operation.handle, options)
+    }
+
+    pub fn get_info(&self, operation: &HcsOperation) -> HcsResult<()> {
+        computecore::get_process_info(self.handle, operation.handle)
+    }
+
+    pub fn get_properties(
+        &self,
+        operation: &HcsOperation,
+        property_query: Option<&str>,
+    ) -> HcsResult<()> {
+        computecore::get_process_properties(self.handle, operation.handle, property_query)
+    }
+
+    pub fn modify(&self, operation: &HcsOperation, settings: Option<&str>) -> HcsResult<()> {
+        computecore::modify_process(self.handle, operation.handle, settings)
+    }
+
+    pub fn set_callback<T>(
+        &self,
+        callback_options: HcsEventOptions,
+        context: &mut T,
+        callback: HcsEventCallback,
+    ) -> HcsResult<()> {
+        computecore::set_process_callback(
+            self.handle,
+            callback_options,
+            context as *mut T as *mut Void,
+            callback,
+        )
+    }
 }
