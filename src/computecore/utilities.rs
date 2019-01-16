@@ -8,6 +8,9 @@
 
 //! Rust types that provide convenient functionality built on top of the computecore APIs.
 
+// TODO:rafawo Change the implementations in this file to use strongly typed representations
+// of the JSON API surface of HCS instead of using straight raw strings.
+
 use crate::compute::defs::*;
 use crate::computecore;
 use crate::HcsResult;
@@ -20,7 +23,8 @@ pub struct HcsSystem {
 impl std::ops::Drop for HcsSystem {
     fn drop(&mut self) {
         if self.handle != std::ptr::null_mut() {
-            computecore::close_compute_system(self.handle).expect("Failed to close handle");
+            computecore::close_compute_system(self.handle)
+                .expect("Failed to close compute system handle");
         }
     }
 }
@@ -32,7 +36,7 @@ pub struct HcsProcess {
 impl std::ops::Drop for HcsProcess {
     fn drop(&mut self) {
         if self.handle != std::ptr::null_mut() {
-            computecore::close_process(self.handle).expect("Failed to close handle");
+            computecore::close_process(self.handle).expect("Failed to close process handle");
         }
     }
 }
@@ -44,7 +48,7 @@ pub struct HcsOperation {
 impl std::ops::Drop for HcsOperation {
     fn drop(&mut self) {
         if self.handle != std::ptr::null_mut() {
-            computecore::close_operation(self.handle).expect("Failed to close handle");
+            computecore::close_operation(self.handle).expect("Failed to close operation handle");
         }
     }
 }
@@ -125,5 +129,96 @@ impl HcsOperation {
 
     pub fn cancel(&self) -> HcsResult<()> {
         computecore::cancel_operation(self.handle)
+    }
+}
+
+impl HcsSystem {
+    pub fn wrap_handle(handle: Handle) -> HcsOperation {
+        HcsOperation { handle }
+    }
+
+    pub fn get_handle(&self) -> Handle {
+        self.handle
+    }
+
+    pub unsafe fn release_handle(&mut self) {
+        self.handle = std::ptr::null_mut();
+    }
+
+    pub fn create(
+        id: &str,
+        configuration: &str,
+        operation: &HcsOperation,
+        security_descriptor: Option<&SecurityDescriptor>,
+    ) -> HcsResult<HcsSystem> {
+        Ok(HcsSystem {
+            handle: computecore::create_compute_system(
+                id,
+                configuration,
+                operation.handle,
+                security_descriptor,
+            )?,
+        })
+    }
+
+    pub fn open(id: &str, requested_access: DWord) -> HcsResult<HcsSystem> {
+        Ok(HcsSystem {
+            handle: computecore::open_compute_system(id, requested_access)?,
+        })
+    }
+
+    pub fn start(&self, operation: &HcsOperation, options: Option<&str>) -> HcsResult<()> {
+        computecore::start_compute_system(self.handle, operation.handle, options)
+    }
+
+    pub fn shutdown(&self, operation: &HcsOperation, options: Option<&str>) -> HcsResult<()> {
+        computecore::shutdown_compute_system(self.handle, operation.handle, options)
+    }
+
+    pub fn terminate(&self, operation: &HcsOperation, options: Option<&str>) -> HcsResult<()> {
+        computecore::terminate_compute_system(self.handle, operation.handle, options)
+    }
+
+    pub fn pause(&self, operation: &HcsOperation, options: Option<&str>) -> HcsResult<()> {
+        computecore::pause_compute_system(self.handle, operation.handle, options)
+    }
+
+    pub fn resume(&self, operation: &HcsOperation, options: Option<&str>) -> HcsResult<()> {
+        computecore::resume_compute_system(self.handle, operation.handle, options)
+    }
+
+    pub fn save(&self, operation: &HcsOperation, options: Option<&str>) -> HcsResult<()> {
+        computecore::save_compute_system(self.handle, operation.handle, options)
+    }
+
+    pub fn get_properties(
+        &self,
+        operation: &HcsOperation,
+        property_query: Option<&str>,
+    ) -> HcsResult<()> {
+        computecore::get_compute_system_properties(self.handle, operation.handle, property_query)
+    }
+
+    pub fn modify(
+        &self,
+        operation: &HcsOperation,
+        configuration: &str,
+        identity: Handle,
+    ) -> HcsResult<()> {
+        computecore::modify_compute_system(self.handle, operation.handle, configuration, identity)
+    }
+
+    pub fn set_callback<T>(
+        &self,
+        callback_options: HcsEventOptions,
+        context: &mut T,
+        callback: HcsEventCallback,
+    ) -> HcsResult<()> {
+        computecore::set_compute_system_callback(
+            self.handle,
+            callback_options,
+            context as *mut T as *mut Void,
+            callback,
+        )
     }
 }
