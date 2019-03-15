@@ -18,6 +18,7 @@ use crate::compute::errorcodes::{hresult_to_result_code, ResultCode};
 use crate::computecore::bindings::*;
 use crate::HcsResult;
 use widestring::WideCString;
+use winutils_rs::utilities::LocalWString;
 use winutils_rs::windefs::*;
 
 pub fn enumerate_compute_systems(query: &str, operation: HcsOperationHandle) -> HcsResult<()> {
@@ -91,16 +92,11 @@ pub fn get_operation_id(operation: HcsOperationHandle) -> HcsResult<u64> {
 }
 
 pub fn get_operation_result(operation: HcsOperationHandle) -> HcsResult<String> {
-    let result_document_ptr: *mut PWStr = std::ptr::null_mut();
+    let result_document = LocalWString::new();
 
     unsafe {
-        match HcsGetOperationResult(operation, result_document_ptr) {
-            0 => {
-                let result_document =
-                    WideCString::from_ptr_str(*result_document_ptr).to_string_lossy();
-                winapi::um::combaseapi::CoTaskMemFree(result_document_ptr as LPVoid);
-                Ok(result_document)
-            }
+        match HcsGetOperationResult(operation, result_document.ptr) {
+            0 => Ok(result_document.to_string()),
             hresult => Err(hresult_to_result_code(&hresult)),
         }
     }
@@ -109,19 +105,14 @@ pub fn get_operation_result(operation: HcsOperationHandle) -> HcsResult<String> 
 pub fn get_operation_result_and_process_info(
     operation: HcsOperationHandle,
 ) -> HcsResult<(HcsProcessInformation, String)> {
-    let result_document_ptr: *mut PWStr = std::ptr::null_mut();
+    let result_document = LocalWString::new();
 
     unsafe {
         let mut process_info = std::mem::zeroed::<HcsProcessInformation>();
 
-        match HcsGetOperationResultAndProcessInfo(operation, &mut process_info, result_document_ptr)
+        match HcsGetOperationResultAndProcessInfo(operation, &mut process_info, result_document.ptr)
         {
-            0 => {
-                let result_document =
-                    WideCString::from_ptr_str(*result_document_ptr).to_string_lossy();
-                winapi::um::combaseapi::CoTaskMemFree(result_document_ptr as LPVoid);
-                Ok((process_info, result_document))
-            }
+            0 => Ok((process_info, result_document.to_string())),
             hresult => Err(hresult_to_result_code(&hresult)),
         }
     }
@@ -131,16 +122,11 @@ pub fn wait_for_operation_result(
     operation: HcsOperationHandle,
     timeout_ms: DWord,
 ) -> HcsResult<String> {
-    let result_document_ptr: *mut PWStr = std::ptr::null_mut();
+    let result_document = LocalWString::new();
 
     unsafe {
-        match HcsWaitForOperationResult(operation, timeout_ms, result_document_ptr) {
-            0 => {
-                let result_document =
-                    WideCString::from_ptr_str(*result_document_ptr).to_string_lossy();
-                winapi::um::combaseapi::CoTaskMemFree(result_document_ptr as LPVoid);
-                Ok(result_document)
-            }
+        match HcsWaitForOperationResult(operation, timeout_ms, result_document.ptr) {
+            0 => Ok(result_document.to_string()),
             hresult => Err(hresult_to_result_code(&hresult)),
         }
     }
@@ -150,7 +136,7 @@ pub fn wait_for_operation_result_and_process_info(
     operation: HcsOperationHandle,
     timeout_ms: DWord,
 ) -> HcsResult<(HcsProcessInformation, String)> {
-    let result_document_ptr: *mut PWStr = std::ptr::null_mut();
+    let result_document = LocalWString::new();
 
     unsafe {
         let mut process_info = std::mem::zeroed::<HcsProcessInformation>();
@@ -159,14 +145,9 @@ pub fn wait_for_operation_result_and_process_info(
             operation,
             timeout_ms,
             &mut process_info,
-            result_document_ptr,
+            result_document.ptr,
         ) {
-            0 => {
-                let result_document =
-                    WideCString::from_ptr_str(*result_document_ptr).to_string_lossy();
-                winapi::um::combaseapi::CoTaskMemFree(result_document_ptr as LPVoid);
-                Ok((process_info, result_document))
-            }
+            0 => Ok((process_info, result_document.to_string())),
             hresult => Err(hresult_to_result_code(&hresult)),
         }
     }
@@ -597,17 +578,13 @@ pub fn set_process_callback(
 
 pub fn get_service_properties(property_query: &str) -> HcsResult<String> {
     unsafe {
-        let result_ptr: *mut PWStr = std::ptr::null_mut();
+        let result = LocalWString::new();
 
         match HcsGetServiceProperties(
             WideCString::from_str(property_query).unwrap().as_ptr(),
-            result_ptr,
+            result.ptr,
         ) {
-            0 => {
-                let result = WideCString::from_ptr_str(*result_ptr).to_string_lossy();
-                winapi::um::combaseapi::CoTaskMemFree(result_ptr as LPVoid);
-                Ok(result)
-            }
+            0 => Ok(result.to_string()),
             hresult => Err(hresult_to_result_code(&hresult)),
         }
     }
@@ -615,17 +592,13 @@ pub fn get_service_properties(property_query: &str) -> HcsResult<String> {
 
 pub fn modify_service_settings(settings: &str) -> HcsResult<String> {
     unsafe {
-        let result_ptr: *mut PWStr = std::ptr::null_mut();
+        let result = LocalWString::new();
 
         match HcsModifyServiceSettings(
             WideCString::from_str(settings).unwrap().as_ptr(),
-            result_ptr,
+            result.ptr,
         ) {
-            0 => {
-                let result = WideCString::from_ptr_str(*result_ptr).to_string_lossy();
-                winapi::um::combaseapi::CoTaskMemFree(result_ptr as LPVoid);
-                Ok(result)
-            }
+            0 => Ok(result.to_string()),
             hresult => Err(hresult_to_result_code(&hresult)),
         }
     }
