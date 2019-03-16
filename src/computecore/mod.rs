@@ -21,6 +21,7 @@ use widestring::WideCString;
 use winutils_rs::utilities::LocalWString;
 use winutils_rs::windefs::*;
 
+/// Enumerates all compute systems visible to the caller.
 pub fn enumerate_compute_systems(query: &str, operation: HcsOperationHandle) -> HcsResult<()> {
     unsafe {
         match HcsEnumerateComputeSystems(WideCString::from_str(query).unwrap().as_ptr(), operation)
@@ -31,6 +32,7 @@ pub fn enumerate_compute_systems(query: &str, operation: HcsOperationHandle) -> 
     }
 }
 
+/// Creates an operation, used to track an HCS API call.
 pub fn create_operation(
     context: *mut Void,
     callback: HcsOperationCompletion,
@@ -43,6 +45,7 @@ pub fn create_operation(
     }
 }
 
+/// Closes an operation, freeing resources used to track an HCS API call.
 pub fn close_operation(operation: HcsOperationHandle) -> HcsResult<()> {
     unsafe {
         HcsCloseOperation(operation);
@@ -50,10 +53,12 @@ pub fn close_operation(operation: HcsOperationHandle) -> HcsResult<()> {
     }
 }
 
+/// Returns the operation context as a raw pointer.
 pub fn get_operation_context(operation: HcsOperationHandle) -> HcsResult<*mut Void> {
     unsafe { Ok(HcsGetOperationContext(operation)) }
 }
 
+/// Sets the operation context, supplied as a raw pointer.
 pub fn set_operation_context(operation: HcsOperationHandle, context: *mut Void) -> HcsResult<()> {
     unsafe {
         match HcsSetOperationContext(operation, context) {
@@ -63,6 +68,7 @@ pub fn set_operation_context(operation: HcsOperationHandle, context: *mut Void) 
     }
 }
 
+/// Returns the compute system handle associated to a given operation.
 pub fn get_compute_system_from_operation(
     operation: HcsOperationHandle,
 ) -> HcsResult<HcsSystemHandle> {
@@ -74,6 +80,7 @@ pub fn get_compute_system_from_operation(
     }
 }
 
+/// Returns the process handle associated to a given operation.
 pub fn get_process_from_operation(operation: HcsOperationHandle) -> HcsResult<HcsProcessHandle> {
     unsafe {
         match HcsGetProcessFromOperation(operation) {
@@ -83,14 +90,18 @@ pub fn get_process_from_operation(operation: HcsOperationHandle) -> HcsResult<Hc
     }
 }
 
+/// Returns the operation type.
 pub fn get_operation_type(operation: HcsOperationHandle) -> HcsResult<HcsOperationType> {
     unsafe { Ok(HcsGetOperationType(operation)) }
 }
 
+/// Returns the operation ID. Assigned and valid only after an operation has been passed in
+/// to an HCS API.
 pub fn get_operation_id(operation: HcsOperationHandle) -> HcsResult<u64> {
     unsafe { Ok(HcsGetOperationId(operation)) }
 }
 
+/// Returns the operation result as a JSON document.
 pub fn get_operation_result(operation: HcsOperationHandle) -> HcsResult<String> {
     let result_document = LocalWString::new();
 
@@ -102,6 +113,8 @@ pub fn get_operation_result(operation: HcsOperationHandle) -> HcsResult<String> 
     }
 }
 
+/// Returns the operation result as a JSON document and the process info.
+/// Only valid if operation was used to track an HCS Process API call.
 pub fn get_operation_result_and_process_info(
     operation: HcsOperationHandle,
 ) -> HcsResult<(HcsProcessInformation, String)> {
@@ -118,6 +131,7 @@ pub fn get_operation_result_and_process_info(
     }
 }
 
+/// Waits synchronously for an operation to complete and returns the result as a JSON document.
 pub fn wait_for_operation_result(
     operation: HcsOperationHandle,
     timeout_ms: DWord,
@@ -132,6 +146,8 @@ pub fn wait_for_operation_result(
     }
 }
 
+/// Waits syncrhonously for an operation to complete and returns the result as a JSON document,
+/// and the process info. Only valid if operation was used to track an HCS Process API call.
 pub fn wait_for_operation_result_and_process_info(
     operation: HcsOperationHandle,
     timeout_ms: DWord,
@@ -153,6 +169,7 @@ pub fn wait_for_operation_result_and_process_info(
     }
 }
 
+/// Sets an operation callback for when it completes.
 pub fn set_operation_callback(
     operation: HcsOperationHandle,
     context: *mut Void,
@@ -166,6 +183,7 @@ pub fn set_operation_callback(
     }
 }
 
+/// Cancels an operation.
 pub fn cancel_operation(operation: HcsOperationHandle) -> HcsResult<()> {
     unsafe {
         match HcsCancelOperation(operation) {
@@ -175,6 +193,8 @@ pub fn cancel_operation(operation: HcsOperationHandle) -> HcsResult<()> {
     }
 }
 
+/// Creates a compute system with the given JSON document describing its configuration.
+/// Optionally set security descriptor, which determines who can open a handle to the system.
 pub fn create_compute_system(
     id: &str,
     configuration: &str,
@@ -202,6 +222,12 @@ pub fn create_compute_system(
     }
 }
 
+/// Opens a compute system and returns a handle to it, with the specified access rights.
+///
+/// # Note
+/// Requested access must be a valid `ACCESS_MASK` DWORD value.
+/// `GENERIC_ALL` (0x10000000) is the most common access level to request.
+/// Refer to https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-samr/262970b7-cd4a-41f4-8c4d-5a27f0092aaa
 pub fn open_compute_system(id: &str, requested_access: DWord) -> HcsResult<HcsSystemHandle> {
     let mut compute_system_handle: HcsSystemHandle = std::ptr::null_mut();
 
@@ -217,6 +243,11 @@ pub fn open_compute_system(id: &str, requested_access: DWord) -> HcsResult<HcsSy
     }
 }
 
+/// Closes a handle to a compute system.
+///
+/// # Note
+/// In some cases, a compute system could have been created with the flag `TerminateOnLastHandleClosed`,
+/// which would cause the system to be tore down forcefully.
 pub fn close_compute_system(compute_system: HcsSystemHandle) -> HcsResult<()> {
     unsafe {
         HcsCloseComputeSystem(compute_system);
@@ -224,6 +255,8 @@ pub fn close_compute_system(compute_system: HcsSystemHandle) -> HcsResult<()> {
     }
 }
 
+/// Starts a compute system.
+/// Optionally supply additional options as a JSON document.
 pub fn start_compute_system(
     compute_system: HcsSystemHandle,
     operation: HcsOperationHandle,
@@ -246,6 +279,13 @@ pub fn start_compute_system(
     }
 }
 
+/// Shutdowns a compute system.
+/// Optionally supply additional options as a JSON document.
+///
+/// # Note
+/// Cleanly shutting down implies that the compute system's guest operating system
+/// will be requested to shut down. This API call fails if such request can't be
+/// serviced by the guest operating system.
 pub fn shutdown_compute_system(
     compute_system: HcsSystemHandle,
     operation: HcsOperationHandle,
@@ -268,6 +308,14 @@ pub fn shutdown_compute_system(
     }
 }
 
+/// Terminates a compute system.
+/// Optionally supply additional options as a JSON document.
+///
+/// # Note
+/// Terminating a compute system is a last resort mechanism to force it
+/// to be shut down and cleaned up. This won't ask the guest operating system
+/// to cleanly shut down, and should be treated as an equivalent to unplugging
+/// hardware. This means that it could lead to data loss.
 pub fn terminate_compute_system(
     compute_system: HcsSystemHandle,
     operation: HcsOperationHandle,
@@ -290,6 +338,11 @@ pub fn terminate_compute_system(
     }
 }
 
+/// Pauses a compute system.
+/// Optionally supply additional options as a JSON document.
+///
+/// # Note
+/// Not all compute systems support pause, and this API is expected to fail.
 pub fn pause_compute_system(
     compute_system: HcsSystemHandle,
     operation: HcsOperationHandle,
@@ -312,6 +365,11 @@ pub fn pause_compute_system(
     }
 }
 
+/// Resumes a compute system.
+/// Optionally supply additional options as a JSON document.
+///
+/// # Note
+/// Not all compute systems support resume, and this API is expected to fail.
 pub fn resume_compute_system(
     compute_system: HcsSystemHandle,
     operation: HcsOperationHandle,
@@ -334,6 +392,11 @@ pub fn resume_compute_system(
     }
 }
 
+/// Saves a compute system.
+/// Optionally supply additional options as a JSON document.
+///
+/// # Note
+/// Not all compute systems support save, and this API is expected to fail.
 pub fn save_compute_system(
     compute_system: HcsSystemHandle,
     operation: HcsOperationHandle,
@@ -356,6 +419,8 @@ pub fn save_compute_system(
     }
 }
 
+/// Requests for a compute system's properties.
+/// Optionally supply a JSON document to request specific properties that are not included by default.
 pub fn get_compute_system_properties(
     compute_system: HcsSystemHandle,
     operation: HcsOperationHandle,
@@ -378,6 +443,14 @@ pub fn get_compute_system_properties(
     }
 }
 
+/// Modifies a compute system, described by the supplied JSON document configuration.
+/// Optionally supply a handle to an identity, which is used to impersonate the specific modify request.
+///
+/// # Note
+/// The JSON document used for a modify request can be of various types of resource types,
+/// referenced by resource URI as they would correspond on the compute system's configuration JSON document.
+/// Specific data to the resource to modify dictates how the JSON document will look like.
+/// Not all resource URI are equally supported by all compute systems.
 pub fn modify_compute_system(
     compute_system: HcsSystemHandle,
     operation: HcsOperationHandle,
@@ -397,6 +470,9 @@ pub fn modify_compute_system(
     }
 }
 
+/// Sets a per compute system callback, that is used to receive 'notifications' of different
+/// events that can happen on a compute system.
+/// Optionally supply a context as a raw pointer, which will be included in the callback function.
 pub fn set_compute_system_callback(
     compute_system: HcsSystemHandle,
     callback_options: HcsEventOptions,
@@ -411,6 +487,8 @@ pub fn set_compute_system_callback(
     }
 }
 
+/// Creates a process on a compute system, described by the supplied JSON document.
+/// Optionally set security descriptor, which determines who can open a handle to the process.
 pub fn create_process(
     compute_system: HcsSystemHandle,
     process_parameters: &str,
@@ -438,6 +516,12 @@ pub fn create_process(
     }
 }
 
+/// Opens a handle to a process, from a given compute system, with the specified access rights.
+///
+/// # Note
+/// Requested access must be a valid `ACCESS_MASK` DWORD value.
+/// `GENERIC_ALL` (0x10000000) is the most common access level to request.
+/// Refer to https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-samr/262970b7-cd4a-41f4-8c4d-5a27f0092aaa
 pub fn open_process(
     compute_system: HcsSystemHandle,
     process_id: DWord,
@@ -458,6 +542,12 @@ pub fn open_process(
     }
 }
 
+/// Closes a handle to a process running in a compute system.
+///
+/// # Note
+/// If after closing a handle to the process it will be opened at a later point,
+/// make sure to save the process ID since that's required to correctly find
+/// such process. Otherwise, there's no way to open the process again.
 pub fn close_process(process: HcsProcessHandle) -> HcsResult<()> {
     unsafe {
         HcsCloseProcess(process);
@@ -465,6 +555,8 @@ pub fn close_process(process: HcsProcessHandle) -> HcsResult<()> {
     }
 }
 
+/// Terminates a process running in a compute system.
+/// Optionally supply options described as a JSON document.
 pub fn terminate_process(
     process: HcsProcessHandle,
     operation: HcsOperationHandle,
@@ -487,6 +579,8 @@ pub fn terminate_process(
     }
 }
 
+/// Signals a process running in a compute system.
+/// Describe the signal to send as additional options in a JSON document.
 pub fn signal_process(
     process: HcsProcessHandle,
     operation: HcsOperationHandle,
@@ -509,6 +603,7 @@ pub fn signal_process(
     }
 }
 
+/// Returns basic information about a process running on a compute system.
 pub fn get_process_info(process: HcsProcessHandle, operation: HcsOperationHandle) -> HcsResult<()> {
     unsafe {
         match HcsGetProcessInfo(process, operation) {
@@ -518,6 +613,8 @@ pub fn get_process_info(process: HcsProcessHandle, operation: HcsOperationHandle
     }
 }
 
+/// Returns properties of a process running on a compute system.
+/// Optionally supply a JSON document to request specific properties that are not included by default.
 pub fn get_process_properties(
     process: HcsProcessHandle,
     operation: HcsOperationHandle,
@@ -540,6 +637,8 @@ pub fn get_process_properties(
     }
 }
 
+/// Requests to modify a process running on a compute system.
+/// Supply the modify request as a JSON document.
 pub fn modify_process(
     process: HcsProcessHandle,
     operation: HcsOperationHandle,
@@ -562,6 +661,9 @@ pub fn modify_process(
     }
 }
 
+/// Sets a per process callback, that is used to receive 'notifications' of different
+/// events that can happen on a process running in a compute system.
+/// Optionally supply a context as a raw pointer, which will be included in the callback function.
 pub fn set_process_callback(
     process: HcsProcessHandle,
     callback_options: HcsEventOptions,
@@ -576,6 +678,8 @@ pub fn set_process_callback(
     }
 }
 
+/// Returns Host Compute Service properties as a JSON document.
+/// Determine what to query through a JSON document.
 pub fn get_service_properties(property_query: &str) -> HcsResult<String> {
     unsafe {
         let result = LocalWString::new();
@@ -590,6 +694,7 @@ pub fn get_service_properties(property_query: &str) -> HcsResult<String> {
     }
 }
 
+/// Modifies Host Compute Service - wide settings, described by the supplied JSON document.
 pub fn modify_service_settings(settings: &str) -> HcsResult<String> {
     unsafe {
         let result = LocalWString::new();
@@ -604,6 +709,11 @@ pub fn modify_service_settings(settings: &str) -> HcsResult<String> {
     }
 }
 
+/// Submits a **Windows Error Reporting** report, described by the supplied JSON document.
+///
+/// # Note
+/// Refer to https://docs.microsoft.com/en-us/windows/desktop/wer/windows-error-reporting
+/// for detailed information about WER.
 pub fn submit_wer_report(settings: &str) -> HcsResult<()> {
     unsafe {
         match HcsSubmitWerReport(WideCString::from_str(settings).unwrap().as_ptr()) {
@@ -613,6 +723,8 @@ pub fn submit_wer_report(settings: &str) -> HcsResult<()> {
     }
 }
 
+/// Creates an empty VMGS (Virtual Machine Guest State) file, that can be used later
+/// when creating a Virtual Machine compute system to store guest specific information.
 pub fn create_empty_guest_state_file(guest_state_file_path: &str) -> HcsResult<()> {
     unsafe {
         match HcsCreateEmptyGuestStateFile(
@@ -626,6 +738,10 @@ pub fn create_empty_guest_state_file(guest_state_file_path: &str) -> HcsResult<(
     }
 }
 
+/// Creates an empty VMRS (Virtual Machine Runtime State) file, that can be used later
+/// when saving a Virtual Machine compute system to store save state information.
+/// This can be then used to restore runtime state of a Virtual Machine when creating
+/// a new compute system based on this.
 pub fn create_empty_runtime_state_file(runtime_state_file_path: &str) -> HcsResult<()> {
     unsafe {
         match HcsCreateEmptyRuntimeStateFile(
@@ -639,6 +755,8 @@ pub fn create_empty_runtime_state_file(runtime_state_file_path: &str) -> HcsResu
     }
 }
 
+/// Grants VM access to a file. This allows Virtual Machine compute systems to have
+/// access during runtime to a file (like virtual hard disks).
 pub fn grant_vm_access(vm_id: &str, file_path: &str) -> HcsResult<()> {
     unsafe {
         match HcsGrantVmAccess(
@@ -651,6 +769,8 @@ pub fn grant_vm_access(vm_id: &str, file_path: &str) -> HcsResult<()> {
     }
 }
 
+/// Revokes VM access to a file. This prevents Virtual Machine compute systems to have
+/// access during runtime to a file (like virtual hard disks).
 pub fn revoke_vm_access(vm_id: &str, file_path: &str) -> HcsResult<()> {
     unsafe {
         match HcsRevokeVmAccess(
