@@ -473,6 +473,129 @@ pub enum ResultCode {
     /// Cannot restore this virtual machine because the vSMB saved state data cannot be read. Delete the saved state data and then try to start the virtual machine.
     ErrorVsmbSavedStateCorrupt,
 
+    /// The network was not found.
+    HcnNetworkNotFound,
+
+    /// The endpoint was not found.
+    HcnEndpointNotFound,
+
+    /// The network's underlying layer was not found.
+    HcnLayerNotFound,
+
+    /// The virtual switch was not found.
+    HcnSwitchNotFound,
+
+    /// The network does not have a subnet for this endpoint.
+    HcnSubnetNotFound,
+
+    /// An adapter was not found.
+    HcnAdapterNotFound,
+
+    /// The switch-port was not found.
+    HcnPortNotFound,
+
+    /// An expected policy was not found.
+    HcnPolicyNotFound,
+
+    /// A required VFP port setting was not found.
+    HcnVfpPortsettingNotFound,
+
+    /// The provided network configuration is invalid or missing parameters.
+    HcnInvalidNetwork,
+
+    /// Invalid network type.
+    HcnInvalidNetworkType,
+
+    /// The provided endpoint configuration is invalid or missing parameters.
+    HcnInvalidEndpoint,
+
+    /// The provided policy configuration is invalid or missing parameters.
+    HcnInvalidPolicy,
+
+    /// Invalid policy type.
+    HcnInvalidPolicyType,
+
+    /// This requested operation is invalid for a remote endpoint.
+    HcnInvalidRemoteEndpointOperation,
+
+    /// A network with this name already exists.
+    HcnNetworkAlreadyExists,
+
+    /// A network with this name already exists.
+    HcnLayerAlreadyExists,
+
+    /// Policy information already exists on this object.
+    HcnPolicyAlreadyExists,
+
+    /// The specified port already exists.
+    HcnPortAlreadyExists,
+
+    /// This endpoint is already attached to the switch.
+    HcnEndpointAlreadyAttached,
+
+    /// The specified request is unsupported.
+    HcnRequestUnsupported,
+
+    /// Port mapping is not supported on the given network.
+    HcnMappingNotSupported,
+
+    /// There was an operation attempted on a degraded object.
+    HcnDegradedOperation,
+
+    /// Cannot modify a switch shared by multiple networks.
+    HcnSharedSwitchModification,
+
+    /// Failed to interpret a parameter as a GUID.
+    HcnGuidConversionFailure,
+
+    /// Failed to process registry key.
+    HcnRegkeyFailure,
+
+    /// Invalid JSON document string.
+    HcnInvalidJson,
+
+    /// The reference is invalid in the JSON document.
+    HcnInvalidJsonReference,
+
+    /// Endpoint sharing is disabled.
+    HcnEndpointSharingDisabled,
+
+    /// IP address is either invalid or not part of any configured subnet(s).
+    HcnInvalidIp,
+
+    /// The specified switch extension does not exist on this switch.
+    HcnSwitchExtensionNotFound,
+
+    /// Operation cannot be performed while service is stopping.
+    HcnManagerStopped,
+
+    /// Operation cannot be performed while service module not found.
+    GcnModuleNotFound,
+
+    /// Request Handlers not present to handle the JSON request.
+    GcnNoRequestHandlers,
+
+    /// The specified request is unsupported.
+    GcnRequestUnsupported,
+
+    /// Add runtime keys to container failed.
+    GcnRuntimekeysFailed,
+
+    /// Timeout while waiting for network adapter with the given instance id
+    GcnNetadapterTimeout,
+
+    /// Network adapter not found for the given instance id
+    GcnNetadapterNotFound,
+
+    /// Network compartment not found for the given  id
+    GcnNetcompartmentNotFound,
+
+    /// Network interface not found for the given  id
+    GcnNetinterfaceNotFound,
+
+    /// Default Namespace already exists
+    GcnDefaultnamespaceExists,
+
     UnknownHResult(HResult),
 }
 
@@ -635,6 +758,46 @@ pub(crate) fn hresult_to_result_code(hresult: &HResult) -> ResultCode {
         0x80370309 => ResultCode::WhvEInvalidVpRegisterName,
         0xC0370400 => ResultCode::ErrorVsmbSavedStateFileNotFound,
         0xC0370401 => ResultCode::ErrorVsmbSavedStateCorrupt,
+        0x803B0002 => ResultCode::HcnEndpointNotFound,
+        0x803B0003 => ResultCode::HcnLayerNotFound,
+        0x803B0004 => ResultCode::HcnSwitchNotFound,
+        0x803B0005 => ResultCode::HcnSubnetNotFound,
+        0x803B0006 => ResultCode::HcnAdapterNotFound,
+        0x803B0007 => ResultCode::HcnPortNotFound,
+        0x803B0008 => ResultCode::HcnPolicyNotFound,
+        0x803B0009 => ResultCode::HcnVfpPortsettingNotFound,
+        0x803B000A => ResultCode::HcnInvalidNetwork,
+        0x803B000B => ResultCode::HcnInvalidNetworkType,
+        0x803B000C => ResultCode::HcnInvalidEndpoint,
+        0x803B000D => ResultCode::HcnInvalidPolicy,
+        0x803B000E => ResultCode::HcnInvalidPolicyType,
+        0x803B000F => ResultCode::HcnInvalidRemoteEndpointOperation,
+        0x803B0010 => ResultCode::HcnNetworkAlreadyExists,
+        0x803B0011 => ResultCode::HcnLayerAlreadyExists,
+        0x803B0012 => ResultCode::HcnPolicyAlreadyExists,
+        0x803B0013 => ResultCode::HcnPortAlreadyExists,
+        0x803B0014 => ResultCode::HcnEndpointAlreadyAttached,
+        0x803B0015 => ResultCode::HcnRequestUnsupported,
+        0x803B0016 => ResultCode::HcnMappingNotSupported,
+        0x803B0017 => ResultCode::HcnDegradedOperation,
+        0x803B0018 => ResultCode::HcnSharedSwitchModification,
+        0x803B0019 => ResultCode::HcnGuidConversionFailure,
+        0x803B001A => ResultCode::HcnRegkeyFailure,
+        0x803B001B => ResultCode::HcnInvalidJson,
+        0x803B001C => ResultCode::HcnInvalidJsonReference,
+        0x803B001D => ResultCode::HcnEndpointSharingDisabled,
+        0x803B001E => ResultCode::HcnInvalidIp,
+        0x803B001F => ResultCode::HcnSwitchExtensionNotFound,
+        0x803B0020 => ResultCode::HcnManagerStopped,
+        0x803B0021 => ResultCode::GcnModuleNotFound,
+        0x803B0022 => ResultCode::GcnNoRequestHandlers,
+        0x803B0023 => ResultCode::GcnRequestUnsupported,
+        0x803B0024 => ResultCode::GcnRuntimekeysFailed,
+        0x803B0025 => ResultCode::GcnNetadapterTimeout,
+        0x803B0026 => ResultCode::GcnNetadapterNotFound,
+        0x803B0027 => ResultCode::GcnNetcompartmentNotFound,
+        0x803B0028 => ResultCode::GcnNetinterfaceNotFound,
+        0x803B0029 => ResultCode::GcnDefaultnamespaceExists,
         other => ResultCode::UnknownHResult(*other),
     }
 }
