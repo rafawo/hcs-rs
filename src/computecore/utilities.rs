@@ -12,15 +12,10 @@
 // of the JSON API surface of HCS instead of using straight raw strings.
 
 use crate::compute::defs::*;
+use crate::compute::{HcsSafeHandle, HcsWrappedHandleDropPolicy};
 use crate::computecore;
 use crate::HcsResult;
 use winutils_rs::windefs::*;
-
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum HcsWrappedHandleDropPolicy {
-    Close,
-    Ignore,
-}
 
 /// Safe wrapper of a HCS Operation handle.
 /// When dropped, the underlying handle is closed from the HCS API.
@@ -36,6 +31,29 @@ impl std::ops::Drop for HcsOperation {
         {
             computecore::close_operation(self.handle).expect("Failed to close operation handle");
         }
+    }
+}
+
+impl HcsSafeHandle for HcsOperation {
+    type SafeHandleWrapper = HcsOperation;
+
+    fn wrap_handle(handle: Handle) -> HcsOperation {
+        HcsOperation {
+            handle,
+            handle_policy: HcsWrappedHandleDropPolicy::Close,
+        }
+    }
+
+    fn get_handle(&self) -> Handle {
+        self.handle
+    }
+
+    fn set_handle_policy(&mut self, handle_policy: HcsWrappedHandleDropPolicy) {
+        self.handle_policy = handle_policy;
+    }
+
+    fn get_handle_policy(&self) -> HcsWrappedHandleDropPolicy {
+        self.handle_policy
     }
 }
 
@@ -57,6 +75,29 @@ impl std::ops::Drop for HcsSystem {
     }
 }
 
+impl HcsSafeHandle for HcsSystem {
+    type SafeHandleWrapper = HcsSystem;
+
+    fn wrap_handle(handle: Handle) -> HcsSystem {
+        HcsSystem {
+            handle,
+            handle_policy: HcsWrappedHandleDropPolicy::Close,
+        }
+    }
+
+    fn get_handle(&self) -> Handle {
+        self.handle
+    }
+
+    fn set_handle_policy(&mut self, handle_policy: HcsWrappedHandleDropPolicy) {
+        self.handle_policy = handle_policy;
+    }
+
+    fn get_handle_policy(&self) -> HcsWrappedHandleDropPolicy {
+        self.handle_policy
+    }
+}
+
 /// Safe wrapper of a Compute System Process handle.
 /// When dropped, the underlying handle is closed from the HCS API.
 pub struct HcsProcess {
@@ -74,45 +115,32 @@ impl std::ops::Drop for HcsProcess {
     }
 }
 
-/// Thin wrapper of an HCS Operation that interfaces to all HCS APIs that inherently
-/// depend on an HCS Operation handle as input and/or output.
-impl HcsOperation {
-    /// Wraps an HCS Operation handle and returns the `HcsOperation` safe wrapper object.
-    pub fn wrap_handle(handle: Handle) -> HcsOperation {
-        HcsOperation {
+impl HcsSafeHandle for HcsProcess {
+    type SafeHandleWrapper = HcsProcess;
+
+    fn wrap_handle(handle: Handle) -> HcsProcess {
+        HcsProcess {
             handle,
             handle_policy: HcsWrappedHandleDropPolicy::Close,
         }
     }
 
-    /// Returns a copy of the underlying handle.
-    ///
-    /// # Note
-    /// This function is useful when the safe wrapper object must interact
-    /// with the HCS API by using the handle directly, but there's no desire
-    /// to 'unwrap' the handle.
-    pub fn get_handle(&self) -> Handle {
+    fn get_handle(&self) -> Handle {
         self.handle
     }
 
-    /// Sets the wrapped handle policy.
-    ///
-    /// # Note
-    /// Setting the handle policy to `HcsWrappedHandleDropPolicy::Ignore` will make sure
-    /// that when the safe wrapper is dropped, the underlying handle will not be closed
-    /// using the HCS APIs.
-    ///
-    /// Ignoring the underlying handle can lead to potential leaks, since it still
-    /// needs to be closed through the HCS APIs at some point.
-    pub fn set_handle_policy(&mut self, handle_policy: HcsWrappedHandleDropPolicy) {
+    fn set_handle_policy(&mut self, handle_policy: HcsWrappedHandleDropPolicy) {
         self.handle_policy = handle_policy;
     }
 
-    /// Returns the safe wrapped handle close policy.
-    pub fn get_handle_policy(&self) -> HcsWrappedHandleDropPolicy {
+    fn get_handle_policy(&self) -> HcsWrappedHandleDropPolicy {
         self.handle_policy
     }
+}
 
+/// Thin wrapper of an HCS Operation that interfaces to all HCS APIs that inherently
+/// depend on an HCS Operation handle as input and/or output.
+impl HcsOperation {
     /// Creates a new HCS Operation and returns a safe wrapper to the handle.
     pub fn create<T>(context: *mut T, callback: HcsOperationCompletion) -> HcsResult<HcsOperation> {
         Ok(HcsOperation {
@@ -204,42 +232,6 @@ impl HcsOperation {
 /// Thin wrapper of an HCS Compute System that interfaces to all HCS APIs that inherently
 /// depend on an HCS Compute System handle as input and/or output.
 impl HcsSystem {
-    /// Wraps an HCS Operation handle and returns the `HcsOperation` safe wrapper object.
-    pub fn wrap_handle(handle: Handle) -> HcsOperation {
-        HcsOperation {
-            handle,
-            handle_policy: HcsWrappedHandleDropPolicy::Close,
-        }
-    }
-
-    /// Returns a copy of the underlying handle.
-    ///
-    /// # Note
-    /// This function is useful when the safe wrapper object must interact
-    /// with the HCS API by using the handle directly, but there's no desire
-    /// to 'unwrap' the handle.
-    pub fn get_handle(&self) -> Handle {
-        self.handle
-    }
-
-    /// Sets the wrapped handle policy.
-    ///
-    /// # Note
-    /// Setting the handle policy to `HcsWrappedHandleDropPolicy::Ignore` will make sure
-    /// that when the safe wrapper is dropped, the underlying handle will not be closed
-    /// using the HCS APIs.
-    ///
-    /// Ignoring the underlying handle can lead to potential leaks, since it still
-    /// needs to be closed through the HCS APIs at some point.
-    pub fn set_handle_policy(&mut self, handle_policy: HcsWrappedHandleDropPolicy) {
-        self.handle_policy = handle_policy;
-    }
-
-    /// Returns the safe wrapped handle close policy.
-    pub fn get_handle_policy(&self) -> HcsWrappedHandleDropPolicy {
-        self.handle_policy
-    }
-
     /// Creates a Compute System and returns a safe wrapper of the handle.
     pub fn create(
         id: &str,
@@ -364,42 +356,6 @@ impl HcsSystem {
 /// Thin wrapper of an HCS Compute System Process that interfaces to all HCS APIs that inherently
 /// depend on an HCS Compute System Process handle as input and/or output.
 impl HcsProcess {
-    /// Wraps an HCS Operation handle and returns the `HcsOperation` safe wrapper object.
-    pub fn wrap_handle(handle: Handle) -> HcsOperation {
-        HcsOperation {
-            handle,
-            handle_policy: HcsWrappedHandleDropPolicy::Close,
-        }
-    }
-
-    /// Returns a copy of the underlying handle.
-    ///
-    /// # Note
-    /// This function is useful when the safe wrapper object must interact
-    /// with the HCS API by using the handle directly, but there's no desire
-    /// to 'unwrap' the handle.
-    pub fn get_handle(&self) -> Handle {
-        self.handle
-    }
-
-    /// Sets the wrapped handle policy.
-    ///
-    /// # Note
-    /// Setting the handle policy to `HcsWrappedHandleDropPolicy::Ignore` will make sure
-    /// that when the safe wrapper is dropped, the underlying handle will not be closed
-    /// using the HCS APIs.
-    ///
-    /// Ignoring the underlying handle can lead to potential leaks, since it still
-    /// needs to be closed through the HCS APIs at some point.
-    pub fn set_handle_policy(&mut self, handle_policy: HcsWrappedHandleDropPolicy) {
-        self.handle_policy = handle_policy;
-    }
-
-    /// Returns the safe wrapped handle close policy.
-    pub fn get_handle_policy(&self) -> HcsWrappedHandleDropPolicy {
-        self.handle_policy
-    }
-
     /// Terminates a compute system process.
     pub fn terminate(&self, operation: &HcsOperation, options: Option<&str>) -> HcsResult<()> {
         computecore::terminate_process(self.handle, operation.handle, options)

@@ -10,3 +10,40 @@
 
 pub mod defs;
 pub mod errorcodes;
+
+use winutils_rs::windefs::Handle;
+
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+pub enum HcsWrappedHandleDropPolicy {
+    Close,
+    Ignore,
+}
+
+pub trait HcsSafeHandle {
+    type SafeHandleWrapper;
+
+    /// Wraps an HCS Operation handle and returns the `T` safe wrapper object.
+    fn wrap_handle(handle: Handle) -> Self::SafeHandleWrapper;
+
+    /// Returns a copy of the underlying handle.
+    ///
+    /// # Note
+    /// This function is useful when the safe wrapper object must interact
+    /// with the HCS API by using the handle directly, but there's no desire
+    /// to 'unwrap' the handle.
+    fn get_handle(&self) -> Handle;
+
+    /// Sets the wrapped handle policy.
+    ///
+    /// # Note
+    /// Setting the handle policy to `HcsWrappedHandleDropPolicy::Ignore` will make sure
+    /// that when the safe wrapper is dropped, the underlying handle will not be closed
+    /// using the HCS APIs.
+    ///
+    /// Ignoring the underlying handle can lead to potential leaks, since it still
+    /// needs to be closed through the HCS APIs at some point.
+    fn set_handle_policy(&mut self, handle_policy: HcsWrappedHandleDropPolicy);
+
+    /// Returns the safe wrapped handle close policy.
+    fn get_handle_policy(&self) -> HcsWrappedHandleDropPolicy;
+}
