@@ -16,102 +16,169 @@ use crate::computecore;
 use crate::HcsResult;
 use winutils_rs::windefs::*;
 
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+pub enum HcsWrappedHandleDropPolicy {
+    Close,
+    Ignore,
+}
+
+/// Safe wrapper of a HCS Operation handle.
+/// When dropped, the underlying handle is closed from the HCS API.
+pub struct HcsOperation {
+    handle: HcsOperationHandle,
+    handle_policy: HcsWrappedHandleDropPolicy,
+}
+
+impl std::ops::Drop for HcsOperation {
+    fn drop(&mut self) {
+        if self.handle != std::ptr::null_mut()
+            && self.handle_policy == HcsWrappedHandleDropPolicy::Close
+        {
+            computecore::close_operation(self.handle).expect("Failed to close operation handle");
+        }
+    }
+}
+
+/// Safe wrapper of a Compute System handle.
+/// When dropped, the underlying handle is closed from the HCS API.
 pub struct HcsSystem {
     handle: HcsSystemHandle,
+    handle_policy: HcsWrappedHandleDropPolicy,
 }
 
 impl std::ops::Drop for HcsSystem {
     fn drop(&mut self) {
-        if self.handle != std::ptr::null_mut() {
+        if self.handle != std::ptr::null_mut()
+            && self.handle_policy == HcsWrappedHandleDropPolicy::Close
+        {
             computecore::close_compute_system(self.handle)
                 .expect("Failed to close compute system handle");
         }
     }
 }
 
+/// Safe wrapper of a Compute System Process handle.
+/// When dropped, the underlying handle is closed from the HCS API.
 pub struct HcsProcess {
     handle: HcsProcessHandle,
+    handle_policy: HcsWrappedHandleDropPolicy,
 }
 
 impl std::ops::Drop for HcsProcess {
     fn drop(&mut self) {
-        if self.handle != std::ptr::null_mut() {
+        if self.handle != std::ptr::null_mut()
+            && self.handle_policy == HcsWrappedHandleDropPolicy::Close
+        {
             computecore::close_process(self.handle).expect("Failed to close process handle");
         }
     }
 }
 
-pub struct HcsOperation {
-    handle: HcsOperationHandle,
-}
-
-impl std::ops::Drop for HcsOperation {
-    fn drop(&mut self) {
-        if self.handle != std::ptr::null_mut() {
-            computecore::close_operation(self.handle).expect("Failed to close operation handle");
+/// Thin wrapper of an HCS Operation that interfaces to all HCS APIs that inherently
+/// depend on an HCS Operation handle as input and/or output.
+impl HcsOperation {
+    /// Wraps an HCS Operation handle and returns the `HcsOperation` safe wrapper object.
+    pub fn wrap_handle(handle: Handle) -> HcsOperation {
+        HcsOperation {
+            handle,
+            handle_policy: HcsWrappedHandleDropPolicy::Close,
         }
     }
-}
 
-impl HcsOperation {
-    pub fn wrap_handle(handle: Handle) -> HcsOperation {
-        HcsOperation { handle }
-    }
-
+    /// Returns a copy of the underlying handle.
+    ///
+    /// # Note
+    /// This function is useful when the safe wrapper object must interact
+    /// with the HCS API by using the handle directly, but there's no desire
+    /// to 'unwrap' the handle.
     pub fn get_handle(&self) -> Handle {
         self.handle
     }
 
-    pub unsafe fn release_handle(&mut self) {
-        self.handle = std::ptr::null_mut();
+    /// Sets the wrapped handle policy.
+    ///
+    /// # Note
+    /// Setting the handle policy to `HcsWrappedHandleDropPolicy::Ignore` will make sure
+    /// that when the safe wrapper is dropped, the underlying handle will not be closed
+    /// using the HCS APIs.
+    ///
+    /// Ignoring the underlying handle can lead to potential leaks, since it still
+    /// needs to be closed through the HCS APIs at some point.
+    pub fn set_handle_policy(&mut self, handle_policy: HcsWrappedHandleDropPolicy) {
+        self.handle_policy = handle_policy;
     }
 
+    /// Returns the safe wrapped handle close policy.
+    pub fn get_handle_policy(&self) -> HcsWrappedHandleDropPolicy {
+        self.handle_policy
+    }
+
+    /// Creates a new HCS Operation and returns a safe wrapper to the handle.
     pub fn create<T>(context: *mut T, callback: HcsOperationCompletion) -> HcsResult<HcsOperation> {
         Ok(HcsOperation {
             handle: computecore::create_operation(context as *mut T as *mut Void, callback)?,
+            handle_policy: HcsWrappedHandleDropPolicy::Close,
         })
     }
 
+    /// Sets the context of an operation that is passed in when a callback is called.
     pub fn set_context<T>(&self, context: *mut T) -> HcsResult<()> {
         computecore::set_operation_context(self.handle, context as *mut T as *mut Void)
     }
 
+    /// Returns the context set to an operation.
     pub fn get_context<T>(&self) -> HcsResult<*mut T> {
         Ok(computecore::get_operation_context(self.handle)? as *mut T)
     }
 
+    /// Returns a safe wrapper of a Compute System handle associated to an operation.
     pub fn get_compute_system(&self) -> HcsResult<HcsSystem> {
         Ok(HcsSystem {
             handle: computecore::get_compute_system_from_operation(self.handle)?,
+            handle_policy: HcsWrappedHandleDropPolicy::Ignore,
         })
     }
 
+    /// Returns a safe wrapper of a Compute System Process handle associated to an operation.
     pub fn get_process(&self) -> HcsResult<HcsProcess> {
         Ok(HcsProcess {
             handle: computecore::get_process_from_operation(self.handle)?,
+            handle_policy: HcsWrappedHandleDropPolicy::Ignore,
         })
     }
 
+    /// Returns the type of the operation.
     pub fn get_type(&self) -> HcsResult<HcsOperationType> {
         computecore::get_operation_type(self.handle)
     }
 
+    /// Returns the ID of the operation.
     pub fn get_id(&self) -> HcsResult<u64> {
         computecore::get_operation_id(self.handle)
     }
 
+    /// Returns the result document of the operation.
+    ///
+    /// # Note
+    /// This is only valid once the operation has been completed.
     pub fn get_result(&self) -> HcsResult<String> {
         computecore::get_operation_result(self.handle)
     }
 
+    /// Returns the result and process info of the operation.
+    ///
+    /// # Note
+    /// This is only valid once the operation has been completed.
     pub fn get_result_and_process_info(&self) -> HcsResult<(String, HcsProcessInformation)> {
         computecore::get_operation_result_and_process_info(self.handle)
     }
 
+    /// Waits for an operation to complete and returns the result document synchronously.
     pub fn wait_for_result(&self, timeout_ms: DWord) -> HcsResult<String> {
         computecore::wait_for_operation_result(self.handle, timeout_ms)
     }
 
+    /// Waits for an operation to complete and returns the result document and process info syncrhonously.
     pub fn wait_for_result_and_process_info(
         &self,
         timeout_ms: DWord,
@@ -119,6 +186,7 @@ impl HcsOperation {
         computecore::wait_for_operation_result_and_process_info(self.handle, timeout_ms)
     }
 
+    /// Sets the operation completion callback.
     pub fn set_callback<T>(
         &self,
         context: &mut T,
@@ -127,24 +195,52 @@ impl HcsOperation {
         computecore::set_operation_callback(self.handle, context as *mut T as *mut Void, callback)
     }
 
+    /// Cancels an operation.
     pub fn cancel(&self) -> HcsResult<()> {
         computecore::cancel_operation(self.handle)
     }
 }
 
+/// Thin wrapper of an HCS Compute System that interfaces to all HCS APIs that inherently
+/// depend on an HCS Compute System handle as input and/or output.
 impl HcsSystem {
+    /// Wraps an HCS Operation handle and returns the `HcsOperation` safe wrapper object.
     pub fn wrap_handle(handle: Handle) -> HcsOperation {
-        HcsOperation { handle }
+        HcsOperation {
+            handle,
+            handle_policy: HcsWrappedHandleDropPolicy::Close,
+        }
     }
 
+    /// Returns a copy of the underlying handle.
+    ///
+    /// # Note
+    /// This function is useful when the safe wrapper object must interact
+    /// with the HCS API by using the handle directly, but there's no desire
+    /// to 'unwrap' the handle.
     pub fn get_handle(&self) -> Handle {
         self.handle
     }
 
-    pub unsafe fn release_handle(&mut self) {
-        self.handle = std::ptr::null_mut();
+    /// Sets the wrapped handle policy.
+    ///
+    /// # Note
+    /// Setting the handle policy to `HcsWrappedHandleDropPolicy::Ignore` will make sure
+    /// that when the safe wrapper is dropped, the underlying handle will not be closed
+    /// using the HCS APIs.
+    ///
+    /// Ignoring the underlying handle can lead to potential leaks, since it still
+    /// needs to be closed through the HCS APIs at some point.
+    pub fn set_handle_policy(&mut self, handle_policy: HcsWrappedHandleDropPolicy) {
+        self.handle_policy = handle_policy;
     }
 
+    /// Returns the safe wrapped handle close policy.
+    pub fn get_handle_policy(&self) -> HcsWrappedHandleDropPolicy {
+        self.handle_policy
+    }
+
+    /// Creates a Compute System and returns a safe wrapper of the handle.
     pub fn create(
         id: &str,
         configuration: &str,
@@ -158,39 +254,49 @@ impl HcsSystem {
                 operation.handle,
                 security_descriptor,
             )?,
+            handle_policy: HcsWrappedHandleDropPolicy::Close,
         })
     }
 
+    /// Opens a compute system and returns a safe wrapper handle to it.
     pub fn open(id: &str, requested_access: DWord) -> HcsResult<HcsSystem> {
         Ok(HcsSystem {
             handle: computecore::open_compute_system(id, requested_access)?,
+            handle_policy: HcsWrappedHandleDropPolicy::Close,
         })
     }
 
+    /// Starts a compute system.
     pub fn start(&self, operation: &HcsOperation, options: Option<&str>) -> HcsResult<()> {
         computecore::start_compute_system(self.handle, operation.handle, options)
     }
 
+    /// Shutdowns a compute system.
     pub fn shutdown(&self, operation: &HcsOperation, options: Option<&str>) -> HcsResult<()> {
         computecore::shutdown_compute_system(self.handle, operation.handle, options)
     }
 
+    /// Terminates a compute system.
     pub fn terminate(&self, operation: &HcsOperation, options: Option<&str>) -> HcsResult<()> {
         computecore::terminate_compute_system(self.handle, operation.handle, options)
     }
 
+    /// Pauses a compute system.
     pub fn pause(&self, operation: &HcsOperation, options: Option<&str>) -> HcsResult<()> {
         computecore::pause_compute_system(self.handle, operation.handle, options)
     }
 
+    /// Resumes a compute system.
     pub fn resume(&self, operation: &HcsOperation, options: Option<&str>) -> HcsResult<()> {
         computecore::resume_compute_system(self.handle, operation.handle, options)
     }
 
+    /// Saves a compute system.
     pub fn save(&self, operation: &HcsOperation, options: Option<&str>) -> HcsResult<()> {
         computecore::save_compute_system(self.handle, operation.handle, options)
     }
 
+    /// Queries for a compute system's properties.
     pub fn get_properties(
         &self,
         operation: &HcsOperation,
@@ -199,6 +305,7 @@ impl HcsSystem {
         computecore::get_compute_system_properties(self.handle, operation.handle, property_query)
     }
 
+    /// Modifies a compute system.
     pub fn modify(
         &self,
         operation: &HcsOperation,
@@ -208,6 +315,7 @@ impl HcsSystem {
         computecore::modify_compute_system(self.handle, operation.handle, configuration, identity)
     }
 
+    /// Sets a callback for this specific compute system, called on key events.
     pub fn set_callback<T>(
         &self,
         callback_options: HcsEventOptions,
@@ -222,6 +330,7 @@ impl HcsSystem {
         )
     }
 
+    /// Creates and returns a new process in the compute system.
     pub fn create_process(
         &self,
         process_parameters: &str,
@@ -235,9 +344,11 @@ impl HcsSystem {
                 operation.handle,
                 security_descriptor,
             )?,
+            handle_policy: HcsWrappedHandleDropPolicy::Close,
         })
     }
 
+    /// Opens a process in the compute system, that has been created through HCS APIs.
     pub fn open_process(
         &self,
         process_id: DWord,
@@ -245,23 +356,66 @@ impl HcsSystem {
     ) -> HcsResult<HcsProcess> {
         Ok(HcsProcess {
             handle: computecore::open_process(self.handle, process_id, requested_access)?,
+            handle_policy: HcsWrappedHandleDropPolicy::Close,
         })
     }
 }
 
+/// Thin wrapper of an HCS Compute System Process that interfaces to all HCS APIs that inherently
+/// depend on an HCS Compute System Process handle as input and/or output.
 impl HcsProcess {
+    /// Wraps an HCS Operation handle and returns the `HcsOperation` safe wrapper object.
+    pub fn wrap_handle(handle: Handle) -> HcsOperation {
+        HcsOperation {
+            handle,
+            handle_policy: HcsWrappedHandleDropPolicy::Close,
+        }
+    }
+
+    /// Returns a copy of the underlying handle.
+    ///
+    /// # Note
+    /// This function is useful when the safe wrapper object must interact
+    /// with the HCS API by using the handle directly, but there's no desire
+    /// to 'unwrap' the handle.
+    pub fn get_handle(&self) -> Handle {
+        self.handle
+    }
+
+    /// Sets the wrapped handle policy.
+    ///
+    /// # Note
+    /// Setting the handle policy to `HcsWrappedHandleDropPolicy::Ignore` will make sure
+    /// that when the safe wrapper is dropped, the underlying handle will not be closed
+    /// using the HCS APIs.
+    ///
+    /// Ignoring the underlying handle can lead to potential leaks, since it still
+    /// needs to be closed through the HCS APIs at some point.
+    pub fn set_handle_policy(&mut self, handle_policy: HcsWrappedHandleDropPolicy) {
+        self.handle_policy = handle_policy;
+    }
+
+    /// Returns the safe wrapped handle close policy.
+    pub fn get_handle_policy(&self) -> HcsWrappedHandleDropPolicy {
+        self.handle_policy
+    }
+
+    /// Terminates a compute system process.
     pub fn terminate(&self, operation: &HcsOperation, options: Option<&str>) -> HcsResult<()> {
         computecore::terminate_process(self.handle, operation.handle, options)
     }
 
+    /// Signals a compute system process.
     pub fn signal(&self, operation: &HcsOperation, options: Option<&str>) -> HcsResult<()> {
         computecore::signal_process(self.handle, operation.handle, options)
     }
 
+    /// Gets basic information of the compute system process.
     pub fn get_info(&self, operation: &HcsOperation) -> HcsResult<()> {
         computecore::get_process_info(self.handle, operation.handle)
     }
 
+    /// Gets properties of the compute system process.
     pub fn get_properties(
         &self,
         operation: &HcsOperation,
@@ -270,10 +424,12 @@ impl HcsProcess {
         computecore::get_process_properties(self.handle, operation.handle, property_query)
     }
 
+    /// Modifues the compute system process.
     pub fn modify(&self, operation: &HcsOperation, settings: Option<&str>) -> HcsResult<()> {
         computecore::modify_process(self.handle, operation.handle, settings)
     }
 
+    /// Sets a callback to the compute system process, called on key events.
     pub fn set_callback<T>(
         &self,
         callback_options: HcsEventOptions,
