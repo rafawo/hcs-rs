@@ -438,34 +438,34 @@ pub enum ResultCode {
     ErrorVidRemoteNodeParentGpaPagesUsed,
 
     /// The specified capability does not exist.
-    WhvEUnknownCapability,
+    WhvUnknownCapability,
 
     /// The specified buffer is too small for the requested data.
-    WhvEInsufficientBuffer,
+    WhvInsufficientBuffer,
 
     /// The specified property does not exist.
-    WhvEUnknownProperty,
+    WhvUnknownProperty,
 
     /// The configuration of the hypervisor on this system is not supported.
-    WhvEUnsupportedHypervisorConfig,
+    WhvUnsupportedHypervisorConfig,
 
     /// The configuration of the partition is not valid.
-    WhvEInvalidPartitionConfig,
+    WhvInvalidPartitionConfig,
 
     /// The specified GPA range was not found.
-    WhvEGpaRangeNotFound,
+    WhvGpaRangeNotFound,
 
     /// A virtual processor with the specified index already exists.
-    WhvEVpAlreadyExists,
+    WhvVpAlreadyExists,
 
     /// A virtual processor with the specified index does not exist.
-    WhvEVpDoesNotExist,
+    WhvVpDoesNotExist,
 
     /// The virtual processor is not in the correct state to perform the requested operation.
-    WhvEInvalidVpState,
+    WhvInvalidVpState,
 
     /// A virtual processor register with the specified name does not exist.
-    WhvEInvalidVpRegisterName,
+    WhvInvalidVpRegisterName,
 
     /// Cannot restore this virtual machine because a file read from the vSMB saved state data could not be found. Delete the saved state data and then try to start the virtual machine.
     ErrorVsmbSavedStateFileNotFound,
@@ -746,16 +746,16 @@ pub(crate) fn hresult_to_result_code(hresult: &HResult) -> ResultCode {
         0x8037011C => ResultCode::HcsGuestCritical,
         0xC0370200 => ResultCode::ErrorVnetVirtualSwitchNameNotFound,
         0x80370001 => ResultCode::ErrorVidRemoteNodeParentGpaPagesUsed,
-        0x80370300 => ResultCode::WhvEUnknownCapability,
-        0x80370301 => ResultCode::WhvEInsufficientBuffer,
-        0x80370302 => ResultCode::WhvEUnknownProperty,
-        0x80370303 => ResultCode::WhvEUnsupportedHypervisorConfig,
-        0x80370304 => ResultCode::WhvEInvalidPartitionConfig,
-        0x80370305 => ResultCode::WhvEGpaRangeNotFound,
-        0x80370306 => ResultCode::WhvEVpAlreadyExists,
-        0x80370307 => ResultCode::WhvEVpDoesNotExist,
-        0x80370308 => ResultCode::WhvEInvalidVpState,
-        0x80370309 => ResultCode::WhvEInvalidVpRegisterName,
+        0x80370300 => ResultCode::WhvUnknownCapability,
+        0x80370301 => ResultCode::WhvInsufficientBuffer,
+        0x80370302 => ResultCode::WhvUnknownProperty,
+        0x80370303 => ResultCode::WhvUnsupportedHypervisorConfig,
+        0x80370304 => ResultCode::WhvInvalidPartitionConfig,
+        0x80370305 => ResultCode::WhvGpaRangeNotFound,
+        0x80370306 => ResultCode::WhvVpAlreadyExists,
+        0x80370307 => ResultCode::WhvVpDoesNotExist,
+        0x80370308 => ResultCode::WhvInvalidVpState,
+        0x80370309 => ResultCode::WhvInvalidVpRegisterName,
         0xC0370400 => ResultCode::ErrorVsmbSavedStateFileNotFound,
         0xC0370401 => ResultCode::ErrorVsmbSavedStateCorrupt,
         0x803B0002 => ResultCode::HcnEndpointNotFound,
