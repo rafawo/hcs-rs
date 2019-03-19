@@ -19,6 +19,7 @@ use widestring::WideCString;
 use winutils_rs::utilities::CoTaskMemWString;
 use winutils_rs::windefs::*;
 
+/// Imports a container layer.
 pub fn import_layer(path: &str, source_folder_path: &str, layer_data: &str) -> HcsResult<()> {
     unsafe {
         match HcsImportLayer(
@@ -32,6 +33,7 @@ pub fn import_layer(path: &str, source_folder_path: &str, layer_data: &str) -> H
     }
 }
 
+/// Exports a container layer.
 pub fn export_layer(
     path: &str,
     export_folder_path: &str,
@@ -51,6 +53,7 @@ pub fn export_layer(
     }
 }
 
+/// Exports a legacy container writable layer.
 pub fn export_legacy_writable_layer(
     mount_path: &str,
     folder_path: &str,
@@ -70,6 +73,12 @@ pub fn export_legacy_writable_layer(
     }
 }
 
+/// Deletes a container layer.
+///
+/// # Note
+/// This is a very powerful API call, since it will take high level privilages
+/// to delete a directory. Misuse of this API could lead to potential deletion
+/// of important files, not revertible.
 pub fn destroy_layer(layer_path: &str) -> HcsResult<()> {
     unsafe {
         match HcsDestroyLayer(WideCString::from_str(layer_path).unwrap().as_ptr()) {
@@ -79,6 +88,7 @@ pub fn destroy_layer(layer_path: &str) -> HcsResult<()> {
     }
 }
 
+/// Sets up a layer that contains a base OS for a container.
 pub fn setup_base_os_layer(layer_path: &str, vhd_handle: Handle, options: &str) -> HcsResult<()> {
     unsafe {
         match HcsSetupBaseOSLayer(
@@ -92,6 +102,7 @@ pub fn setup_base_os_layer(layer_path: &str, vhd_handle: Handle, options: &str) 
     }
 }
 
+/// Initializes a writable layer for a container.
 pub fn initialize_writable_layer(
     layer_path: &str,
     layer_data: &str,
@@ -109,6 +120,7 @@ pub fn initialize_writable_layer(
     }
 }
 
+/// Initializes a writable layer for a container using the legacy hive folder format.
 pub fn initialize_legacy_writable_layer(
     mount_path: &str,
     folder_path: &str,
@@ -128,6 +140,7 @@ pub fn initialize_legacy_writable_layer(
     }
 }
 
+/// Sets up the layer storage filter on a writable container layer.
 pub fn attach_layer_storage_filter(layer_path: &str, layer_data: &str) -> HcsResult<()> {
     unsafe {
         match HcsAttachLayerStorageFilter(
@@ -140,6 +153,7 @@ pub fn attach_layer_storage_filter(layer_path: &str, layer_data: &str) -> HcsRes
     }
 }
 
+/// Detaches the layer storage filter from a writable container layer.
 pub fn detach_layer_storage_filter(layer_path: &str) -> HcsResult<()> {
     unsafe {
         match HcsDetachLayerStorageFilter(WideCString::from_str(layer_path).unwrap().as_ptr()) {
@@ -149,6 +163,7 @@ pub fn detach_layer_storage_filter(layer_path: &str) -> HcsResult<()> {
     }
 }
 
+/// Formats a virtual disk for the use as a writable container layer.
 pub fn format_writable_layer_vhd(vhd_handle: Handle) -> HcsResult<()> {
     unsafe {
         match HcsFormatWritableLayerVhd(vhd_handle) {
@@ -158,6 +173,7 @@ pub fn format_writable_layer_vhd(vhd_handle: Handle) -> HcsResult<()> {
     }
 }
 
+/// Returns the volume path for a virtual disk of a writable container layer.
 pub fn get_layer_vhd_mount_path(vhd_handle: Handle) -> HcsResult<String> {
     unsafe {
         let mount_path = CoTaskMemWString::new();
