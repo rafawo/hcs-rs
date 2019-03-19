@@ -104,7 +104,7 @@ impl HcsOperation {
         computecore::get_operation_result(self.handle)
     }
 
-    pub fn get_result_and_process_info(&self) -> HcsResult<(HcsProcessInformation, String)> {
+    pub fn get_result_and_process_info(&self) -> HcsResult<(String, HcsProcessInformation)> {
         computecore::get_operation_result_and_process_info(self.handle)
     }
 
@@ -115,7 +115,7 @@ impl HcsOperation {
     pub fn wait_for_result_and_process_info(
         &self,
         timeout_ms: DWord,
-    ) -> HcsResult<(HcsProcessInformation, String)> {
+    ) -> HcsResult<(String, HcsProcessInformation)> {
         computecore::wait_for_operation_result_and_process_info(self.handle, timeout_ms)
     }
 

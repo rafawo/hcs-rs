@@ -117,7 +117,7 @@ pub fn get_operation_result(operation: HcsOperationHandle) -> HcsResult<String> 
 /// Only valid if operation was used to track an HCS Process API call.
 pub fn get_operation_result_and_process_info(
     operation: HcsOperationHandle,
-) -> HcsResult<(HcsProcessInformation, String)> {
+) -> HcsResult<(String, HcsProcessInformation)> {
     let result_document = LocalWString::new();
 
     unsafe {
@@ -125,7 +125,7 @@ pub fn get_operation_result_and_process_info(
 
         match HcsGetOperationResultAndProcessInfo(operation, &mut process_info, result_document.ptr)
         {
-            0 => Ok((process_info, result_document.to_string())),
+            0 => Ok((result_document.to_string(), process_info)),
             hresult => Err(hresult_to_result_code(&hresult)),
         }
     }
@@ -151,7 +151,7 @@ pub fn wait_for_operation_result(
 pub fn wait_for_operation_result_and_process_info(
     operation: HcsOperationHandle,
     timeout_ms: DWord,
-) -> HcsResult<(HcsProcessInformation, String)> {
+) -> HcsResult<(String, HcsProcessInformation)> {
     let result_document = LocalWString::new();
 
     unsafe {
@@ -163,7 +163,7 @@ pub fn wait_for_operation_result_and_process_info(
             &mut process_info,
             result_document.ptr,
         ) {
-            0 => Ok((process_info, result_document.to_string())),
+            0 => Ok((result_document.to_string(), process_info)),
             hresult => Err(hresult_to_result_code(&hresult)),
         }
     }
