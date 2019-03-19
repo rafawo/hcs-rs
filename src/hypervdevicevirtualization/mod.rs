@@ -20,6 +20,20 @@ use crate::hypervdevicevirtualization::defs::*;
 use crate::HcsResult;
 use winutils_rs::windefs::*;
 
+/// Initializes the device emulator host in the caller's process and associates it
+/// with the specified compute system. This function should be called after the compute system
+/// has been created and before it has been started. The compute system's configuration must
+/// indicate that an external device host for the compute system will be present, by means
+/// of specifying the identity (SID) of the user account under which the device host will execute.
+/// If the device host has not been initialized by the time the compute system starts,
+/// the start operation fails.
+/// A successfull call to `initialize_device_host` must be balanced by a call to `teardown_device_host`
+/// on the same thread.
+///
+/// Returns a handle to the created device host.
+///
+/// # Arguments
+/// * `compute_system` - Handle to the compute system to which the device host will be associated.
 pub fn initialize_device_host(compute_system: HcsSystemHandle) -> HcsResult<HdvHostHandle> {
     let mut device_host_handle: HdvHostHandle = std::ptr::null_mut();
 
@@ -31,6 +45,12 @@ pub fn initialize_device_host(compute_system: HcsSystemHandle) -> HcsResult<HdvH
     }
 }
 
+/// Tears down a device emulator host in the caller's process. All device instances
+/// associated to the device host become non-functional. This function should be called
+/// after the compute system to which the device host is associated has been terminated.
+///
+/// # Arguments
+/// * `device_host_handle` - Handle to the device host to tear down.
 pub fn teardown_device_host(device_host_handle: HdvHostHandle) -> HcsResult<()> {
     unsafe {
         match HdvTeardownDeviceHost(device_host_handle) {
@@ -40,6 +60,18 @@ pub fn teardown_device_host(device_host_handle: HdvHostHandle) -> HcsResult<()> 
     }
 }
 
+/// Creates a device instance in the specified host and associates it with a device emulation
+/// interface and context.
+///
+/// Returns a handle to the created device instance.
+///
+/// # Arguments
+/// * `device_host_handle` - Identifies the device host in which the device instance will be created.
+/// * `device_type` - Specifies the type of the device instance to create.
+/// * `device_class_id` - Supplies the client-defined class ID of the device instance to create.
+/// * `device_interface` - Supplies the client-defined instance ID of the device instance to create.
+/// * `device_interface` - Supplies a function table representing the interface expsed by the device instance. The actual type of this parameter is implied by the DeviceType parameter.
+/// * `device_context` - An optional opaque context pointer that will be supplied to the device interface callbacks.
 pub fn create_device_instance(
     device_host_handle: HdvHostHandle,
     device_type: HdvDeviceType,
@@ -66,6 +98,14 @@ pub fn create_device_instance(
     }
 }
 
+/// Reads guest primary memory (RAM) contents into the supplied buffer.
+///
+/// Returns an array of bytes with the read memory.
+///
+/// # Arguments
+/// * `requestor` - Handle to the device requesting memory access.
+/// * `guest_physical_address` - Guest physical address at which the read operation starts.
+/// * `byte_count` - Number of bytes to read.
 pub fn read_guest_memory(
     requestor: HdvDeviceHandle,
     guest_physical_address: u64,
@@ -87,6 +127,12 @@ pub fn read_guest_memory(
     }
 }
 
+/// Writes the contents of the supplied buffer to guest primary memory (RAM).
+///
+/// # Arguments
+/// * `requestor` - Handle to the device requesting memory access.
+/// * `guest_physical_address` - Guest physical address at which the write operation starts.
+/// * `byte_array` - Source byte buffer for the write operation.
 pub fn write_guest_memory(
     requestor: HdvDeviceHandle,
     guest_physical_address: u64,
@@ -105,6 +151,15 @@ pub fn write_guest_memory(
     }
 }
 
+/// Creates a guest RAM aperture into the address space of the calling process.
+///
+/// Returns the virtual address (in the calling process) at which the requested memory region has been mapped.
+///
+/// # Arguments
+/// * `requestor` - Handle to the device requesting memory access.
+/// * `guest_physical_address` - Base physical address at which the aperture starts.
+/// * `byte_count` - Size of the aperture in bytes.
+/// * `write_protected` - If `true`, the process is only granted read access to the mapped memory.
 pub fn create_guest_memory_aperture(
     requestor: HdvDeviceHandle,
     guest_physical_address: u64,
@@ -130,6 +185,11 @@ pub fn create_guest_memory_aperture(
     }
 }
 
+/// Destroys the guest RAM aperture mapped at the supplied process address.
+///
+/// # Arguments
+/// * `requestor` - Handle to the device requesting memory access.
+/// * `mapped_address` - The virtual address (in the calling process) at which the aperture to destroy was mapped.
 pub fn destroy_guest_memory_aperture(
     requestor: HdvDeviceHandle,
     mapped_address: PVoid,
@@ -142,6 +202,12 @@ pub fn destroy_guest_memory_aperture(
     }
 }
 
+/// Delivers a message signalled interrupt (MSI) to the guest partition.
+///
+/// # Arguments
+/// * `requestor` - Handle to the device requesting the interrupt.
+/// * `msi_address` - The guest address to which the interrupt message is written.
+/// * `msi_data` - The data to write at MsiAddress.
 pub fn deliver_guest_interrupt(
     requestor: HdvDeviceHandle,
     msi_address: u64,
