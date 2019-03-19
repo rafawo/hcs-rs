@@ -13,12 +13,15 @@ pub mod errorcodes;
 
 use winutils_rs::windefs::Handle;
 
+/// Policies supported by HCS Safe Handle wrappers, which determine
+/// what is done with the wrapped handle when the wrapping object is dropped.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum HcsWrappedHandleDropPolicy {
     Close,
     Ignore,
 }
 
+/// Trait that defines the contract for an HCS Safe Handle wrapper.
 pub trait HcsSafeHandle {
     type SafeHandleWrapper;
 
