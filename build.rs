@@ -11,7 +11,7 @@
 //!
 //! This script relies on the environment variables `WIN10SDK_PATH` and `WIN10SDK_VERSION`.
 //! `WIN10SDK_PATH` defaults to `c:\Program Files (x86)\Windows Kits\10` if not set.
-//! `WIN10SDK_VERSION` defaults to `10.0.17763.0` if not set.
+//! `WIN10SDK_VERSION` defaults to `10.0.18362.0` if not set.
 
 use std::env::var;
 
@@ -26,7 +26,7 @@ fn main() {
 
     let win10_sdk_version = match var("WIN10SDK_VERSION") {
         Ok(path) => path,
-        Err(_) => String::from("10.0.17763.0"),
+        Err(_) => String::from("10.0.18362.0"),
     };
 
     let lib_names = vec![
