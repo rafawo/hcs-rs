@@ -11,5 +11,7 @@ pub mod computecore;
 pub mod computenetwork;
 pub mod computestorage;
 pub mod hypervdevicevirtualization;
+pub mod netschema;
+pub mod schema;
 
 pub type HcsResult<T> = Result<T, compute::errorcodes::ResultCode>;
