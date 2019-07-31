@@ -53,7 +53,7 @@ The following table describes the relevant Windows 10 SDK files that this projec
 
 This section briefly describes all published crates.io [versions](https://crates.io/crates/hcs-rs/versions) of this project, ordered from latest to oldest.
 
-- [**0.1.0 Jan 8, 2010**](https://crates.io/crates/virtdisk-rs/0.1.0)
+- [**0.1.0 Jan 8, 2010**](https://crates.io/crates/hcs-rs/0.1.0)
   - First version, with very limited functionality
   - Bindings to the C APIs exposed as thin safe wrappers
   - Lacking a lot of safe abstractions
