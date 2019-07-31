@@ -12,10 +12,12 @@ categories = ["api-bindings", "os::windows-apis"]
 build = "build.rs"
 
 [dependencies]
+serde = "1.0.98"
+serde_json = "1.0.40"
+virtdisk-rs = "2.0.0"
 widestring = "0.4.0"
 winapi = { version = "0.3.6", features = [
     "combaseapi",
     "winbase",
 ] }
-virtdisk-rs = "2.0.0"
 winutils-rs = "0.2.0"

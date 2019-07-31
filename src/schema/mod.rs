@@ -7,3 +7,16 @@
 // THE SOURCE CODE IS AVAILABLE UNDER THE ABOVE CHOSEN LICENSE "AS IS", WITH NO WARRANTIES.
 
 //! Contains all the JSON schema definitions used by the HCS APIs
+
+pub mod common;
+pub mod containers;
+pub mod device_assignment;
+pub mod hvsocket;
+pub mod layer_management;
+pub mod linux;
+pub mod options;
+pub mod process;
+pub mod registry;
+pub mod requests;
+pub mod responses;
+pub mod virtual_machines;
