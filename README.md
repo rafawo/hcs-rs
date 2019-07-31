@@ -48,3 +48,13 @@ The following table describes the relevant Windows 10 SDK files that this projec
 | [computenetwork](/src/computenetwork/mod.rs) | Types definitions and APIs to interact with the HCN (Host Compute Network). | computenetwork.h | C:\Program Files (x86)\Windows Kits\10\Include\10.0.17763.0\um\computenetwork.h | C:\Program Files (x86)\Windows Kits\10\Lib\10.0.17763.0\um\x64\computenetwork.lib |
 | [computestorage](/src/computestorage/mod.rs) | APIs for the HCS storage management. | computestorage.h | C:\Program Files (x86)\Windows Kits\10\Include\10.0.17763.0\um\computestorage.h | C:\Program Files (x86)\Windows Kits\10\Lib\10.0.17763.0\um\x64\computestorage.lib |
 | [hypervdevicevirtualization](/src/hypervdevicevirtualization/mod.rs) | Types definitions and APIs for device emulation/virtualization. | hypervdevicevirtualization.h | C:\Program Files (x86)\Windows Kits\10\Include\10.0.17763.0\um\hypervdevicevirtualization.h | C:\Program Files (x86)\Windows Kits\10\Lib\10.0.17763.0\um\x64\vmdevicehost.lib |
+
+## Crates.io version notes
+
+This section briefly describes all published crates.io [versions](https://crates.io/crates/hcs-rs/versions) of this project, ordered from latest to oldest.
+
+- [**0.1.0 Jan 8, 2010**](https://crates.io/crates/virtdisk-rs/0.1.0)
+  - First version, with very limited functionality
+  - Bindings to the C APIs exposed as thin safe wrappers
+  - Lacking a lot of safe abstractions
+  - Hardcoded dependency to Windows 10 SDK version 10.0.17763.0
