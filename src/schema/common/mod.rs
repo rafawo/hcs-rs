@@ -40,12 +40,8 @@ pub mod resources {
         pub path: String,
         #[serde(rename = "PathType")]
         pub path_type: PathType,
-        #[serde(rename = "Cache", skip_serializing_if = "cache_not_supplied")]
+        #[serde(rename = "Cache", skip_serializing_if = "Option::is_none")]
         pub cache: Option<CacheMode>,
-    }
-
-    fn cache_not_supplied(cache: &Option<CacheMode>) -> bool {
-        cache.is_none()
     }
 
     #[cfg(test)]
