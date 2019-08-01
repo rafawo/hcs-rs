@@ -113,16 +113,16 @@ impl<'de> serde::Deserialize<'de> for GuidSerde {
     }
 }
 
+pub const GUID_SERDE_TEST: GuidSerde = GuidSerde {
+    data1: 0xdb20fa3e,
+    data2: 0xc476,
+    data3: 0x447f,
+    data4: [0x94, 0xa5, 0x51, 0xb8, 0x32, 0x2c, 0x4c, 0x4f],
+};
+
 #[cfg(test)]
 mod tests {
-    use super::GuidSerde;
-
-    const GUID_TEST: GuidSerde = GuidSerde {
-        data1: 0xdb20fa3e,
-        data2: 0xc476,
-        data3: 0x447f,
-        data4: [0x94, 0xa5, 0x51, 0xb8, 0x32, 0x2c, 0x4c, 0x4f],
-    };
+    use super::{GuidSerde, GUID_SERDE_TEST};
 
     macro_rules! guid_null_string {
         () => {
@@ -153,7 +153,7 @@ mod tests {
     #[test]
     fn guid_to_string() {
         assert_eq!(
-            &serde_json::to_string(&GUID_TEST).unwrap(),
+            &serde_json::to_string(&GUID_SERDE_TEST).unwrap(),
             guid_test_string!()
         );
     }
@@ -161,6 +161,6 @@ mod tests {
     #[test]
     fn string_to_guid() {
         let guid: GuidSerde = serde_json::from_str(guid_test_string!()).unwrap();
-        assert_eq!(guid, GUID_TEST);
+        assert_eq!(guid, GUID_SERDE_TEST);
     }
 }
