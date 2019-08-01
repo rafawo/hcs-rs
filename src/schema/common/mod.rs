@@ -7,10 +7,10 @@
 // THE SOURCE CODE IS AVAILABLE UNDER THE ABOVE CHOSEN LICENSE "AS IS", WITH NO WARRANTIES.
 
 pub mod resources {
+    use crate::schema::GuidSerde;
     use serde::{Deserialize, Serialize};
-    use winutils_rs::windefs::Guid;
 
-    #[derive(Deserialize, Serialize)]
+    #[derive(Deserialize, Serialize, Debug, Clone, PartialEq, Eq, Hash)]
     pub struct StorageQoS {
         #[serde(rename = "IopsMaximum")]
         pub iops_maximum: u64,
@@ -18,7 +18,7 @@ pub mod resources {
         pub bandwidth_maximum: u64,
     }
 
-    #[derive(Deserialize, Serialize)]
+    #[derive(Deserialize, Serialize, Debug, Clone, PartialEq, Eq, Hash)]
     pub enum CacheMode {
         Disabled,
         Enabled,
@@ -26,16 +26,16 @@ pub mod resources {
         PrivateAllowSharing,
     }
 
-    #[derive(Deserialize, Serialize)]
+    #[derive(Deserialize, Serialize, Debug, Clone, PartialEq, Eq, Hash)]
     pub enum PathType {
         AbsolutePath,
         VirtualSmbShareName,
     }
 
-    #[derive(Deserialize, Serialize)]
+    #[derive(Deserialize, Serialize, Debug, Clone, PartialEq, Eq, Hash)]
     pub struct Layer {
-        #[serde(rename = "Id", with = "crate::schema::guid_serde")]
-        pub id: Guid,
+        #[serde(rename = "Id")]
+        pub id: GuidSerde,
         #[serde(rename = "Path")]
         pub path: String,
         #[serde(rename = "PathType")]
@@ -96,7 +96,7 @@ pub mod resources {
         fn layer() {
             assert_eq!(
                 &serde_json::to_string(&Layer {
-                    id: winutils_rs::windefs::GUID_NULL,
+                    id: GuidSerde::new(),
                     path: String::from("some\\path"),
                     path_type: PathType::AbsolutePath,
                     cache: None,
@@ -105,7 +105,7 @@ pub mod resources {
             );
             assert_eq!(
                 &serde_json::to_string(&Layer {
-                    id: winutils_rs::windefs::GUID_NULL,
+                    id: GuidSerde::new(),
                     path: String::from("some\\path"),
                     path_type: PathType::VirtualSmbShareName,
                     cache: Some(CacheMode::Enabled),

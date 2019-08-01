@@ -21,102 +21,146 @@ pub mod requests;
 pub mod responses;
 pub mod virtual_machines;
 
-pub mod guid_serde {
-    use winutils_rs::windefs::Guid;
+use winutils_rs::windefs::Guid;
 
-    pub fn serialize<S>(guid: &Guid, serializer: S) -> Result<S::Ok, S::Error>
+/// GUID structure that plays nicely with serde constructs and helpers
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct GuidSerde {
+    pub data1: u32,
+    pub data2: u16,
+    pub data3: u16,
+    pub data4: [u8; 8],
+}
+
+impl GuidSerde {
+    /// Creates a new GuidSerde equivalent to GUID_NULL
+    pub fn new() -> GuidSerde {
+        GuidSerde {
+            data1: 0,
+            data2: 0,
+            data3: 0,
+            data4: [0; 8],
+        }
+    }
+
+    /// Creates a new GuidSerde that is a straight copy of a given windows GUID
+    pub fn from_win_guid(guid: &Guid) -> GuidSerde {
+        GuidSerde {
+            data1: guid.Data1,
+            data2: guid.Data2,
+            data3: guid.Data3,
+            data4: guid.Data4,
+        }
+    }
+
+    /// Parses a string to a GUID and stores it on a new GuidSerde
+    pub fn from_str(guid_string: &str) -> winutils_rs::errorcodes::WinResult<GuidSerde> {
+        Ok(GuidSerde::from_win_guid(
+            &winutils_rs::utilities::parse_guid(guid_string)?,
+        ))
+    }
+
+    /// Returns a windows GUID equivalent to this GuidSerde
+    pub fn to_win_guid(&self) -> Guid {
+        Guid {
+            Data1: self.data1,
+            Data2: self.data2,
+            Data3: self.data3,
+            Data4: self.data4,
+        }
+    }
+
+    /// Copies a given windows GUID to this GuidSerde
+    pub fn copy_from_win_guid(&mut self, guid: &Guid) {
+        self.data1 = guid.Data1;
+        self.data2 = guid.Data2;
+        self.data3 = guid.Data3;
+        self.data4 = guid.Data4;
+    }
+}
+
+impl serde::Serialize for GuidSerde {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: serde::ser::Serializer,
     {
         let guid_string = format!(
             "{:08x}-{:04x}-{:04x}-{:02x}{:02x}-{:02x}{:02x}{:02x}{:02x}{:02x}{:02x}",
-            guid.Data1,
-            guid.Data2,
-            guid.Data3,
-            guid.Data4[0],
-            guid.Data4[1],
-            guid.Data4[2],
-            guid.Data4[3],
-            guid.Data4[4],
-            guid.Data4[5],
-            guid.Data4[6],
-            guid.Data4[7],
+            self.data1,
+            self.data2,
+            self.data3,
+            self.data4[0],
+            self.data4[1],
+            self.data4[2],
+            self.data4[3],
+            self.data4[4],
+            self.data4[5],
+            self.data4[6],
+            self.data4[7],
         );
         serializer.serialize_str(&guid_string)
     }
+}
 
-    pub fn deserialize<'de, D>(deserializer: D) -> Result<Guid, D::Error>
+impl<'de> serde::Deserialize<'de> for GuidSerde {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
         D: serde::de::Deserializer<'de>,
     {
-        use serde::de::Deserialize;
         let string_guid = String::deserialize(deserializer)?;
-        Ok(winutils_rs::utilities::parse_guid(&string_guid)
+        Ok(GuidSerde::from_str(&string_guid)
             .expect(&format!("Failed to parse guid {}", &string_guid)))
     }
+}
 
-    #[cfg(test)]
-    mod tests {
-        use winutils_rs::windefs::Guid;
-        use winutils_rs::windefs::GUID_NULL;
+#[cfg(test)]
+mod tests {
+    use super::GuidSerde;
 
-        #[derive(serde::Serialize, serde::Deserialize)]
-        struct GuidWrapper {
-            #[serde(with = "crate::schema::guid_serde")]
-            guid: Guid,
-        }
+    const GUID_TEST: GuidSerde = GuidSerde {
+        data1: 0xdb20fa3e,
+        data2: 0xc476,
+        data3: 0x447f,
+        data4: [0x94, 0xa5, 0x51, 0xb8, 0x32, 0x2c, 0x4c, 0x4f],
+    };
 
-        const GUID_TEST: Guid = Guid {
-            Data1: 0xdb20fa3e,
-            Data2: 0xc476,
-            Data3: 0x447f,
-            Data4: [0x94, 0xa5, 0x51, 0xb8, 0x32, 0x2c, 0x4c, 0x4f],
+    macro_rules! guid_null_string {
+        () => {
+            r#""00000000-0000-0000-0000-000000000000""#
         };
+    }
 
-        macro_rules! guid_null_string {
-            () => {
-                r#"{"guid":"00000000-0000-0000-0000-000000000000"}"#
-            };
-        }
+    macro_rules! guid_test_string {
+        () => {
+            r#""db20fa3e-c476-447f-94a5-51b8322c4c4f""#
+        };
+    }
 
-        macro_rules! guid_test_string {
-            () => {
-                r#"{"guid":"db20fa3e-c476-447f-94a5-51b8322c4c4f"}"#
-            };
-        }
+    #[test]
+    fn guid_null_to_string() {
+        assert_eq!(
+            &serde_json::to_string(&GuidSerde::new()).unwrap(),
+            guid_null_string!()
+        );
+    }
 
-        #[test]
-        fn guid_null_to_string() {
-            assert_eq!(
-                &serde_json::to_string(&GuidWrapper { guid: GUID_NULL }).unwrap(),
-                guid_null_string!()
-            );
-        }
+    #[test]
+    fn string_to_guid_null() {
+        let guid: GuidSerde = serde_json::from_str(guid_null_string!()).unwrap();
+        assert_eq!(guid, GuidSerde::new());
+    }
 
-        #[test]
-        fn string_to_guid_null() {
-            let wrapper: GuidWrapper = serde_json::from_str(guid_null_string!()).unwrap();
-            assert!(winutils_rs::utilities::guid_are_equal(
-                &wrapper.guid,
-                &GUID_NULL
-            ));
-        }
+    #[test]
+    fn guid_to_string() {
+        assert_eq!(
+            &serde_json::to_string(&GUID_TEST).unwrap(),
+            guid_test_string!()
+        );
+    }
 
-        #[test]
-        fn guid_to_string() {
-            assert_eq!(
-                &serde_json::to_string(&GuidWrapper { guid: GUID_TEST }).unwrap(),
-                guid_test_string!()
-            );
-        }
-
-        #[test]
-        fn string_to_guid() {
-            let wrapper: GuidWrapper = serde_json::from_str(guid_test_string!()).unwrap();
-            assert!(winutils_rs::utilities::guid_are_equal(
-                &wrapper.guid,
-                &GUID_TEST
-            ));
-        }
+    #[test]
+    fn string_to_guid() {
+        let guid: GuidSerde = serde_json::from_str(guid_test_string!()).unwrap();
+        assert_eq!(guid, GUID_TEST);
     }
 }
