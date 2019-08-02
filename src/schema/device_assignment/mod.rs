@@ -26,7 +26,7 @@ pub struct Device {
     /// The interface class guid of the device interfaces to assign to the container.
     /// Only used when Type is ClassGuid.
     #[serde(rename = "InterfaceClassGuid")]
-    pub interface_class_guid: schema::GuidSerde,
+    pub interface_class_guid: schema::utils::GuidSerde,
 
     /// The location path of the device to assign to the container.
     /// Only used when Type is DeviceInstance.

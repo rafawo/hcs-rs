@@ -19,8 +19,8 @@ pub enum CcgTransport {
 pub struct CcgState {
     #[serde(
         rename = "Cookie",
-        serialize_with = "schema::buffer_to_hex",
-        deserialize_with = "schema::hex_to_buffer"
+        serialize_with = "schema::utils::buffer_to_hex",
+        deserialize_with = "schema::utils::hex_to_buffer"
     )]
     pub cookie: Vec<u8>,
 
@@ -37,7 +37,7 @@ pub struct CcgState {
 #[derive(Deserialize, Serialize, Debug, Clone, PartialEq, Eq)]
 pub struct CcgHvSocketServiceConfig {
     #[serde(rename = "ServiceId")]
-    pub service_id: schema::GuidSerde,
+    pub service_id: schema::utils::GuidSerde,
 
     #[serde(rename = "ServiceConfig", skip_serializing_if = "Option::is_none")]
     pub service_config: Option<schema::hvsocket::HvSocketServiceConfig>,

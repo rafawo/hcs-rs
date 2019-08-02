@@ -7,7 +7,7 @@
 // THE SOURCE CODE IS AVAILABLE UNDER THE ABOVE CHOSEN LICENSE "AS IS", WITH NO WARRANTIES.
 
 pub mod resources {
-    use crate::schema::GuidSerde;
+    use crate::schema::utils::GuidSerde;
     use serde::{Deserialize, Serialize};
 
     #[derive(Deserialize, Serialize, Debug, Clone, PartialEq, Eq, Hash)]

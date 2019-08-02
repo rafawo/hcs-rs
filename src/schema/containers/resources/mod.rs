@@ -69,7 +69,7 @@ pub struct Networking {
     pub namespace: String,
 
     #[serde(rename = "NetworkAdapters"m skip_serializing_if = "Vec::is_empty")]
-    pub network_adapters: Vec<schema::GuidSerde>,
+    pub network_adapters: Vec<schema::utils::GuidSerde>,
 }
 
 /// This class is used by a modify request to add or remove a combined layers

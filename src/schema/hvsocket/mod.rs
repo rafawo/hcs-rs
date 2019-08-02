@@ -6,7 +6,7 @@
 // except according to those terms.
 // THE SOURCE CODE IS AVAILABLE UNDER THE ABOVE CHOSEN LICENSE "AS IS", WITH NO WARRANTIES.
 
-use crate::schema::GuidSerde;
+use crate::schema::utils::GuidSerde;
 use serde::{Deserialize, Serialize};
 
 #[derive(Deserialize, Serialize, Debug, Clone, PartialEq, Eq)]
@@ -62,7 +62,7 @@ pub struct HvSocketSystemConfig {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::schema::GUID_SERDE_TEST;
+    use crate::schema::utils::GUID_SERDE_TEST;
 
     #[test]
     fn hvsocket_service_config() {
