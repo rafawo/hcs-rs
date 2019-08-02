@@ -102,6 +102,24 @@ mod tests {
     use super::*;
 
     #[test]
+    fn ccg_state() {
+        assert_eq!(
+            &serde_json::to_string(&CcgState {
+                cookie: vec![
+                    0x01, 0x00, 0x00, 0x00, 0x5B, 0x00, 0x0A, 0x00,
+                    0x8A, 0xEC, 0xE8, 0x0E, 0x37, 0x30, 0xCA, 0x44,
+                    0x84, 0x05, 0xFC, 0x42, 0x56, 0x7C, 0xED, 0xC4
+                ],
+                rpc_endpoint: String::from("rpc_endpoint"),
+                transport: CcgTransport::LRPC,
+                credential_spec: String::from("some_spec"),
+            })
+            .unwrap(),
+            r#"{"Cookie":"010000005b000a008aece80e3730ca448405fc42567cedc4","RpcEndpoint":"rpc_endpoint","Transport":"LRPC","CredentialSpec":"some_spec"}"#
+        )
+    }
+
+    #[test]
     fn ccg_request() {
         assert_eq!(
             &serde_json::to_string(&CcgOperationRequest {
