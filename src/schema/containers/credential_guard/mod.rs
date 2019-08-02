@@ -10,13 +10,13 @@ use crate::schema;
 use serde::{Deserialize, Serialize};
 
 #[derive(Deserialize, Serialize, Debug, Clone, PartialEq, Eq, Hash)]
-pub enum ContainerCredentialGuardTransport {
+pub enum CcgTransport {
     LRPC,
     HvSocket,
 }
 
 #[derive(Deserialize, Serialize, Debug, Clone, PartialEq, Eq, Hash)]
-pub struct ContainerCredentialGuardState {
+pub struct CcgState {
     #[serde(
         rename = "Cookie",
         serialize_with = "schema::buffer_to_hex",
@@ -28,14 +28,14 @@ pub struct ContainerCredentialGuardState {
     pub rpc_endpoint: String,
 
     #[serde(rename = "Transport")]
-    pub transport: ContainerCredentialGuardTransport,
+    pub transport: CcgTransport,
 
     #[serde(rename = "CredentialSpec")]
     pub credential_spec: String,
 }
 
 #[derive(Deserialize, Serialize, Debug, Clone, PartialEq, Eq)]
-pub struct ContainerCredentialGuardHvSocketServiceConfig {
+pub struct CcgHvSocketServiceConfig {
     #[serde(rename = "ServiceId")]
     pub service_id: schema::GuidSerde,
 
@@ -44,25 +44,25 @@ pub struct ContainerCredentialGuardHvSocketServiceConfig {
 }
 
 #[derive(Deserialize, Serialize, Debug, Clone, PartialEq, Eq)]
-pub struct ContainerCredentialGuardInstance {
+pub struct CcgInstance {
     #[serde(rename = "Id")]
     pub id: String,
 
     #[serde(rename = "CredentialGuard")]
-    pub credential_guard: ContainerCredentialGuardState,
+    pub credential_guard: CcgState,
 
     #[serde(rename = "HvSocketConfig", skip_serializing_if = "Option::is_none")]
-    pub hvsocket_config: Option<ContainerCredentialGuardHvSocketServiceConfig>,
+    pub hvsocket_config: Option<CcgHvSocketServiceConfig>,
 }
 
 #[derive(Deserialize, Serialize, Debug, Clone, PartialEq, Eq)]
-pub struct ContainerCredentialGuardSystemInfo {
+pub struct CcgSystemInfo {
     #[serde(rename = "Instances")]
-    pub instances: Vec<ContainerCredentialGuardInstance>,
+    pub instances: Vec<CcgInstance>,
 }
 
 #[derive(Deserialize, Serialize, Debug, Clone, PartialEq, Eq, Hash)]
-pub struct ContainerCredentialGuardAddInstanceRequest {
+pub struct CcgAddInstanceRequest {
     #[serde(rename = "Id")]
     pub id: String,
 
@@ -70,29 +70,48 @@ pub struct ContainerCredentialGuardAddInstanceRequest {
     pub credential_spec: String,
 
     #[serde(rename = "Transport")]
-    pub transport: ContainerCredentialGuardTransport,
+    pub transport: CcgTransport,
 }
 
 #[derive(Deserialize, Serialize, Debug, Clone, PartialEq, Eq, Hash)]
-pub struct ContainerCredentialGuardRemoveInstanceRequest {
+pub struct CcgRemoveInstanceRequest {
     #[serde(rename = "Id")]
     pub id: String,
 }
 
 #[derive(Deserialize, Serialize, Debug, Clone, PartialEq, Eq, Hash)]
-pub enum ContainerCredentialGuardModifyOperation {
+pub enum CcgModifyOperation {
     AddInstance,
     RemoveInstance,
 }
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
-pub struct ContainerCredentialGuardOperationRequest {
+pub struct CcgOperationRequest {
     #[serde(rename = "Operation")]
-    pub operation: ContainerCredentialGuardModifyOperation,
+    pub operation: CcgModifyOperation,
 
     #[serde(
         rename = "OperationDetails",
         skip_serializing_if = "serde_json::Value::is_null"
     )]
     pub operation_details: serde_json::Value,
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn ccg_request() {
+        assert_eq!(
+            &serde_json::to_string(&CcgOperationRequest {
+                operation: CcgModifyOperation::RemoveInstance,
+                operation_details: serde_json::json!(CcgRemoveInstanceRequest {
+                    id: String::from("some ID"),
+                }),
+            })
+            .unwrap(),
+            r#"{"Operation":"RemoveInstance","OperationDetails":{"Id":"some ID"}}"#
+        );
+    }
 }
