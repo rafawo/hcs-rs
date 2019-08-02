@@ -21,7 +21,28 @@ pub mod requests;
 pub mod responses;
 pub mod virtual_machines;
 
+use hex::{FromHex, ToHex};
 use winutils_rs::windefs::Guid;
+
+/// Serializes `buffer` to a lowercase hex string.
+pub fn buffer_to_hex<T: AsRef<[u8]>, S>(buffer: &T, serializer: S) -> Result<S::Ok, S::Error>
+where
+    S: serde::Serializer,
+{
+    let mut s = String::new();
+    buffer.write_hex(&mut s).unwrap();
+    serializer.serialize_str(&s)
+}
+
+/// Deserializes a lowercase hex string to a `Vec<u8>`.
+pub fn hex_to_buffer<'de, D>(deserializer: D) -> Result<Vec<u8>, D::Error>
+where
+    D: serde::de::Deserializer<'de>,
+{
+    use serde::de::{Deserialize, Error};
+    String::deserialize(deserializer)
+        .and_then(|string| Vec::from_hex(&string).map_err(|err| Error::custom(err.to_string())))
+}
 
 /// GUID structure that plays nicely with serde constructs and helpers
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
