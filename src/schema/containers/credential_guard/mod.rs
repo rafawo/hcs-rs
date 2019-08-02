@@ -85,11 +85,14 @@ pub enum ContainerCredentialGuardModifyOperation {
     RemoveInstance,
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct ContainerCredentialGuardOperationRequest {
     #[serde(rename = "Operation")]
     pub operation: ContainerCredentialGuardModifyOperation,
 
-    #[serde(rename = "OperationDetails", skip_serializing_if = "String::is_empty")]
-    pub operation_details: String,
+    #[serde(
+        rename = "OperationDetails",
+        skip_serializing_if = "serde_json::Value::is_null"
+    )]
+    pub operation_details: serde_json::Value,
 }
