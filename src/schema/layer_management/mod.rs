@@ -5,3 +5,15 @@
 // All files in the project carrying such notice may not be copied, modified, or distributed
 // except according to those terms.
 // THE SOURCE CODE IS AVAILABLE UNDER THE ABOVE CHOSEN LICENSE "AS IS", WITH NO WARRANTIES.
+
+use crate::schema;
+use serde::{Deserialize, Serialize};
+
+#[derive(Deserialize, Serialize, Debug, Clone, PartialEq, Eq, Hash)]
+pub struct LayerData {
+    #[serde(rename = "SchemaVersion")]
+    pub schema_version: schema::Version,
+
+    #[serde(rename = "Layers")]
+    pub layers: Vec<schema::common::resources::Layer>,
+}

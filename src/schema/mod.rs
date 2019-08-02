@@ -22,7 +22,16 @@ pub mod responses;
 pub mod virtual_machines;
 
 use hex::{FromHex, ToHex};
+use serde::{Deserialize, Serialize};
 use winutils_rs::windefs::Guid;
+
+#[derive(Deserialize, Serialize, Debug, Clone, PartialEq, Eq, Hash)]
+pub struct Version {
+    #[serde(rename = "Major")]
+    pub major: u32,
+    #[serde(rename = "Minor")]
+    pub minor: u32,
+}
 
 /// Serializes `buffer` to a lowercase hex string.
 pub fn buffer_to_hex<T: AsRef<[u8]>, S>(buffer: &T, serializer: S) -> Result<S::Ok, S::Error>
@@ -39,7 +48,7 @@ pub fn hex_to_buffer<'de, D>(deserializer: D) -> Result<Vec<u8>, D::Error>
 where
     D: serde::de::Deserializer<'de>,
 {
-    use serde::de::{Deserialize, Error};
+    use serde::de::Error;
     String::deserialize(deserializer)
         .and_then(|string| Vec::from_hex(&string).map_err(|err| Error::custom(err.to_string())))
 }
