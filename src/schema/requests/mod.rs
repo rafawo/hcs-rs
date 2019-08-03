@@ -9,3 +9,12 @@
 pub mod guest;
 pub mod service;
 pub mod system;
+
+use serde::{Deserialize, Serialize};
+
+#[derive(Deserialize, Serialize, Debug, Clone, PartialEq, Eq)]
+pub enum ModifyRequestType {
+    Add,
+    Remove,
+    Update,
+}

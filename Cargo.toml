@@ -12,6 +12,7 @@ categories = ["api-bindings", "os::windows-apis"]
 build = "build.rs"
 
 [dependencies]
+chrono = { version = "0.4.7", features = ["serde"] }
 base64 = "0.10.1"
 hex = "0.3.2"
 serde = { version = "1.0.98", features = ["derive"] }
