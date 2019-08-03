@@ -80,21 +80,25 @@ pub struct CcgRemoveInstanceRequest {
 }
 
 #[derive(Deserialize, Serialize, Debug, Clone, PartialEq, Eq, Hash)]
-pub enum CcgModifyOperation {
+pub enum CcgModifyOperationType {
     AddInstance,
     RemoveInstance,
+}
+
+#[derive(Deserialize, Serialize, Debug, Clone, PartialEq, Eq, Hash)]
+#[serde(untagged)]
+pub enum CcgModifyOperation {
+    AddInstance(CcgAddInstanceRequest),
+    RemoveInstance(CcgRemoveInstanceRequest),
 }
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct CcgOperationRequest {
     #[serde(rename = "Operation")]
-    pub operation: CcgModifyOperation,
+    pub operation: CcgModifyOperationType,
 
-    #[serde(
-        rename = "OperationDetails",
-        skip_serializing_if = "serde_json::Value::is_null"
-    )]
-    pub operation_details: serde_json::Value,
+    #[serde(rename = "OperationDetails")]
+    pub operation_details: CcgModifyOperation,
 }
 
 #[cfg(test)]
@@ -123,8 +127,8 @@ mod tests {
     fn ccg_request() {
         assert_eq!(
             &serde_json::to_string(&CcgOperationRequest {
-                operation: CcgModifyOperation::RemoveInstance,
-                operation_details: serde_json::json!(CcgRemoveInstanceRequest {
+                operation: CcgModifyOperationType::RemoveInstance,
+                operation_details: CcgModifyOperation::RemoveInstance(CcgRemoveInstanceRequest {
                     id: String::from("some ID"),
                 }),
             })
