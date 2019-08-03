@@ -30,6 +30,24 @@ where
         .and_then(|string| Vec::from_hex(&string).map_err(|err| Error::custom(err.to_string())))
 }
 
+/// Serializes `buffer` to a base64
+pub fn as_base64<S>(buffer: &[u8], serializer: S) -> Result<S::Ok, S::Error>
+where
+    S: serde::Serializer,
+{
+    serializer.serialize_str(&base64::encode(buffer))
+}
+
+/// Deserializer a base64 to a `Vec<u8>`
+pub fn from_base64<'de, D>(deserializer: D) -> Result<Vec<u8>, D::Error>
+where
+    D: serde::de::Deserializer<'de>,
+{
+    use serde::de::Error;
+    String::deserialize(deserializer)
+        .and_then(|string| base64::decode(&string).map_err(|err| Error::custom(err.to_string())))
+}
+
 /// GUID structure that plays nicely with serde constructs and helpers
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct GuidSerde {
