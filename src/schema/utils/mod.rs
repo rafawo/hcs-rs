@@ -49,7 +49,7 @@ where
 }
 
 /// GUID structure that plays nicely with serde constructs and helpers
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Default, Debug, Clone, PartialEq, Eq, Hash)]
 pub struct GuidSerde {
     pub data1: u32,
     pub data2: u16,

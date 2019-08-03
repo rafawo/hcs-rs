@@ -11,13 +11,14 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct ServiceProperties {
-    #[serde(rename = "Properties", skip_serializing_if = "Vec::is_empty")]
+    #[serde(default, rename = "Properties", skip_serializing_if = "Vec::is_empty")]
     pub properties: Vec<serde_json::Value>,
 }
 
 #[derive(Deserialize, Serialize, Debug, Clone, PartialEq, Eq)]
 pub struct BasicInformation {
     #[serde(
+        default,
         rename = "SupportedSchemaVersions",
         skip_serializing_if = "Vec::is_empty"
     )]
@@ -26,7 +27,7 @@ pub struct BasicInformation {
 
 #[derive(Deserialize, Serialize, Debug, Clone, PartialEq, Eq)]
 pub struct QoSCapabilities {
-    #[serde(rename = "ProcessorQoSSupported")]
+    #[serde(default, rename = "ProcessorQoSSupported")]
     pub processor_qo_s_supported: bool,
 }
 
@@ -67,7 +68,7 @@ pub struct ErrorEvent {
     #[serde(rename = "Message")]
     pub message: String,
 
-    #[serde(rename = "StackTrace")]
+    #[serde(default, rename = "StackTrace")]
     pub stack_trace: String,
 
     #[serde(rename = "Provider")]
@@ -76,13 +77,13 @@ pub struct ErrorEvent {
     #[serde(rename = "EventId")]
     pub event_id: u16,
 
-    #[serde(rename = "Flags")]
+    #[serde(default, rename = "Flags")]
     pub flags: u32,
 
-    #[serde(rename = "Source")]
+    #[serde(default, rename = "Source")]
     pub source: String,
 
-    #[serde(rename = "Data", skip_serializing_if = "Vec::is_empty")]
+    #[serde(default, rename = "Data", skip_serializing_if = "Vec::is_empty")]
     pub data: Vec<EventData>,
 }
 
@@ -95,6 +96,6 @@ pub struct ResultError {
     #[serde(rename = "ErrorMessage")]
     pub error_message: String,
 
-    #[serde(rename = "ErrorEvents", skip_serializing_if = "Vec::is_empty")]
+    #[serde(default, rename = "ErrorEvents", skip_serializing_if = "Vec::is_empty")]
     pub error_events: Vec<ErrorEvent>,
 }
