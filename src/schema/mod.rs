@@ -24,7 +24,7 @@ pub mod virtual_machines;
 
 use serde::{Deserialize, Serialize};
 
-#[derive(Deserialize, Serialize, Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Version {
     #[serde(rename = "Major")]
     pub major: u32,

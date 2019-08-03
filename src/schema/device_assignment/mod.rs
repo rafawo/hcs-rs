@@ -9,6 +9,12 @@
 use crate::schema;
 use serde::{Deserialize, Serialize};
 
+impl std::default::Default for DeviceType {
+    fn default() -> Self {
+        DeviceType::ClassGuid
+    }
+}
+
 #[derive(Deserialize, Serialize, Debug, Clone, PartialEq, Eq, Hash)]
 pub enum DeviceType {
     ClassGuid,
@@ -17,7 +23,7 @@ pub enum DeviceType {
     GpuMirror,
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Device {
     /// The type of device to assign to the container.
     #[serde(rename = "Type")]

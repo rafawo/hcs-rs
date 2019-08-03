@@ -9,6 +9,12 @@
 use crate::schema;
 use serde::{Deserialize, Serialize};
 
+impl std::default::Default for ModifyResourceType {
+    fn default() -> Self {
+        ModifyResourceType::Memory
+    }
+}
+
 #[derive(Deserialize, Serialize, Debug, Clone, PartialEq, Eq)]
 pub enum ModifyResourceType {
     Memory,
@@ -19,7 +25,7 @@ pub enum ModifyResourceType {
     NetworkNamespace,
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone)]
+#[derive(Default, Deserialize, Serialize, Debug, Clone)]
 pub struct GuestModifySettingRequest {
     #[serde(rename = "ResourceType")]
     pub resource_type: ModifyResourceType,
@@ -28,10 +34,24 @@ pub struct GuestModifySettingRequest {
     pub request_type: schema::requests::ModifyRequestType,
 
     #[serde(
+        default,
         rename = "Settings",
         skip_serializing_if = "serde_json::Value::is_null"
     )]
     pub settings: serde_json::Value,
+
+    #[serde(
+        default,
+        rename = "HostedSettings",
+        skip_serializing_if = "serde_json::Value::is_null"
+    )]
+    pub hosted_settings: serde_json::Value,
+}
+
+impl std::default::Default for NetworkModifyRequestType {
+    fn default() -> Self {
+        NetworkModifyRequestType::PreAdd
+    }
 }
 
 #[derive(Deserialize, Serialize, Debug, Clone, PartialEq, Eq)]
@@ -41,6 +61,12 @@ pub enum NetworkModifyRequestType {
     Remove,
 }
 
+impl std::default::Default for NetworkAdapterId {
+    fn default() -> Self {
+        NetworkAdapterId::AdapterId(String::new())
+    }
+}
+
 #[derive(Deserialize, Serialize, Debug, Clone)]
 pub enum NetworkAdapterId {
     AdapterId(String),
@@ -48,15 +74,16 @@ pub enum NetworkAdapterId {
     AdapterInstanceID(schema::utils::GuidSerde),
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone)]
+#[derive(Default, Deserialize, Serialize, Debug, Clone)]
 pub struct NetworkModifySettingRequest {
     #[serde(rename = "RequestType")]
     pub request_type: NetworkModifyRequestType,
 
-    #[serde(flatten)]
+    #[serde(default, flatten)]
     pub adapter_id: NetworkAdapterId,
 
     #[serde(
+        default,
         rename = "Settings",
         skip_serializing_if = "serde_json::Value::is_null"
     )]

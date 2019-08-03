@@ -10,12 +10,19 @@ pub mod resources {
     use crate::schema::utils::GuidSerde;
     use serde::{Deserialize, Serialize};
 
-    #[derive(Deserialize, Serialize, Debug, Clone, PartialEq, Eq, Hash)]
+    #[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq, Eq, Hash)]
     pub struct StorageQoS {
         #[serde(rename = "IopsMaximum")]
         pub iops_maximum: u64,
+
         #[serde(rename = "BandwidthMaximum")]
         pub bandwidth_maximum: u64,
+    }
+
+    impl std::default::Default for CacheMode {
+        fn default() -> Self {
+            CacheMode::Disabled
+        }
     }
 
     #[derive(Deserialize, Serialize, Debug, Clone, PartialEq, Eq, Hash)]
@@ -26,21 +33,30 @@ pub mod resources {
         PrivateAllowSharing,
     }
 
+    impl std::default::Default for PathType {
+        fn default() -> Self {
+            PathType::AbsolutePath
+        }
+    }
+
     #[derive(Deserialize, Serialize, Debug, Clone, PartialEq, Eq, Hash)]
     pub enum PathType {
         AbsolutePath,
         VirtualSmbShareName,
     }
 
-    #[derive(Deserialize, Serialize, Debug, Clone, PartialEq, Eq, Hash)]
+    #[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq, Eq, Hash)]
     pub struct Layer {
         #[serde(rename = "Id")]
         pub id: GuidSerde,
+
         #[serde(rename = "Path")]
         pub path: String,
+
         #[serde(rename = "PathType")]
         pub path_type: PathType,
-        #[serde(rename = "Cache", skip_serializing_if = "Option::is_none")]
+
+        #[serde(default, rename = "Cache", skip_serializing_if = "Option::is_none")]
         pub cache: Option<CacheMode>,
     }
 

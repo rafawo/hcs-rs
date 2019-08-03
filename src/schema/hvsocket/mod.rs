@@ -9,11 +9,12 @@
 use crate::schema::utils::GuidSerde;
 use serde::{Deserialize, Serialize};
 
-#[derive(Deserialize, Serialize, Debug, Clone, PartialEq, Eq)]
+#[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq, Eq)]
 pub struct HvSocketServiceConfig {
     /// SDDL string that HvSocket will check before allowing a host process to bind
     /// to this specific service.
     #[serde(
+        default,
         rename = "BindSecurityDescriptor",
         skip_serializing_if = "Option::is_none"
     )]
@@ -22,6 +23,7 @@ pub struct HvSocketServiceConfig {
     /// SDDL string that HvSocket will check before allowing a host process to connect
     /// to this specific service.
     #[serde(
+        default,
         rename = "ConnectSecurityDescriptor",
         skip_serializing_if = "Option::is_none"
     )]
@@ -30,15 +32,16 @@ pub struct HvSocketServiceConfig {
     // If true, HvSocket will process wildcard binds for this service/system combination.
     // Wildcard binds are secured in the registry at
     // **SOFTWARE/Microsoft/Windows NT/CurrentVersion/Virtualization/HvSocket/WildcardDescriptors**
-    #[serde(rename = "AllowWildcardBinds")]
+    #[serde(default, rename = "AllowWildcardBinds")]
     pub allow_wildcard_binds: bool,
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone, PartialEq, Eq)]
+#[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq, Eq)]
 pub struct HvSocketSystemConfig {
     /// SDDL string that HvSocket will check before allowing a host process to bind
     /// to an unlisted service for this specific container/VM (not wildcard binds).
     #[serde(
+        default,
         rename = "DefaultBindSecurityDescriptor",
         skip_serializing_if = "Option::is_none"
     )]
@@ -47,12 +50,14 @@ pub struct HvSocketSystemConfig {
     /// SDDL string that HvSocket will check before allowing a host process to connect
     /// to an unlisted service in the VM/container.
     #[serde(
+        default,
         rename = "DefaultConnectSecurityDescriptor",
         skip_serializing_if = "Option::is_none"
     )]
     pub default_connect_security_descriptor: Option<String>,
 
     #[serde(
+        default,
         rename = "ServiceTable",
         skip_serializing_if = "std::collections::HashMap::is_empty"
     )]

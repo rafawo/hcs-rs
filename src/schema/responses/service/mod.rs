@@ -9,13 +9,13 @@
 use crate::schema;
 use serde::{Deserialize, Serialize};
 
-#[derive(Deserialize, Serialize, Debug, Clone)]
+#[derive(Default, Deserialize, Serialize, Debug, Clone)]
 pub struct ServiceProperties {
     #[serde(default, rename = "Properties", skip_serializing_if = "Vec::is_empty")]
     pub properties: Vec<serde_json::Value>,
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone, PartialEq, Eq)]
+#[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq, Eq)]
 pub struct BasicInformation {
     #[serde(
         default,
@@ -25,10 +25,16 @@ pub struct BasicInformation {
     pub supported_schema_versions: Vec<schema::Version>,
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone, PartialEq, Eq)]
+#[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq, Eq)]
 pub struct QoSCapabilities {
     #[serde(default, rename = "ProcessorQoSSupported")]
     pub processor_qo_s_supported: bool,
+}
+
+impl std::default::Default for EventDataType {
+    fn default() -> Self {
+        EventDataType::Empty
+    }
 }
 
 // Data types for event data elements, based on EVT_VARIANT_TYPE
@@ -53,7 +59,7 @@ pub enum EventDataType {
 }
 
 // Event data element
-#[derive(Deserialize, Serialize, Debug, Clone, PartialEq, Eq)]
+#[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq, Eq)]
 pub struct EventData {
     #[serde(rename = "Type")]
     pub data_type: EventDataType,
@@ -63,7 +69,7 @@ pub struct EventData {
 }
 
 // Error descriptor that provides the info of an error object
-#[derive(Deserialize, Serialize, Debug, Clone, PartialEq, Eq)]
+#[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq, Eq)]
 pub struct ErrorEvent {
     #[serde(rename = "Message")]
     pub message: String,
@@ -88,7 +94,7 @@ pub struct ErrorEvent {
 }
 
 // Extended error information returned by the HCS
-#[derive(Deserialize, Serialize, Debug, Clone, PartialEq, Eq)]
+#[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq, Eq)]
 pub struct ResultError {
     #[serde(rename = "Error")]
     pub error: i32,

@@ -8,6 +8,12 @@
 
 use serde::{Deserialize, Serialize};
 
+impl std::default::Default for PropertyType {
+    fn default() -> Self {
+        PropertyType::Basic
+    }
+}
+
 #[derive(Deserialize, Serialize, Debug, Clone, PartialEq, Eq)]
 pub enum PropertyType {
     Basic,
@@ -21,30 +27,39 @@ pub enum PropertyType {
     MemoryBwAllocation,
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone)]
+#[derive(Default, Deserialize, Serialize, Debug, Clone)]
 pub struct FilteredPropertyQuery {
     #[serde(rename = "PropertyType")]
     pub property_type: PropertyType,
 
-    #[serde(rename = "Filter", skip_serializing_if = "serde_json::Value::is_null")]
+    #[serde(
+        default,
+        rename = "Filter",
+        skip_serializing_if = "serde_json::Value::is_null"
+    )]
     pub filter: serde_json::Value,
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone)]
+#[derive(Default, Deserialize, Serialize, Debug, Clone)]
 pub struct PropertyQuery {
-    #[serde(rename = "PropertyTypes")]
+    #[serde(default, rename = "PropertyTypes")]
     pub property_types: Vec<PropertyType>,
 
-    #[serde(rename = "FilteredQueries", skip_serializing_if = "Vec::is_empty")]
+    #[serde(
+        default,
+        rename = "FilteredQueries",
+        skip_serializing_if = "Vec::is_empty"
+    )]
     pub filtered_queries: Vec<FilteredPropertyQuery>,
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone)]
+#[derive(Default, Deserialize, Serialize, Debug, Clone)]
 pub struct ModificationRequest {
     #[serde(rename = "PropertyType")]
     pub property_type: PropertyType,
 
     #[serde(
+        default,
         rename = "Settings",
         skip_serializing_if = "serde_json::Value::is_null"
     )]

@@ -12,6 +12,12 @@ pub mod system;
 
 use serde::{Deserialize, Serialize};
 
+impl std::default::Default for ModifyRequestType {
+    fn default() -> Self {
+        ModifyRequestType::Add
+    }
+}
+
 #[derive(Deserialize, Serialize, Debug, Clone, PartialEq, Eq)]
 pub enum ModifyRequestType {
     Add,
