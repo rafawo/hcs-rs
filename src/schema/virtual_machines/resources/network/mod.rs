@@ -5,3 +5,15 @@
 // All files in the project carrying such notice may not be copied, modified, or distributed
 // except according to those terms.
 // THE SOURCE CODE IS AVAILABLE UNDER THE ABOVE CHOSEN LICENSE "AS IS", WITH NO WARRANTIES.
+
+use crate::schema;
+use serde::{Deserialize, Serialize};
+
+#[derive(Default, Deserialize, Serialize, Debug, Clone)]
+pub struct NetworkAdapter {
+    #[serde(rename = "EndpointId")]
+    pub endpoint_id: schema::utils::GuidSerde,
+
+    #[serde(default, rename = "MacAddress")]
+    pub mac_address: Option<String>,
+}

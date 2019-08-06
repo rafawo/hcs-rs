@@ -115,7 +115,7 @@ pub struct MemoryInformationForVm {
     pub virtual_nodes: Vec<VirtualNodeInfo>,
 }
 
-// Memory usage as viewed from the guest OS.
+/// Memory usage as viewed from the guest OS.
 #[derive(Default, Deserialize, Serialize, Debug, Clone)]
 pub struct GuestMemoryInfo {
     #[serde(rename = "TotalPhysicalBytes")]
@@ -137,7 +137,7 @@ pub struct GuestMemoryInfo {
     pub peak_commitment_bytes: u64,
 }
 
-// CPU runtime statistics
+/// CPU runtime statistics
 #[derive(Default, Deserialize, Serialize, Debug, Clone)]
 pub struct ProcessorStats {
     #[serde(rename = "TotalRuntime100ns")]
@@ -150,7 +150,7 @@ pub struct ProcessorStats {
     pub runtime_kernel100ns: u64,
 }
 
-// Memory runtime statistics
+/// Memory runtime statistics
 #[derive(Default, Deserialize, Serialize, Debug, Clone)]
 pub struct MemoryStats {
     #[serde(rename = "MemoryUsageCommitBytes")]
@@ -163,7 +163,7 @@ pub struct MemoryStats {
     pub memory_usage_private_working_set_bytes: u64,
 }
 
-// Storage runtime statistics
+/// Storage runtime statistics
 #[derive(Default, Deserialize, Serialize, Debug, Clone)]
 pub struct StorageStats {
     #[serde(rename = "ReadCountNormalized")]
@@ -179,7 +179,7 @@ pub struct StorageStats {
     pub write_size_bytes: u64,
 }
 
-// Runtime statistics for a container
+/// Runtime statistics for a container
 #[derive(Default, Deserialize, Serialize, Debug, Clone)]
 pub struct Statistics {
     #[serde(rename = "Timestamp")]
@@ -201,7 +201,7 @@ pub struct Statistics {
     pub storage: StorageStats,
 }
 
-// Information about a process running in a container
+/// Information about a process running in a container
 #[derive(Default, Deserialize, Serialize, Debug, Clone)]
 pub struct ProcessDetails {
     #[serde(rename = "ProcessId")]
@@ -254,16 +254,6 @@ pub struct GuestConnectionInfo {
         skip_serializing_if = "serde_json::Value::is_null"
     )]
     pub guest_defined_capabilities: serde_json::Value,
-}
-
-// Silo job information
-#[derive(Default, Deserialize, Serialize, Debug, Clone)]
-pub struct SiloProperties {
-    #[serde(rename = "Enabled")]
-    pub enabled: bool,
-
-    #[serde(default, rename = "JobName")]
-    pub job_name: String,
 }
 
 #[derive(Default, Deserialize, Serialize, Debug, Clone)]
@@ -372,7 +362,7 @@ pub enum WindowsCrashPhase {
     Complete,
 }
 
-// Windows specific crash information
+/// Windows specific crash information
 #[derive(Default, Deserialize, Serialize, Debug, Clone)]
 pub struct WindowsCrashReport {
     #[serde(default, rename = "DumpFile")]
@@ -406,7 +396,7 @@ pub struct WindowsCrashReport {
     pub final_phase: WindowsCrashPhase,
 }
 
-// crash information reported through CrashReport notifications
+/// crash information reported through CrashReport notifications
 #[derive(Default, Deserialize, Serialize, Debug, Clone)]
 pub struct CrashReport {
     #[serde(rename = "SystemId")]
