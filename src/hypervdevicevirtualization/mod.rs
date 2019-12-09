@@ -220,3 +220,101 @@ pub fn deliver_guest_interrupt(
         }
     }
 }
+
+/// Registers a guest PFN to trigger an event on writes. The value of the write
+/// will be discarded.
+///
+/// #Arguments
+/// * `requestor` - Handle to the device requesting the doorbell.
+/// * `bar_index` - The index of the BAR containing the page to register.
+/// * `page_index` - The page of the BAR to register.
+/// * `doorbell_event` - Handle to the event to signal.
+pub fn register_doorbell_page(
+    requestor: HdvDeviceHandle,
+    bar_index: HdvPciBarSelector,
+    page_index: u64,
+    doorbell_event: Handle,
+) -> HcsResult<()> {
+    unsafe {
+        match HdvRegisterDoorbellPage(requestor, bar_index, page_index, doorbell_event) {
+            0 => Ok(()),
+            hresult => Err(hresult_to_result_code(&hresult)),
+        }
+    }
+}
+
+/// Registers a guest PFN to trigger an event on writes. The value of the write
+/// will be discarded.
+///
+/// # Arguments
+/// * `requestor` - Handle to the device requesting the interrupt.
+/// * `bar_index` - The index of the BAR containing the registered page.
+/// * `page_index` - The registered page of the BAR.
+pub fn unregister_doorbell_page(
+    requestor: HdvDeviceHandle,
+    bar_index: HdvPciBarSelector,
+    page_index: u64,
+) -> HcsResult<()> {
+    unsafe {
+        match HdvUnregisterDoorbellPage(requestor, bar_index, page_index) {
+            0 => Ok(()),
+            hresult => Err(hresult_to_result_code(&hresult)),
+        }
+    }
+}
+
+/// Registers a guest address to trigger an event on writes. The value of the
+/// write will be discarded.
+///
+/// # Arguments
+/// * `requestor` - Handle to the device requesting the doorbell.
+/// * `bar_index` - The index of the BAR containing the address to register.
+/// * `bar_offset` - The address offset within the BAR.
+/// * `trigger_value` - The value that when written will trigger the doorbell.
+/// * `flags` - Specifies doorbell behaviors.
+/// * `doorbell_event` - Handle to the event to signal.
+pub fn register_doorbell(
+    requestor: HdvDeviceHandle,
+    bar_index: HdvPciBarSelector,
+    bar_offset: u64,
+    trigger_value: u64,
+    flags: u64,
+    doorbell_event: Handle,
+) -> HcsResult<()> {
+    unsafe {
+        match HdvRegisterDoorbell(
+            requestor,
+            bar_index,
+            bar_offset,
+            trigger_value,
+            flags,
+            doorbell_event,
+        ) {
+            0 => Ok(()),
+            hresult => Err(hresult_to_result_code(&hresult)),
+        }
+    }
+}
+
+/// Unregisters a doorbell notification.
+///
+/// # Arguments
+/// * `requestor` - Handle to the device requesting the doorbell.
+/// * `bar_index` - The index of the BAR containing the registered address.
+/// * `bar_offset` - The address offset within the BAR.
+/// * `trigger_value` - The value registered to trigger the doorbell.
+/// * `flags` - Specifies doorbell behaviors.
+pub fn unregister_doorbell(
+    requestor: HdvDeviceHandle,
+    bar_index: HdvPciBarSelector,
+    bar_offset: u64,
+    trigger_value: u64,
+    flags: u64,
+) -> HcsResult<()> {
+    unsafe {
+        match HdvUnregisterDoorbell(requestor, bar_index, bar_offset, trigger_value, flags) {
+            0 => Ok(()),
+            hresult => Err(hresult_to_result_code(&hresult)),
+        }
+    }
+}

@@ -47,6 +47,18 @@ pub enum HdvPciBarSelector {
 }
 
 pub const HDV_PCI_BAR_COUNT: u32 = 6;
+
+#[repr(C)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+pub enum HdvDoorbellFlags {
+    TriggerSizeAny = 0,
+    TriggerSizeByte = 1,
+    TriggerSizeWord = 2,
+    TriggerSizeDword = 3,
+    TriggerSizeQword = 4,
+    TriggerAnyValue = 0x80000000,
+}
+
 pub type HdvPciDeviceInitialize = extern "C" fn(deviceContext: *mut Void) -> HResult;
 pub type HdvPciDeviceTeardown = extern "C" fn(deviceContext: *mut Void);
 

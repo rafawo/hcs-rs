@@ -64,6 +64,36 @@ extern "C" {
         msiData: u32,
     ) -> HResult;
 
+    pub fn HdvRegisterDoorbellPage(
+        requestor: HdvDeviceHandle,
+        barIndex: HdvPciBarSelector,
+        pageIndex: u64,
+        doorbellEvent: Handle,
+    ) -> HResult;
+
+    pub fn HdvUnregisterDoorbellPage(
+        requestor: HdvDeviceHandle,
+        barIndex: HdvPciBarSelector,
+        pageIndex: u64,
+    ) -> HResult;
+
+    pub fn HdvRegisterDoorbell(
+        requestor: HdvDeviceHandle,
+        barIndex: HdvPciBarSelector,
+        barOffset: u64,
+        triggerValue: u64,
+        flags: u64,
+        doorbellEvent: Handle,
+    ) -> HResult;
+
+    pub fn HdvUnregisterDoorbell(
+        requestor: HdvDeviceHandle,
+        barIndex: HdvPciBarSelector,
+        barOffset: u64,
+        triggerValue: u64,
+        flags: u64,
+    ) -> HResult;
+
     pub fn IsHdvInitializeDeviceHostPresent() -> Boolean;
 
     pub fn IsHdvTeardownDeviceHostPresent() -> Boolean;
