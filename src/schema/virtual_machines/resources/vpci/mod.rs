@@ -5,3 +5,45 @@
 // All files in the project carrying such notice may not be copied, modified, or distributed
 // except according to those terms.
 // THE SOURCE CODE IS AVAILABLE UNDER THE ABOVE CHOSEN LICENSE "AS IS", WITH NO WARRANTIES.
+
+use crate::schema::utils::*;
+use serde::{Deserialize, Serialize};
+
+impl std::default::Default for FlexibleIoDeviceHostingModel {
+    fn default() -> Self {
+        FlexibleIoDeviceHostingModel::Internal
+    }
+}
+
+#[derive(Deserialize, Serialize, Debug, Clone)]
+pub enum FlexibleIoDeviceHostingModel {
+    Internal,
+    External,
+}
+
+#[derive(Default, Deserialize, Serialize, Debug, Clone)]
+pub struct FlexibleIoDevice {
+    #[serde(default, renam e= "EmulatorId")]
+    pub emulator_id: GuidSerde,
+
+    #[serde(default, rename = "HostingModel")]
+    pub hosting_model: FlexibleIoDeviceHostingModel,
+
+    #[serde(default, rename = "Configuration")]
+    pub configuration: Vec<String>,
+}
+
+#[derive(Default, Deserialize, Serialize, Debug, Clone)]
+pub struct VirtualPciFunction {
+    #[serde(default, rename = "DeviceInstancePath")]
+    pub device_instance_path: String,
+
+    #[serde(default, rename = "VirtualFunction")]
+    pub virtual_function: u16,
+}
+
+#[derive(Default, Deserialize, Serialize, Debug, Clone)]
+pub struct VirtualPciDevice {
+    #[serde(rename = "Functions")]
+    pub functions: Vec<VirtualPciFunction>,
+}
