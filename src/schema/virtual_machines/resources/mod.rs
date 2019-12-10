@@ -355,12 +355,3 @@ pub struct SharedMemoryConfiguration {
 
 #[derive(Default, Deserialize, Serialize, Debug, Clone)]
 pub struct KernelIntegration {}
-
-#[derive(Default, Deserialize, Serialize, Debug, Clone)]
-pub struct Heartbeat {}
-
-#[derive(Default, Deserialize, Serialize, Debug, Clone)]
-pub struct Shutdown {}
-
-#[derive(Default, Deserialize, Serialize, Debug, Clone)]
-pub struct Timesync {}

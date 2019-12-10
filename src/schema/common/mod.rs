@@ -60,6 +60,15 @@ pub mod resources {
         pub cache: Option<CacheMode>,
     }
 
+    #[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq, Eq, Hash)]
+    pub struct BatchedBinding {
+        #[serde(rename = "FilePath")]
+        pub file_path: String,
+
+        #[serde(rename = "BindingRoots")]
+        pub binding_roots: Vec<String>,
+    }
+
     #[cfg(test)]
     mod tests {
         use super::*;
