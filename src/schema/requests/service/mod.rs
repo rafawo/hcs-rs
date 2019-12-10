@@ -14,7 +14,7 @@ impl std::default::Default for PropertyType {
     }
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone, PartialEq, Eq)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
 pub enum PropertyType {
     Basic,
     Memory,

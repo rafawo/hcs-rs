@@ -11,7 +11,7 @@ use serde::{Deserialize, Serialize};
 
 /// Specifies CPU limits for a container.
 /// Count, Maximum and Weight are all mutually exclusive.
-#[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Default, Deserialize, Serialize, Debug, Clone)]
 pub struct Processor {
     /// Optional property that represents the fraction of the configured processor
     /// count in a container in relation to the processors available in the host.
@@ -35,13 +35,13 @@ pub struct Processor {
     maximum: Option<u64>,
 }
 
-#[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Default, Deserialize, Serialize, Debug, Clone)]
 pub struct Memory {
     #[serde(rename = "SizeInMB")]
     pub size_in_mb: u64,
 }
 
-#[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq, Eq)]
+#[derive(Default, Deserialize, Serialize, Debug, Clone)]
 pub struct HvSocket {
     #[serde(default, rename = "Config", skip_serializing_if = "Option::is_none")]
     pub config: Option<schema::hvsocket::HvSocketSystemConfig>,
@@ -50,7 +50,7 @@ pub struct HvSocket {
     pub enable_powershell_direct: bool,
 }
 
-#[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Default, Deserialize, Serialize, Debug, Clone)]
 pub struct Networking {
     #[serde(default, rename = "AllowUnqualifiedDnsQuery")]
     pub allow_unqualified_dns_query: bool,
@@ -88,7 +88,7 @@ pub struct Networking {
 /// since the container path is already the scratch path.
 /// For linux, the GCS unions the specified layers and ScratchPath together, placing
 /// the resulting union filesystem at ContainerRootPath.
-#[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Default, Deserialize, Serialize, Debug, Clone)]
 pub struct CombinedLayers {
     #[serde(default, rename = "Layers", skip_serializing_if = "Vec::is_empty")]
     pub layers: Vec<schema::common::resources::Layer>,
@@ -104,7 +104,7 @@ pub struct CombinedLayers {
     pub container_root_path: String,
 }
 
-#[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Default, Deserialize, Serialize, Debug, Clone)]
 pub struct Storage {
     /// List of layers that describe the parent hierarchy for a container's
     /// storage. These layers combined together, presented as a disposable
@@ -123,7 +123,7 @@ pub struct Storage {
     pub qos: Option<schema::common::resources::StorageQoS>,
 }
 
-#[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Default, Deserialize, Serialize, Debug, Clone)]
 pub struct MappedDirectory {
     #[serde(rename = "HostPath")]
     pub host_path: String,
@@ -147,13 +147,13 @@ impl std::default::Default for MappedPipePathType {
     }
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
 pub enum MappedPipePathType {
     AbsolutePath,
     VirtualSmbPipeName,
 }
 
-#[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Default, Deserialize, Serialize, Debug, Clone)]
 pub struct MappedPipe {
     #[serde(rename = "ContainerPipeName")]
     pub container_pipe_name: String,
@@ -167,7 +167,7 @@ pub struct MappedPipe {
 
 /// Represents the flush state of the registry hive
 /// for a windows container's job object.
-#[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Default, Deserialize, Serialize, Debug, Clone)]
 pub struct RegistryFlushState {
     /// Determines whether the flush state of the registry hive
     /// is enabled or not.

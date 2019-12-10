@@ -15,7 +15,7 @@ impl std::default::Default for RegistryHive {
     }
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone, PartialEq, Eq)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
 pub enum RegistryHive {
     System,
     Software,
@@ -29,7 +29,7 @@ impl std::default::Default for RegistryValueType {
     }
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone, PartialEq, Eq)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
 pub enum RegistryValueType {
     None,
     String,
@@ -47,7 +47,7 @@ impl std::default::Default for RegistryValueData {
     }
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone, PartialEq, Eq)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
 pub enum RegistryValueData {
     StringValue(String),
     #[serde(
@@ -59,7 +59,7 @@ pub enum RegistryValueData {
     QWordValue(u64),
 }
 
-#[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq, Eq)]
+#[derive(Default, Deserialize, Serialize, Debug, Clone)]
 pub struct RegistryKey {
     #[serde(rename = "Hive")]
     pub hive: RegistryHive,
@@ -71,7 +71,7 @@ pub struct RegistryKey {
     pub volatile: bool,
 }
 
-#[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq, Eq)]
+#[derive(Default, Deserialize, Serialize, Debug, Clone)]
 pub struct RegistryValue {
     #[serde(rename = "Key")]
     pub key: RegistryKey,
@@ -95,7 +95,7 @@ pub struct RegistryValue {
     pub custom_type: Option<u32>,
 }
 
-#[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq, Eq)]
+#[derive(Default, Deserialize, Serialize, Debug, Clone)]
 pub struct RegistryChanges {
     #[serde(default, rename = "AddValues", skip_serializing_if = "Vec::is_empty")]
     pub add_values: Vec<RegistryValue>,

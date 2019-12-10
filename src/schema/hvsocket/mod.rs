@@ -9,7 +9,7 @@
 use crate::schema::utils::GuidSerde;
 use serde::{Deserialize, Serialize};
 
-#[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq, Eq)]
+#[derive(Default, Deserialize, Serialize, Debug, Clone)]
 pub struct HvSocketServiceConfig {
     /// SDDL string that HvSocket will check before allowing a host process to bind
     /// to this specific service.
@@ -36,7 +36,7 @@ pub struct HvSocketServiceConfig {
     pub allow_wildcard_binds: bool,
 }
 
-#[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq, Eq)]
+#[derive(Default, Deserialize, Serialize, Debug, Clone)]
 pub struct HvSocketSystemConfig {
     /// SDDL string that HvSocket will check before allowing a host process to bind
     /// to an unlisted service for this specific container/VM (not wildcard binds).

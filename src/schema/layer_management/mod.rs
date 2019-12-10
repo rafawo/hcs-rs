@@ -9,7 +9,7 @@
 use crate::schema;
 use serde::{Deserialize, Serialize};
 
-#[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Default, Deserialize, Serialize, Debug, Clone)]
 pub struct LayerData {
     #[serde(default, rename = "SchemaVersion")]
     pub schema_version: schema::Version,

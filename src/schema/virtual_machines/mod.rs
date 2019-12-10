@@ -16,13 +16,21 @@ pub struct Devices {
     #[serde(default, rename = "ComPorts")]
     pub com_ports: std::collections::HashMap<u32, schema::virtual_machines::resources::ComPort>,
 
-    #[serde(default, rename = "VirtioSerial")]
+    #[serde(
+        default,
+        rename = "VirtioSerial",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub virtio_serial: Option<schema::virtual_machines::resources::VirtioSerial>,
 
     #[serde(default, rename = "Scsi")]
     pub scsi: std::collections::HashMap<String, schema::virtual_machines::resources::storage::Scsi>,
 
-    #[serde(default, rename = "VirtualPMem")]
+    #[serde(
+        default,
+        rename = "VirtualPMem",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub virtual_pmem: Option<schema::virtual_machines::resources::storage::VirtualPMemController>,
 
     #[serde(default, rename = "NetworkAdapters")]
@@ -31,34 +39,50 @@ pub struct Devices {
         schema::virtual_machines::resources::network::NetworkAdapter,
     >,
 
-    #[serde(default, rename = "VideoMonitor")]
+    #[serde(
+        default,
+        rename = "VideoMonitor",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub video_monitor: Option<schema::virtual_machines::resources::VideoMonitor>,
 
-    #[serde(default, rename = "Keyboard")]
+    #[serde(default, rename = "Keyboard", skip_serializing_if = "Option::is_none")]
     pub keyboard: Option<schema::virtual_machines::resources::Keyboard>,
 
-    #[serde(default, rename = "Mouse")]
+    #[serde(default, rename = "Mouse", skip_serializing_if = "Option::is_none")]
     pub mouse: Option<schema::virtual_machines::resources::Mouse>,
 
-    #[serde(default, rename = "HvSocket")]
+    #[serde(default, rename = "HvSocket", skip_serializing_if = "Option::is_none")]
     pub hvsocket: Option<schema::virtual_machines::resources::HvSocket>,
 
-    #[serde(default, rename = "EnhancedModeVideo")]
+    #[serde(
+        default,
+        rename = "EnhancedModeVideo",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub enhanced_mode_video: Option<schema::virtual_machines::resources::EnhancedModeVideo>,
 
-    #[serde(default, rename = "GuestCrashReporting")]
+    #[serde(
+        default,
+        rename = "GuestCrashReporting",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub guest_crash_reporting: Option<schema::virtual_machines::resources::GuestCrashReporting>,
 
-    #[serde(default, rename = "VirtualSmb")]
+    #[serde(
+        default,
+        rename = "VirtualSmb",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub virtual_smb: Option<schema::virtual_machines::resources::storage::VirtualSmb>,
 
-    #[serde(default, rename = "Plan9")]
+    #[serde(default, rename = "Plan9", skip_serializing_if = "Option::is_none")]
     pub plan9: Option<schema::virtual_machines::resources::storage::Plan9>,
 
-    #[serde(default, rename = "Licensing")]
+    #[serde(default, rename = "Licensing", skip_serializing_if = "Option::is_none")]
     pub licensing: Option<schema::virtual_machines::resources::Licensing>,
 
-    #[serde(default, rename = "Battery")]
+    #[serde(default, rename = "Battery", skip_serializing_if = "Option::is_none")]
     pub battery: Option<schema::virtual_machines::resources::Battery>,
 
     #[serde(default, rename = "FlexibleIov")]
@@ -67,10 +91,18 @@ pub struct Devices {
         schema::virtual_machines::resources::vpci::FlexibleIoDevice,
     >,
 
-    #[serde(default, rename = "SharedMemory")]
+    #[serde(
+        default,
+        rename = "SharedMemory",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub shared_memory: Option<schema::virtual_machines::resources::SharedMemoryConfiguration>,
 
-    #[serde(default, rename = "KernelIntegration")]
+    #[serde(
+        default,
+        rename = "KernelIntegration",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub kernel_integration: Option<schema::virtual_machines::resources::KernelIntegration>,
 
     #[serde(default, rename = "VirtualPci")]

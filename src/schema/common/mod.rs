@@ -10,7 +10,7 @@ pub mod resources {
     use crate::schema::utils::GuidSerde;
     use serde::{Deserialize, Serialize};
 
-    #[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq, Eq, Hash)]
+    #[derive(Default, Deserialize, Serialize, Debug, Clone)]
     pub struct StorageQoS {
         #[serde(rename = "IopsMaximum")]
         pub iops_maximum: u64,
@@ -25,7 +25,7 @@ pub mod resources {
         }
     }
 
-    #[derive(Deserialize, Serialize, Debug, Clone, PartialEq, Eq, Hash)]
+    #[derive(Deserialize, Serialize, Debug, Clone)]
     pub enum CacheMode {
         Disabled,
         Enabled,
@@ -39,13 +39,13 @@ pub mod resources {
         }
     }
 
-    #[derive(Deserialize, Serialize, Debug, Clone, PartialEq, Eq, Hash)]
+    #[derive(Deserialize, Serialize, Debug, Clone)]
     pub enum PathType {
         AbsolutePath,
         VirtualSmbShareName,
     }
 
-    #[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq, Eq, Hash)]
+    #[derive(Default, Deserialize, Serialize, Debug, Clone)]
     pub struct Layer {
         #[serde(rename = "Id")]
         pub id: GuidSerde,
@@ -60,7 +60,7 @@ pub mod resources {
         pub cache: Option<CacheMode>,
     }
 
-    #[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq, Eq, Hash)]
+    #[derive(Default, Deserialize, Serialize, Debug, Clone)]
     pub struct BatchedBinding {
         #[serde(rename = "FilePath")]
         pub file_path: String,

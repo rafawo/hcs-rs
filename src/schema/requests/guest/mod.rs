@@ -15,7 +15,7 @@ impl std::default::Default for ModifyResourceType {
     }
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone, PartialEq, Eq)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
 pub enum ModifyResourceType {
     Memory,
     MappedDirectory,
@@ -54,7 +54,7 @@ impl std::default::Default for NetworkModifyRequestType {
     }
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone, PartialEq, Eq)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
 pub enum NetworkModifyRequestType {
     PreAdd,
     Add,

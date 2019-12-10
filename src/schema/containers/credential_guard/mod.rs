@@ -15,13 +15,13 @@ impl std::default::Default for CcgTransport {
     }
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
 pub enum CcgTransport {
     LRPC,
     HvSocket,
 }
 
-#[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Default, Deserialize, Serialize, Debug, Clone)]
 pub struct CcgState {
     #[serde(
         rename = "Cookie",
@@ -40,7 +40,7 @@ pub struct CcgState {
     pub credential_spec: String,
 }
 
-#[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq, Eq)]
+#[derive(Default, Deserialize, Serialize, Debug, Clone)]
 pub struct CcgHvSocketServiceConfig {
     #[serde(rename = "ServiceId")]
     pub service_id: schema::utils::GuidSerde,
@@ -53,7 +53,7 @@ pub struct CcgHvSocketServiceConfig {
     pub service_config: Option<schema::hvsocket::HvSocketServiceConfig>,
 }
 
-#[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq, Eq)]
+#[derive(Default, Deserialize, Serialize, Debug, Clone)]
 pub struct CcgInstance {
     #[serde(rename = "Id")]
     pub id: String,
@@ -69,13 +69,13 @@ pub struct CcgInstance {
     pub hvsocket_config: Option<CcgHvSocketServiceConfig>,
 }
 
-#[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq, Eq)]
+#[derive(Default, Deserialize, Serialize, Debug, Clone)]
 pub struct CcgSystemInfo {
     #[serde(rename = "Instances")]
     pub instances: Vec<CcgInstance>,
 }
 
-#[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Default, Deserialize, Serialize, Debug, Clone)]
 pub struct CcgAddInstanceRequest {
     #[serde(rename = "Id")]
     pub id: String,
@@ -87,7 +87,7 @@ pub struct CcgAddInstanceRequest {
     pub transport: CcgTransport,
 }
 
-#[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Default, Deserialize, Serialize, Debug, Clone)]
 pub struct CcgRemoveInstanceRequest {
     #[serde(rename = "Id")]
     pub id: String,
@@ -99,7 +99,7 @@ impl std::default::Default for CcgModifyOperationType {
     }
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
 pub enum CcgModifyOperationType {
     AddInstance,
     RemoveInstance,
@@ -111,7 +111,7 @@ impl std::default::Default for CcgModifyOperation {
     }
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
 #[serde(untagged)]
 pub enum CcgModifyOperation {
     AddInstance(CcgAddInstanceRequest),

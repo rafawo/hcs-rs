@@ -238,7 +238,11 @@ pub struct WindowsCrashReporting {
 
 #[derive(Default, Deserialize, Serialize, Debug, Clone)]
 pub struct GuestCrashReporting {
-    #[serde(default, rename = "WindowsCrashSettings")]
+    #[serde(
+        default,
+        rename = "WindowsCrashSettings",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub windows_crash_settings: Option<WindowsCrashReporting>,
 }
 
