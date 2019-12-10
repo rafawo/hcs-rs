@@ -8,6 +8,7 @@
 
 //! Build script that takes care of making sure HCS APIs can be linked
 //! to their corresponding .lib files when the crate is built.
+//! This is only done if environment variable `HCSRS_CHECK_SDK_LIBS` is set.
 //!
 //! This script relies on the environment variables `WIN10SDK_PATH` and `WIN10SDK_VERSION`.
 //! `WIN10SDK_PATH` defaults to `c:\Program Files (x86)\Windows Kits\10` if not set.
@@ -16,6 +17,10 @@
 use std::env::var;
 
 fn main() {
+    if let Err(_) = var("HCSRS_CHECK_SDK_LIBS") {
+        return;
+    }
+
     println!("cargo:rerun-if-changed=build.rs");
     println!("cargo:rerun-if-env-changed=WIN10SDK_PATH");
 
