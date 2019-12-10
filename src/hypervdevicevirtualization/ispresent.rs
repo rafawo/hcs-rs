@@ -42,3 +42,19 @@ pub fn destroy_guest_memory_aperture() -> bool {
 pub fn deliver_guest_interrupt() -> bool {
     unsafe { IsHdvDeliverGuestInterruptPresent() != 0 }
 }
+
+pub fn register_doorbell_page() -> bool {
+    unsafe { IsHdvRegisterDoorbellPage() != 0 }
+}
+
+pub fn unregister_doorbell_page() -> bool {
+    unsafe { IsHdvUnregisterDoorbellPage() != 0 }
+}
+
+pub fn register_doorbell() -> bool {
+    unsafe { IsHdvRegisterDoorbell() != 0 }
+}
+
+pub fn unregister_doorbell() -> bool {
+    unsafe { IsHdvUnregisterDoorbell() != 0 }
+}

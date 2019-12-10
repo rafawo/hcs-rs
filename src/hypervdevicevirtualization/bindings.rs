@@ -109,4 +109,12 @@ extern "C" {
     pub fn IsHdvDestroyGuestMemoryAperturePresent() -> Boolean;
 
     pub fn IsHdvDeliverGuestInterruptPresent() -> Boolean;
+
+    pub fn IsHdvRegisterDoorbellPage() -> Boolean;
+
+    pub fn IsHdvUnregisterDoorbellPage() -> Boolean;
+
+    pub fn IsHdvRegisterDoorbell() -> Boolean;
+
+    pub fn IsHdvUnregisterDoorbell() -> Boolean;
 }
