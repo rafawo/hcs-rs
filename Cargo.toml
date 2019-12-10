@@ -1,0 +1,30 @@
+[package]
+name = "hcs-rs"
+version = "0.2.2"
+authors = ["rafawo <rafawo1@hotmail.com>"]
+license = "MIT/Apache-2.0"
+edition = "2018"
+description = "Rust abstractions for HCS APIs."
+repository = "https://github.com/rafawo/hcs-rs"
+readme = "README.md"
+keywords = ["windows", "hcs", "host_compute_service", "hyper-v", "windows-containers"]
+categories = ["api-bindings", "os::windows-apis"]
+
+[features]
+bindings = []
+schema = [ "serde", "serde_json", "chrono", "base64", "hex" ]
+19h1 = []
+vb = []
+
+[dependencies]
+chrono = { version = "0.4.7", features = ["serde"], optional = true }
+base64 = { version = "0.10.1", optional = true }
+hex = { version = "0.3.2", optional = true }
+serde = { version = "1.0.98", features = ["derive"], optional = true }
+serde_json = { version = "1.0.40", optional = true }
+widestring = "0.4.0"
+winapi = { version = "0.3.6", features = [
+    "combaseapi",
+    "winbase",
+] }
+winutils-rs = "0.2.0"
