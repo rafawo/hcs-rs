@@ -17,7 +17,7 @@ pub trait HdvPciDevice {
     fn initialize(&mut self) -> HResult;
     fn teardown(&mut self);
     fn set_configuration(&mut self, values: &[PCWStr]) -> HResult;
-    fn get_details(&self, pnpi_id: PHdvPciPnpId, probed_bars: &mut [u32]) -> HResult;
+    fn get_details(&self, pnp_id: &mut HdvPciPnpId, probed_bars: &mut [u32]) -> HResult;
     fn start(&mut self) -> HResult;
     fn stop(&mut self);
     fn read_config_space(&self, offset: u32, value: &mut u32) -> HResult;
@@ -228,7 +228,7 @@ pub(crate) mod device_base_interface {
         let probed_bars: &mut [u32] =
             std::slice::from_raw_parts_mut(probed_bars, probed_bars_count as usize);
         match (*device_base).device.write() {
-            Ok(device) => device.get_details(pnp_id, probed_bars),
+            Ok(device) => device.get_details(&mut *pnp_id, probed_bars),
             Err(_) => winapi::shared::winerror::E_FAIL,
         }
     }
