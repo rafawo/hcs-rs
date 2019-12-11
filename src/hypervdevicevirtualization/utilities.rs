@@ -38,6 +38,7 @@ pub trait HdvPciDevice {
 
 pub struct HdvPciDeviceBase {
     pub device: Box<dyn HdvPciDevice>,
+    device_handle: HdvDeviceHandle,
 }
 
 impl HdvPciDeviceBase {
@@ -47,19 +48,18 @@ impl HdvPciDeviceBase {
         device_instance_id: &Guid,
         device: Box<dyn HdvPciDevice>,
     ) -> HcsResult<HdvPciDeviceBase> {
-        let mut device_base = HdvPciDeviceBase { device };
-
-        let boxed_device = Box::new(&mut (*device_base.device) as *mut _);
-
-        hypervdevicevirtualization::create_device_instance(
+        let mut device_base = HdvPciDeviceBase {
+            device,
+            device_handle: std::ptr::null_mut(),
+        };
+        device_base.device_handle = hypervdevicevirtualization::create_device_instance(
             device_host_handle,
             HdvDeviceType::Pci,
             device_class_id,
             device_instance_id,
             &device_base_interface::DEVICE_INTERFACE as *const _ as *const Void,
-            Box::into_raw(boxed_device) as PVoid,
+            &mut device_base as *mut _ as PVoid,
         )?;
-
         Ok(device_base)
     }
 }
@@ -68,13 +68,13 @@ pub(crate) mod device_base_interface {
     use super::*;
 
     unsafe extern "system" fn initialize(device_context: *mut Void) -> HResult {
-        let mut device: Box<Box<dyn HdvPciDevice>> = Box::from_raw(device_context as *mut _);
-        (*device).initialize()
+        let device_base: *mut HdvPciDeviceBase = device_context as *mut HdvPciDeviceBase;
+        (*device_base).device.initialize()
     }
 
     unsafe extern "system" fn teardown(device_context: *mut Void) {
-        let mut device: Box<Box<dyn HdvPciDevice>> = Box::from_raw(device_context as *mut _);
-        (*device).teardown();
+        let device_base: *mut HdvPciDeviceBase = device_context as *mut HdvPciDeviceBase;
+        (*device_base).device.teardown();
     }
 
     unsafe extern "system" fn set_configuration(
@@ -82,10 +82,10 @@ pub(crate) mod device_base_interface {
         configuration_value_count: u32,
         configuration_values: *const PCWStr,
     ) -> HResult {
-        let mut device: Box<Box<dyn HdvPciDevice>> = Box::from_raw(device_context as *mut _);
+        let device_base: *mut HdvPciDeviceBase = device_context as *mut HdvPciDeviceBase;
         let config_values: &[PCWStr] =
             std::slice::from_raw_parts(configuration_values, configuration_value_count as usize);
-        (*device).set_configuration(config_values)
+        (*device_base).device.set_configuration(config_values)
     }
 
     unsafe extern "system" fn get_details(
@@ -94,20 +94,20 @@ pub(crate) mod device_base_interface {
         probed_bars_count: u32,
         probed_bars: *mut u32,
     ) -> HResult {
-        let device: Box<Box<dyn HdvPciDevice>> = Box::from_raw(device_context as *mut _);
+        let device_base: *const HdvPciDeviceBase = device_context as *const HdvPciDeviceBase;
         let probed_bars: &mut [u32] =
             std::slice::from_raw_parts_mut(probed_bars, probed_bars_count as usize);
-        (*device).get_details(pnp_id, probed_bars)
+        (*device_base).device.get_details(pnp_id, probed_bars)
     }
 
     unsafe extern "system" fn start(device_context: *mut Void) -> HResult {
-        let mut device: Box<Box<dyn HdvPciDevice>> = Box::from_raw(device_context as *mut _);
-        (*device).start()
+        let device_base: *mut HdvPciDeviceBase = device_context as *mut HdvPciDeviceBase;
+        (*device_base).device.start()
     }
 
     unsafe extern "system" fn stop(device_context: *mut Void) {
-        let mut device: Box<Box<dyn HdvPciDevice>> = Box::from_raw(device_context as *mut _);
-        (*device).stop();
+        let device_base: *mut HdvPciDeviceBase = device_context as *mut HdvPciDeviceBase;
+        (*device_base).device.stop();
     }
 
     unsafe extern "system" fn read_config_space(
@@ -115,8 +115,8 @@ pub(crate) mod device_base_interface {
         offset: u32,
         value: *mut u32,
     ) -> HResult {
-        let device: Box<Box<dyn HdvPciDevice>> = Box::from_raw(device_context as *mut _);
-        (*device).read_config_space(offset, &mut *value)
+        let device_base: *const HdvPciDeviceBase = device_context as *const HdvPciDeviceBase;
+        (*device_base).device.read_config_space(offset, &mut *value)
     }
 
     unsafe extern "system" fn write_config_space(
@@ -124,8 +124,8 @@ pub(crate) mod device_base_interface {
         offset: u32,
         value: u32,
     ) -> HResult {
-        let mut device: Box<Box<dyn HdvPciDevice>> = Box::from_raw(device_context as *mut _);
-        (*device).write_config_space(offset, value)
+        let device_base: *mut HdvPciDeviceBase = device_context as *mut HdvPciDeviceBase;
+        (*device_base).device.write_config_space(offset, value)
     }
 
     unsafe extern "system" fn read_intercepted_memory(
@@ -135,9 +135,11 @@ pub(crate) mod device_base_interface {
         length: u64,
         value: *mut Byte,
     ) -> HResult {
-        let device: Box<Box<dyn HdvPciDevice>> = Box::from_raw(device_context as *mut _);
+        let device_base: *const HdvPciDeviceBase = device_context as *const HdvPciDeviceBase;
         let values: &mut [Byte] = std::slice::from_raw_parts_mut(value, length as usize);
-        (*device).read_intercepted_memory(bar_index, offset, values)
+        (*device_base)
+            .device
+            .read_intercepted_memory(bar_index, offset, values)
     }
 
     unsafe extern "system" fn write_intercepted_memory(
@@ -147,9 +149,11 @@ pub(crate) mod device_base_interface {
         length: u64,
         value: *const Byte,
     ) -> HResult {
-        let mut device: Box<Box<dyn HdvPciDevice>> = Box::from_raw(device_context as *mut _);
+        let device_base: *mut HdvPciDeviceBase = device_context as *mut HdvPciDeviceBase;
         let values: &[Byte] = std::slice::from_raw_parts(value, length as usize);
-        (*device).write_intercepted_memory(bar_index, offset, values)
+        (*device_base)
+            .device
+            .write_intercepted_memory(bar_index, offset, values)
     }
 
     /// Global HDV PCI device interface object with all the necessary
