@@ -70,6 +70,29 @@ impl HdvPciDeviceBase {
         )?;
         Ok(device_base)
     }
+
+    /// Writes the contents of the supplied buffer to guest primary memory (RAM).
+    pub fn write_guest_memory_buffer(
+        &self,
+        guest_physical_address: u64,
+        buffer: &[Byte],
+    ) -> HcsResult<()> {
+        hypervdevicevirtualization::write_guest_memory(
+            self.device_handle,
+            guest_physical_address,
+            buffer,
+        )
+    }
+
+    /// Writes the supplied object as a byte buffer to guest primary memory (RAM).
+    pub fn write_guest_memory<T>(&self, guest_physical_address: u64, data: &T) -> HcsResult<()>
+    where
+        T: Sized,
+    {
+        self.write_guest_memory_buffer(guest_physical_address, unsafe {
+            std::slice::from_raw_parts(data as *const _ as *const u8, std::mem::size_of::<T>())
+        })
+    }
 }
 
 pub(crate) mod device_base_interface {
