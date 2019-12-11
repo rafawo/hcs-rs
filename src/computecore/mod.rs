@@ -26,10 +26,20 @@ use winutils_rs::utilities::LocalWString;
 use winutils_rs::windefs::*;
 
 /// Enumerates all compute systems visible to the caller.
-pub fn enumerate_compute_systems(query: &str, operation: HcsOperationHandle) -> HcsResult<()> {
+pub fn enumerate_compute_systems(
+    operation: HcsOperationHandle,
+    query: Option<&str>,
+) -> HcsResult<()> {
+    let query_str = match query {
+        Some(query) => query,
+        None => "{}",
+    };
+
     unsafe {
-        match HcsEnumerateComputeSystems(WideCString::from_str(query).unwrap().as_ptr(), operation)
-        {
+        match HcsEnumerateComputeSystems(
+            WideCString::from_str(query_str).unwrap().as_ptr(),
+            operation,
+        ) {
             0 => Ok(()),
             hresult => Err(hresult_to_result_code(&hresult)),
         }
@@ -283,7 +293,7 @@ pub fn start_compute_system(
 ) -> HcsResult<()> {
     let options_str = match options {
         Some(options) => options,
-        None => "",
+        None => "{}",
     };
 
     unsafe {
@@ -312,7 +322,7 @@ pub fn shutdown_compute_system(
 ) -> HcsResult<()> {
     let options_str = match options {
         Some(options) => options,
-        None => "",
+        None => "{}",
     };
 
     unsafe {
@@ -342,7 +352,7 @@ pub fn terminate_compute_system(
 ) -> HcsResult<()> {
     let options_str = match options {
         Some(options) => options,
-        None => "",
+        None => "{}",
     };
 
     unsafe {
@@ -369,7 +379,7 @@ pub fn pause_compute_system(
 ) -> HcsResult<()> {
     let options_str = match options {
         Some(options) => options,
-        None => "",
+        None => "{}",
     };
 
     unsafe {
@@ -396,7 +406,7 @@ pub fn resume_compute_system(
 ) -> HcsResult<()> {
     let options_str = match options {
         Some(options) => options,
-        None => "",
+        None => "{}",
     };
 
     unsafe {
@@ -423,7 +433,7 @@ pub fn save_compute_system(
 ) -> HcsResult<()> {
     let options_str = match options {
         Some(options) => options,
-        None => "",
+        None => "{}",
     };
 
     unsafe {
@@ -447,7 +457,7 @@ pub fn get_compute_system_properties(
 ) -> HcsResult<()> {
     let property_query_str = match property_query {
         Some(property_query) => property_query,
-        None => "",
+        None => "{}",
     };
 
     unsafe {
@@ -583,7 +593,7 @@ pub fn terminate_process(
 ) -> HcsResult<()> {
     let options_str = match options {
         Some(options) => options,
-        None => "",
+        None => "{}",
     };
 
     unsafe {
@@ -607,7 +617,7 @@ pub fn signal_process(
 ) -> HcsResult<()> {
     let options_str = match options {
         Some(options) => options,
-        None => "",
+        None => "{}",
     };
 
     unsafe {
@@ -641,7 +651,7 @@ pub fn get_process_properties(
 ) -> HcsResult<()> {
     let property_query_str = match property_query {
         Some(property_query) => property_query,
-        None => "",
+        None => "{}",
     };
 
     unsafe {
@@ -665,7 +675,7 @@ pub fn modify_process(
 ) -> HcsResult<()> {
     let settings_str = match settings {
         Some(settings) => settings,
-        None => "",
+        None => "{}",
     };
 
     unsafe {
