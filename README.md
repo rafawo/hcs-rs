@@ -62,10 +62,15 @@ The following table describes the relevant Windows 10 SDK files that this projec
 
 ## Crates.io version notes
 
-**NOTE: All versions from 0.2.1 and below have been yanked on purpose from this project. Please use the git repo directly as a dependency for latest active changes, or 0.2.2 as the oldest "stable" version.**
+**NOTE: All versions from 0.2.1 and below have been yanked on purpose. Please use the git repo directly for latest active changes, or 0.2.2 as the oldest "stable" version.**
 
 This section briefly describes all published crates.io [versions](https://crates.io/crates/hcs-rs/versions) of this project, ordered from latest to oldest.
 
+- [**0.3.0 Dec 11, 2019**](https://crates.io/crates/hcs-rs/0.3.0)
+  - Breaking changes
+    - hypervdevicevirtualization safe wrappers for reading and writing guest memory now use slices instead of vectors directly
+      - In particular, read used to return a newly allocated buffer with the read memory. Now, it reads it directly into the supplied byte slice
+    - Introduction of feature `utilities` to separate all the higher abstract Rust abstraction on top of the basic safe wrappers
 - [**0.2.2 Dec 10, 2019**](https://crates.io/crates/hcs-rs/0.2.2)
   - Removes unnecessary ispresent bindings
   - Gets a functional schema JSON object model finalized
