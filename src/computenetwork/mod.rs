@@ -45,13 +45,13 @@ pub type HcnResult<T> = Result<T, ErrorResult>;
 /// Return a list of existing Networks.
 pub fn enumerate_networks(query: &str) -> HcnResult<String> {
     unsafe {
-        let networks = CoTaskMemWString::new();
-        let error_record = CoTaskMemWString::new();
+        let mut networks = CoTaskMemWString::new();
+        let mut error_record = CoTaskMemWString::new();
 
         match HcnEnumerateNetworks(
             WideCString::from_str(query).unwrap().as_ptr(),
-            networks.ptr,
-            error_record.ptr,
+            networks.ptr_mut(),
+            error_record.ptr_mut(),
         ) {
             0 => Ok(networks.to_string()),
             hresult => Err(ErrorResult::new(error_record.to_string(), hresult)),
@@ -63,13 +63,13 @@ pub fn enumerate_networks(query: &str) -> HcnResult<String> {
 pub fn create_network(id: &Guid, settings: &str) -> HcnResult<HcnNetworkHandle> {
     unsafe {
         let mut network_handle: HcnNetworkHandle = std::ptr::null_mut();
-        let error_record = CoTaskMemWString::new();
+        let mut error_record = CoTaskMemWString::new();
 
         match HcnCreateNetwork(
             id,
             WideCString::from_str(settings).unwrap().as_ptr(),
             &mut network_handle,
-            error_record.ptr,
+            error_record.ptr_mut(),
         ) {
             0 => Ok(network_handle),
             hresult => Err(ErrorResult::new(error_record.to_string(), hresult)),
@@ -81,9 +81,9 @@ pub fn create_network(id: &Guid, settings: &str) -> HcnResult<HcnNetworkHandle> 
 pub fn open_network(id: &Guid) -> HcnResult<HcnNetworkHandle> {
     unsafe {
         let mut network_handle: HcnNetworkHandle = std::ptr::null_mut();
-        let error_record = CoTaskMemWString::new();
+        let mut error_record = CoTaskMemWString::new();
 
-        match HcnOpenNetwork(id, &mut network_handle, error_record.ptr) {
+        match HcnOpenNetwork(id, &mut network_handle, error_record.ptr_mut()) {
             0 => Ok(network_handle),
             hresult => Err(ErrorResult::new(error_record.to_string(), hresult)),
         }
@@ -93,12 +93,12 @@ pub fn open_network(id: &Guid) -> HcnResult<HcnNetworkHandle> {
 /// Modify the settings of a Network.
 pub fn modify_network(network: HcnNetworkHandle, settings: &str) -> HcnResult<()> {
     unsafe {
-        let error_record = CoTaskMemWString::new();
+        let mut error_record = CoTaskMemWString::new();
 
         match HcnModifyNetwork(
             network,
             WideCString::from_str(settings).unwrap().as_ptr(),
-            error_record.ptr,
+            error_record.ptr_mut(),
         ) {
             0 => Ok(()),
             hresult => Err(ErrorResult::new(error_record.to_string(), hresult)),
@@ -109,14 +109,14 @@ pub fn modify_network(network: HcnNetworkHandle, settings: &str) -> HcnResult<()
 /// Query network settings.
 pub fn query_network_properties(network: HcnNetworkHandle, query: &str) -> HcnResult<String> {
     unsafe {
-        let properties = CoTaskMemWString::new();
-        let error_record = CoTaskMemWString::new();
+        let mut properties = CoTaskMemWString::new();
+        let mut error_record = CoTaskMemWString::new();
 
         match HcnQueryNetworkProperties(
             network,
             WideCString::from_str(query).unwrap().as_ptr(),
-            properties.ptr,
-            error_record.ptr,
+            properties.ptr_mut(),
+            error_record.ptr_mut(),
         ) {
             0 => Ok(properties.to_string()),
             hresult => Err(ErrorResult::new(error_record.to_string(), hresult)),
@@ -127,9 +127,9 @@ pub fn query_network_properties(network: HcnNetworkHandle, query: &str) -> HcnRe
 /// Delete a network.
 pub fn delete_network(id: &Guid) -> HcnResult<()> {
     unsafe {
-        let error_record = CoTaskMemWString::new();
+        let mut error_record = CoTaskMemWString::new();
 
-        match HcnDeleteNetwork(id, error_record.ptr) {
+        match HcnDeleteNetwork(id, error_record.ptr_mut()) {
             0 => Ok(()),
             hresult => Err(ErrorResult::new(error_record.to_string(), hresult)),
         }
@@ -149,13 +149,13 @@ pub fn close_network(network: HcnNetworkHandle) -> HcnResult<()> {
 /// Return a list of existing Namespaces.
 pub fn enumerate_namespaces(query: &str) -> HcnResult<String> {
     unsafe {
-        let namespaces = CoTaskMemWString::new();
-        let error_record = CoTaskMemWString::new();
+        let mut namespaces = CoTaskMemWString::new();
+        let mut error_record = CoTaskMemWString::new();
 
         match HcnEnumerateNamespaces(
             WideCString::from_str(query).unwrap().as_ptr(),
-            namespaces.ptr,
-            error_record.ptr,
+            namespaces.ptr_mut(),
+            error_record.ptr_mut(),
         ) {
             0 => Ok(namespaces.to_string()),
             hresult => Err(ErrorResult::new(error_record.to_string(), hresult)),
@@ -167,13 +167,13 @@ pub fn enumerate_namespaces(query: &str) -> HcnResult<String> {
 pub fn create_namespace(id: &Guid, settings: &str) -> HcnResult<HcnNamespaceHandle> {
     unsafe {
         let mut namespace_handle: HcnNamespaceHandle = std::ptr::null_mut();
-        let error_record = CoTaskMemWString::new();
+        let mut error_record = CoTaskMemWString::new();
 
         match HcnCreateNamespace(
             id,
             WideCString::from_str(settings).unwrap().as_ptr(),
             &mut namespace_handle,
-            error_record.ptr,
+            error_record.ptr_mut(),
         ) {
             0 => Ok(namespace_handle),
             hresult => Err(ErrorResult::new(error_record.to_string(), hresult)),
@@ -185,9 +185,9 @@ pub fn create_namespace(id: &Guid, settings: &str) -> HcnResult<HcnNamespaceHand
 pub fn open_namespace(id: &Guid) -> HcnResult<HcnNamespaceHandle> {
     unsafe {
         let mut namespace_handle: HcnNamespaceHandle = std::ptr::null_mut();
-        let error_record = CoTaskMemWString::new();
+        let mut error_record = CoTaskMemWString::new();
 
-        match HcnOpenNamespace(id, &mut namespace_handle, error_record.ptr) {
+        match HcnOpenNamespace(id, &mut namespace_handle, error_record.ptr_mut()) {
             0 => Ok(namespace_handle),
             hresult => Err(ErrorResult::new(error_record.to_string(), hresult)),
         }
@@ -197,12 +197,12 @@ pub fn open_namespace(id: &Guid) -> HcnResult<HcnNamespaceHandle> {
 /// Modify the settings of a Namespace.
 pub fn modify_namespace(namespace: HcnNamespaceHandle, settings: &str) -> HcnResult<()> {
     unsafe {
-        let error_record = CoTaskMemWString::new();
+        let mut error_record = CoTaskMemWString::new();
 
         match HcnModifyNamespace(
             namespace,
             WideCString::from_str(settings).unwrap().as_ptr(),
-            error_record.ptr,
+            error_record.ptr_mut(),
         ) {
             0 => Ok(()),
             hresult => Err(ErrorResult::new(error_record.to_string(), hresult)),
@@ -213,14 +213,14 @@ pub fn modify_namespace(namespace: HcnNamespaceHandle, settings: &str) -> HcnRes
 /// Query Namespace settings.
 pub fn query_namespace_properties(namespace: HcnNamespaceHandle, query: &str) -> HcnResult<String> {
     unsafe {
-        let properties = CoTaskMemWString::new();
-        let error_record = CoTaskMemWString::new();
+        let mut properties = CoTaskMemWString::new();
+        let mut error_record = CoTaskMemWString::new();
 
         match HcnQueryNamespaceProperties(
             namespace,
             WideCString::from_str(query).unwrap().as_ptr(),
-            properties.ptr,
-            error_record.ptr,
+            properties.ptr_mut(),
+            error_record.ptr_mut(),
         ) {
             0 => Ok(properties.to_string()),
             hresult => Err(ErrorResult::new(error_record.to_string(), hresult)),
@@ -231,9 +231,9 @@ pub fn query_namespace_properties(namespace: HcnNamespaceHandle, query: &str) ->
 /// Delete a Namespace.
 pub fn delete_namespace(id: &Guid) -> HcnResult<()> {
     unsafe {
-        let error_record = CoTaskMemWString::new();
+        let mut error_record = CoTaskMemWString::new();
 
-        match HcnDeleteNamespace(id, error_record.ptr) {
+        match HcnDeleteNamespace(id, error_record.ptr_mut()) {
             0 => Ok(()),
             hresult => Err(ErrorResult::new(error_record.to_string(), hresult)),
         }
@@ -253,13 +253,13 @@ pub fn close_namespace(namespace: HcnNamespaceHandle) -> HcnResult<()> {
 /// Return a list of existing Endpoints.
 pub fn enumerate_endpoints(query: &str) -> HcnResult<String> {
     unsafe {
-        let endpoints = CoTaskMemWString::new();
-        let error_record = CoTaskMemWString::new();
+        let mut endpoints = CoTaskMemWString::new();
+        let mut error_record = CoTaskMemWString::new();
 
         match HcnEnumerateEndpoints(
             WideCString::from_str(query).unwrap().as_ptr(),
-            endpoints.ptr,
-            error_record.ptr,
+            endpoints.ptr_mut(),
+            error_record.ptr_mut(),
         ) {
             0 => Ok(endpoints.to_string()),
             hresult => Err(ErrorResult::new(error_record.to_string(), hresult)),
@@ -275,14 +275,14 @@ pub fn create_endpoint(
 ) -> HcnResult<HcnEndpointHandle> {
     unsafe {
         let mut endpoint_handle: HcnEndpointHandle = std::ptr::null_mut();
-        let error_record = CoTaskMemWString::new();
+        let mut error_record = CoTaskMemWString::new();
 
         match HcnCreateEndpoint(
             network,
             id,
             WideCString::from_str(settings).unwrap().as_ptr(),
             &mut endpoint_handle,
-            error_record.ptr,
+            error_record.ptr_mut(),
         ) {
             0 => Ok(endpoint_handle),
             hresult => Err(ErrorResult::new(error_record.to_string(), hresult)),
@@ -294,9 +294,9 @@ pub fn create_endpoint(
 pub fn open_endpoint(id: &Guid) -> HcnResult<HcnEndpointHandle> {
     unsafe {
         let mut endpoint_handle: HcnEndpointHandle = std::ptr::null_mut();
-        let error_record = CoTaskMemWString::new();
+        let mut error_record = CoTaskMemWString::new();
 
-        match HcnOpenEndpoint(id, &mut endpoint_handle, error_record.ptr) {
+        match HcnOpenEndpoint(id, &mut endpoint_handle, error_record.ptr_mut()) {
             0 => Ok(endpoint_handle),
             hresult => Err(ErrorResult::new(error_record.to_string(), hresult)),
         }
@@ -306,12 +306,12 @@ pub fn open_endpoint(id: &Guid) -> HcnResult<HcnEndpointHandle> {
 /// Modify the settings of an Endpoint.
 pub fn modify_endpoint(endpoint: HcnEndpointHandle, settings: &str) -> HcnResult<()> {
     unsafe {
-        let error_record = CoTaskMemWString::new();
+        let mut error_record = CoTaskMemWString::new();
 
         match HcnModifyEndpoint(
             endpoint,
             WideCString::from_str(settings).unwrap().as_ptr(),
-            error_record.ptr,
+            error_record.ptr_mut(),
         ) {
             0 => Ok(()),
             hresult => Err(ErrorResult::new(error_record.to_string(), hresult)),
@@ -322,14 +322,14 @@ pub fn modify_endpoint(endpoint: HcnEndpointHandle, settings: &str) -> HcnResult
 /// Query Endpoint properties.
 pub fn query_endpoint_properties(endpoint: HcnEndpointHandle, query: &str) -> HcnResult<String> {
     unsafe {
-        let properties = CoTaskMemWString::new();
-        let error_record = CoTaskMemWString::new();
+        let mut properties = CoTaskMemWString::new();
+        let mut error_record = CoTaskMemWString::new();
 
         match HcnQueryEndpointProperties(
             endpoint,
             WideCString::from_str(query).unwrap().as_ptr(),
-            properties.ptr,
-            error_record.ptr,
+            properties.ptr_mut(),
+            error_record.ptr_mut(),
         ) {
             0 => Ok(properties.to_string()),
             hresult => Err(ErrorResult::new(error_record.to_string(), hresult)),
@@ -340,9 +340,9 @@ pub fn query_endpoint_properties(endpoint: HcnEndpointHandle, query: &str) -> Hc
 /// Delete an Endpoint.
 pub fn delete_endpoint(id: &Guid) -> HcnResult<()> {
     unsafe {
-        let error_record = CoTaskMemWString::new();
+        let mut error_record = CoTaskMemWString::new();
 
-        match HcnDeleteEndpoint(id, error_record.ptr) {
+        match HcnDeleteEndpoint(id, error_record.ptr_mut()) {
             0 => Ok(()),
             hresult => Err(ErrorResult::new(error_record.to_string(), hresult)),
         }
@@ -362,13 +362,13 @@ pub fn close_endpoint(endpoint: HcnEndpointHandle) -> HcnResult<()> {
 /// Return a list of existing LoadBalancers.
 pub fn enumerate_load_balancers(query: &str) -> HcnResult<String> {
     unsafe {
-        let load_balancers = CoTaskMemWString::new();
-        let error_record = CoTaskMemWString::new();
+        let mut load_balancers = CoTaskMemWString::new();
+        let mut error_record = CoTaskMemWString::new();
 
         match HcnEnumerateLoadBalancers(
             WideCString::from_str(query).unwrap().as_ptr(),
-            load_balancers.ptr,
-            error_record.ptr,
+            load_balancers.ptr_mut(),
+            error_record.ptr_mut(),
         ) {
             0 => Ok(load_balancers.to_string()),
             hresult => Err(ErrorResult::new(error_record.to_string(), hresult)),
@@ -380,13 +380,13 @@ pub fn enumerate_load_balancers(query: &str) -> HcnResult<String> {
 pub fn create_load_balancer(id: &Guid, settings: &str) -> HcnResult<HcnLoadBalancerHandle> {
     unsafe {
         let mut load_balancer_handle: HcnLoadBalancerHandle = std::ptr::null_mut();
-        let error_record = CoTaskMemWString::new();
+        let mut error_record = CoTaskMemWString::new();
 
         match HcnCreateLoadBalancer(
             id,
             WideCString::from_str(settings).unwrap().as_ptr(),
             &mut load_balancer_handle,
-            error_record.ptr,
+            error_record.ptr_mut(),
         ) {
             0 => Ok(load_balancer_handle),
             hresult => Err(ErrorResult::new(error_record.to_string(), hresult)),
@@ -398,9 +398,9 @@ pub fn create_load_balancer(id: &Guid, settings: &str) -> HcnResult<HcnLoadBalan
 pub fn open_load_balancer(id: &Guid) -> HcnResult<HcnLoadBalancerHandle> {
     unsafe {
         let mut load_balancer_handle: HcnLoadBalancerHandle = std::ptr::null_mut();
-        let error_record = CoTaskMemWString::new();
+        let mut error_record = CoTaskMemWString::new();
 
-        match HcnOpenLoadBalancer(id, &mut load_balancer_handle, error_record.ptr) {
+        match HcnOpenLoadBalancer(id, &mut load_balancer_handle, error_record.ptr_mut()) {
             0 => Ok(load_balancer_handle),
             hresult => Err(ErrorResult::new(error_record.to_string(), hresult)),
         }
@@ -410,12 +410,12 @@ pub fn open_load_balancer(id: &Guid) -> HcnResult<HcnLoadBalancerHandle> {
 /// Modify the settings of a LoadBalancer.
 pub fn modify_load_balancer(load_balancer: HcnLoadBalancerHandle, settings: &str) -> HcnResult<()> {
     unsafe {
-        let error_record = CoTaskMemWString::new();
+        let mut error_record = CoTaskMemWString::new();
 
         match HcnModifyLoadBalancer(
             load_balancer,
             WideCString::from_str(settings).unwrap().as_ptr(),
-            error_record.ptr,
+            error_record.ptr_mut(),
         ) {
             0 => Ok(()),
             hresult => Err(ErrorResult::new(error_record.to_string(), hresult)),
@@ -429,14 +429,14 @@ pub fn query_load_balancer_properties(
     query: &str,
 ) -> HcnResult<String> {
     unsafe {
-        let properties = CoTaskMemWString::new();
-        let error_record = CoTaskMemWString::new();
+        let mut properties = CoTaskMemWString::new();
+        let mut error_record = CoTaskMemWString::new();
 
         match HcnQueryLoadBalancerProperties(
             load_balancer,
             WideCString::from_str(query).unwrap().as_ptr(),
-            properties.ptr,
-            error_record.ptr,
+            properties.ptr_mut(),
+            error_record.ptr_mut(),
         ) {
             0 => Ok(properties.to_string()),
             hresult => Err(ErrorResult::new(error_record.to_string(), hresult)),
@@ -447,9 +447,9 @@ pub fn query_load_balancer_properties(
 /// Delete a LoadBalancer.
 pub fn delete_load_balancer(id: &Guid) -> HcnResult<()> {
     unsafe {
-        let error_record = CoTaskMemWString::new();
+        let mut error_record = CoTaskMemWString::new();
 
-        match HcnDeleteLoadBalancer(id, error_record.ptr) {
+        match HcnDeleteLoadBalancer(id, error_record.ptr_mut()) {
             0 => Ok(()),
             hresult => Err(ErrorResult::new(error_record.to_string(), hresult)),
         }

@@ -27,4 +27,4 @@ winapi = { version = "0.3.6", features = [
     "combaseapi",
     "winbase",
 ] }
-winutils-rs = "0.2.0"
+winutils-rs = "0.2.1"

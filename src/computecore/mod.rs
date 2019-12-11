@@ -106,10 +106,10 @@ pub fn get_operation_id(operation: HcsOperationHandle) -> HcsResult<u64> {
 
 /// Returns the operation result as a JSON document.
 pub fn get_operation_result(operation: HcsOperationHandle) -> (String, HcsResult<()>) {
-    let result_document = LocalWString::new();
+    let mut result_document = LocalWString::new();
 
     unsafe {
-        match HcsGetOperationResult(operation, result_document.ptr) {
+        match HcsGetOperationResult(operation, result_document.ptr_mut()) {
             0 => (result_document.to_string(), Ok(())),
             hresult => (
                 result_document.to_string(),
@@ -124,13 +124,16 @@ pub fn get_operation_result(operation: HcsOperationHandle) -> (String, HcsResult
 pub fn get_operation_result_and_process_info(
     operation: HcsOperationHandle,
 ) -> (String, HcsResult<HcsProcessInformation>) {
-    let result_document = LocalWString::new();
+    let mut result_document = LocalWString::new();
 
     unsafe {
         let mut process_info = std::mem::zeroed::<HcsProcessInformation>();
 
-        match HcsGetOperationResultAndProcessInfo(operation, &mut process_info, result_document.ptr)
-        {
+        match HcsGetOperationResultAndProcessInfo(
+            operation,
+            &mut process_info,
+            result_document.ptr_mut(),
+        ) {
             0 => (result_document.to_string(), Ok(process_info)),
             hresult => (
                 result_document.to_string(),
@@ -145,22 +148,15 @@ pub fn wait_for_operation_result(
     operation: HcsOperationHandle,
     timeout_ms: DWord,
 ) -> (String, HcsResult<()>) {
-    let mut result_document: PWStr = std::ptr::null_mut();
+    let mut result_document = LocalWString::new();
 
     unsafe {
-        match HcsWaitForOperationResult(operation, timeout_ms, &mut result_document) {
-            0 => {
-                let string =
-                    widestring::WideCString::from_ptr_str(result_document).to_string_lossy();
-                winapi::um::winbase::LocalFree(result_document as PVoid);
-                (string, Ok(()))
-            }
-            hresult => {
-                let string =
-                    widestring::WideCString::from_ptr_str(result_document).to_string_lossy();
-                winapi::um::winbase::LocalFree(result_document as PVoid);
-                (string, Err(hresult_to_result_code(&hresult)))
-            }
+        match HcsWaitForOperationResult(operation, timeout_ms, result_document.ptr_mut()) {
+            0 => (result_document.to_string(), Ok(())),
+            hresult => (
+                result_document.to_string(),
+                Err(hresult_to_result_code(&hresult)),
+            ),
         }
     }
 }
@@ -171,7 +167,7 @@ pub fn wait_for_operation_result_and_process_info(
     operation: HcsOperationHandle,
     timeout_ms: DWord,
 ) -> (String, HcsResult<HcsProcessInformation>) {
-    let result_document = LocalWString::new();
+    let mut result_document = LocalWString::new();
 
     unsafe {
         let mut process_info = std::mem::zeroed::<HcsProcessInformation>();
@@ -180,7 +176,7 @@ pub fn wait_for_operation_result_and_process_info(
             operation,
             timeout_ms,
             &mut process_info,
-            result_document.ptr,
+            result_document.ptr_mut(),
         ) {
             0 => (result_document.to_string(), Ok(process_info)),
             hresult => (
@@ -704,11 +700,11 @@ pub fn set_process_callback(
 /// Determine what to query through a JSON document.
 pub fn get_service_properties(property_query: &str) -> HcsResult<String> {
     unsafe {
-        let result = LocalWString::new();
+        let mut result = LocalWString::new();
 
         match HcsGetServiceProperties(
             WideCString::from_str(property_query).unwrap().as_ptr(),
-            result.ptr,
+            result.ptr_mut(),
         ) {
             0 => Ok(result.to_string()),
             hresult => Err(hresult_to_result_code(&hresult)),
@@ -719,11 +715,11 @@ pub fn get_service_properties(property_query: &str) -> HcsResult<String> {
 /// Modifies Host Compute Service - wide settings, described by the supplied JSON document.
 pub fn modify_service_settings(settings: &str) -> HcsResult<String> {
     unsafe {
-        let result = LocalWString::new();
+        let mut result = LocalWString::new();
 
         match HcsModifyServiceSettings(
             WideCString::from_str(settings).unwrap().as_ptr(),
-            result.ptr,
+            result.ptr_mut(),
         ) {
             0 => Ok(result.to_string()),
             hresult => Err(hresult_to_result_code(&hresult)),
