@@ -145,15 +145,22 @@ pub fn wait_for_operation_result(
     operation: HcsOperationHandle,
     timeout_ms: DWord,
 ) -> (String, HcsResult<()>) {
-    let result_document = LocalWString::new();
+    let mut result_document: PWStr = std::ptr::null_mut();
 
     unsafe {
-        match HcsWaitForOperationResult(operation, timeout_ms, result_document.ptr) {
-            0 => (result_document.to_string(), Ok(())),
-            hresult => (
-                result_document.to_string(),
-                Err(hresult_to_result_code(&hresult)),
-            ),
+        match HcsWaitForOperationResult(operation, timeout_ms, &mut result_document) {
+            0 => {
+                let string =
+                    widestring::WideCString::from_ptr_str(result_document).to_string_lossy();
+                winapi::um::winbase::LocalFree(result_document as PVoid);
+                (string, Ok(()))
+            }
+            hresult => {
+                let string =
+                    widestring::WideCString::from_ptr_str(result_document).to_string_lossy();
+                winapi::um::winbase::LocalFree(result_document as PVoid);
+                (string, Err(hresult_to_result_code(&hresult)))
+            }
         }
     }
 }
