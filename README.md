@@ -61,7 +61,7 @@ The following table describes the relevant Windows 10 SDK files that this projec
 
 ## Crates.io version notes
 
-**NOTE: All versions have been yanked from this project. For now, please use the git repo directly as a dependency. The next update to this crate will be published once it has been fully tested. Version 0.2.2 will be the bug fixing version for a while; once it's ready, version 0.2.2 will be pushed to crates.io**
+**NOTE: All versions from 0.2.1 and below have been yanked on purpose from this project. Please use the git repo directly as a dependency for latest active changes, or 0.2.2 as the oldest "stable" version.**
 
 This section briefly describes all published crates.io [versions](https://crates.io/crates/hcs-rs/versions) of this project, ordered from latest to oldest.
 
