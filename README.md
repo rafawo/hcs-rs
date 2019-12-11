@@ -67,6 +67,12 @@ This section briefly describes all published crates.io [versions](https://crates
 
 - [**0.2.2 Dec 10, 2019**](https://crates.io/crates/hcs-rs/0.2.2)
   - Removes unnecessary ispresent bindings
+  - Gets a functional schema JSON object model finalized
+  - Proper use of features for conditionally compiling support for different windows releases (as of now, only 19h1)
+  - Guard schema model behind a `schema` feature
+  - Enable feature `bindings` that exposes the raw bindings to the APIs (by default they are private to the crate)
+  - Updated dependency to `winutils_rs` to get a fix for WideString CoTaskMemFree/LocalFree wrappers
+  - This is the "oldest" version with a somewhat stable state, as well as cleaned up from unnecessary stuff
 - [**0.2.1 Dec 10, 2019**](https://crates.io/crates/hcs-rs/0.2.1)
   - Use extern "system" instead of extern "C"
   - Make sure function pointers are wrapped on an Option, to allow for null function pointers
