@@ -17,6 +17,9 @@ use crate::computecore;
 use crate::HcsResult;
 use winutils_rs::windefs::*;
 
+pub const INFINITE: DWord = winapi::um::winbase::INFINITE;
+pub const GENERIC_ALL: DWord = winapi::um::winnt::GENERIC_ALL;
+
 /// Safe wrapper of a HCS Operation handle.
 /// When dropped, the underlying handle is closed from the HCS API.
 pub struct HcsOperation {
@@ -141,7 +144,15 @@ impl HcsSafeHandle for HcsProcess {
 /// Thin wrapper of an HCS Operation that interfaces to all HCS APIs that inherently
 /// depend on an HCS Operation handle as input and/or output.
 impl HcsOperation {
-    /// Creates a new HCS Operation and returns a safe wrapper to the handle.
+    /// Creates a new HCS Operation with no callback and context, and returns a safe wrapper to the handle.
+    pub fn new() -> HcsResult<HcsOperation> {
+        Ok(HcsOperation {
+            handle: computecore::create_operation(std::ptr::null_mut(), None)?,
+            handle_policy: HcsWrappedHandleDropPolicy::Close,
+        })
+    }
+
+    /// Creates a new HCS Operation with callback and context, and returns a safe wrapper to the handle.
     pub fn create<T>(context: *mut T, callback: HcsOperationCompletion) -> HcsResult<HcsOperation> {
         Ok(HcsOperation {
             handle: computecore::create_operation(context as *mut T as *mut Void, callback)?,
@@ -160,6 +171,7 @@ impl HcsOperation {
     }
 
     /// Returns a safe wrapper of a Compute System handle associated to an operation.
+    /// The wrapped handle returned is set to drop policy ignored.
     pub fn get_compute_system(&self) -> HcsResult<HcsSystem> {
         Ok(HcsSystem {
             handle: computecore::get_compute_system_from_operation(self.handle)?,
@@ -168,6 +180,7 @@ impl HcsOperation {
     }
 
     /// Returns a safe wrapper of a Compute System Process handle associated to an operation.
+    /// The wrapped handle returned is set to drop policy ignored.
     pub fn get_process(&self) -> HcsResult<HcsProcess> {
         Ok(HcsProcess {
             handle: computecore::get_process_from_operation(self.handle)?,

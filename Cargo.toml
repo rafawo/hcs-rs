@@ -15,6 +15,7 @@ bindings = []
 schema = [ "serde", "serde_json", "chrono", "base64", "hex" ]
 19h1 = []
 vb = []
+utilities = []
 
 [dependencies]
 chrono = { version = "0.4.7", features = ["serde"], optional = true }

@@ -58,6 +58,7 @@ The following table describes the relevant Windows 10 SDK files that this projec
 | `bindings` | By default, the raw C bindings to the SDK APIs are private to the crate. Using feature `bindings` makes them public for consumption on client code |
 | `schema` | Includes all HCS/HCN schema JSON object model |
 | `19h1` | By default, the project has compatibility with RS5. Using feature `19h1` adds 19H1 specific updates to the APIs |
+| `utilities` | Includes utility code that provides more Rust abstractions on top of the basic safe wrappers of the C bindings. By default, this crate only exposes the safe wrappers |
 
 ## Crates.io version notes
 

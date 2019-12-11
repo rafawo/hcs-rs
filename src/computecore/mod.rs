@@ -14,6 +14,7 @@ pub(crate) mod bindings;
 #[cfg(feature = "bindings")]
 pub mod bindings;
 
+#[cfg(feature = "utilities")]
 pub mod utilities;
 
 use crate::compute::defs::*;
