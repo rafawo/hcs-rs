@@ -89,29 +89,6 @@ pub struct Devices {
     pub kernel_integration: Option<schema::virtual_machines::resources::KernelIntegration>,
 }
 
-#[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq)]
-pub struct SiloSettings {
-    /// If running this virtual machine inside a silo, the base OS path to use for the silo.
-    #[serde(default, rename = "SiloBaseOsPath", skip_serializing_if = "is_default")]
-    pub silo_base_os_path: String,
-
-    /// Request a notification when the job object for the silo is available.
-    #[serde(
-        default,
-        rename = "NotifySiloJobCreated",
-        skip_serializing_if = "is_default"
-    )]
-    pub notify_silo_job_created: bool,
-
-    /// The filesystem layers to use for the silo.
-    #[serde(
-        default,
-        rename = "FileSystemLayers",
-        skip_serializing_if = "is_default"
-    )]
-    pub file_system_layers: Vec<schema::common::resources::Layer>,
-}
-
 impl std::default::Default for AppContainerLaunchType {
     fn default() -> Self {
         AppContainerLaunchType::Default
