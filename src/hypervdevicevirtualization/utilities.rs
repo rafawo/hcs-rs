@@ -36,12 +36,20 @@ pub trait HdvPciDevice {
     ) -> HResult;
 }
 
+/// Wrapper object that abstracts out setting up the C-style callbacks into
+/// the hypervdevicevirtualization framework. When such callbacks are fired,
+/// it will redirect the function call to the stored `device` trait object.
 pub struct HdvPciDeviceBase {
     pub device: Box<dyn HdvPciDevice>,
     device_handle: HdvDeviceHandle,
 }
 
 impl HdvPciDeviceBase {
+    /// Creates a new `HdvPciDeviceBase` object that abstracts out setting up
+    /// the C-style callbacks into the hyperdevicevirtualization framework.
+    /// It will store the supplied `device` internally, taking ownership of it.
+    /// When the actual C callback is fired, it will redirect the function call
+    /// to the stored `device` trait object.
     pub fn new(
         device_host_handle: HdvHostHandle,
         device_class_id: &Guid,
