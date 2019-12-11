@@ -26,12 +26,31 @@ pub mod virtual_machines;
 use crate::schema::utils::is_default;
 use serde::{Deserialize, Serialize};
 
-#[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq)]
+#[derive(Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub struct Version {
     #[serde(rename = "Major")]
     pub major: u32,
     #[serde(rename = "Minor")]
     pub minor: u32,
+}
+
+impl std::default::Default for Version {
+    fn default() -> Self {
+        Version::schema_version_rs5()
+    }
+}
+
+impl Version {
+    /// Returns a `Version` object constructured to properly reflect RS5.
+    pub fn schema_version_rs5() -> Self {
+        Self { major: 2, minor: 1 }
+    }
+
+    #[cfg(any(feature = "19h1"))]
+    /// Returns a `Version` object constructured to properly reflect 19H1.
+    pub fn schema_version_19h1() -> Self {
+        Self { major: 2, minor: 2 }
+    }
 }
 
 #[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq)]
