@@ -16,6 +16,8 @@ use winutils_rs::windefs::*;
 
 pub trait HdvPciDevice {
     fn assign_base(&mut self, base: Arc<RwLock<HdvPciDeviceBase>>);
+    fn base_ref(&mut self) -> &Arc<RwLock<HdvPciDeviceBase>>;
+    fn base_ref_mut(&mut self) -> &mut Arc<RwLock<HdvPciDeviceBase>>;
     fn initialize(&mut self) -> HResult;
     fn teardown(&mut self);
     fn set_configuration(&mut self, values: &[PCWStr]) -> HResult;
@@ -62,49 +64,48 @@ impl HdvPciDeviceBase {
     /// a chance to store a clone of this new device base and gain access
     /// to all of its methods.
     ///
-    /// The returned object must be kept alive, since its reference is used
-    /// by the callbacks. Even if the returned object is cloned and the original
-    /// one is lost, it doesn't guarantee the callbacks will access the correct
-    /// device base instance; the original object is the one passed around the callbacks.
+    /// This function will call the trait object's `assign_base` function,
+    /// THIS SHOULD NOT BE IGNORED. Because its reference is used by the callbacks,
+    /// it must be kept alive during the lifetime of the pci device.
     ///
-    /// **NOTE: Creating objects of this type cuases to make a circular
+    /// **NOTE: Creating objects of this type will enforce a circular
     /// dependency between the trait object and this instance. This allows
     /// for both instances to use each other. This is desirable behavior
     /// since usually consumer code will implement a trait object with everything
     /// in it, leveraging the methods exposed through the device base.**
-    #[must_use = "This value must be used and kept alive, since it's used by the HDV PCI device interface callbacks"]
-    pub fn new(
+    pub fn hook_device(
         device_host_handle: HdvHostHandle,
         device_class_id: &Guid,
         device_instance_id: &Guid,
         device: Arc<RwLock<dyn HdvPciDevice>>,
-    ) -> HcsResult<Arc<RwLock<HdvPciDeviceBase>>> {
-        let mut device_base = Arc::new(RwLock::new(HdvPciDeviceBase {
+    ) -> HcsResult<()> {
+        let device_base = Arc::new(RwLock::new(HdvPciDeviceBase {
             device,
             device_handle: std::ptr::null_mut(),
         }));
 
+        // Use the cloned device base as the object that will be passed
+        // around in callbacks. This needs to be a clone from the newly created
+        // object so that we can move it to the trait object through `assign_base`.
+        // To protect ourselves from using a dangling pointer, we need to wait until
+        // the device base has been moved to the trait object, and use its reference
+        // from there.
+        let mut device_base_locked = device_base.write().unwrap();
+        let mut device_locked = device_base_locked.device.write().unwrap();
+        device_locked.assign_base(device_base.clone());
         let device_handle = hypervdevicevirtualization::create_device_instance(
             device_host_handle,
             HdvDeviceType::Pci,
             device_class_id,
             device_instance_id,
             &device_base_interface::DEVICE_INTERFACE as *const _ as *const Void,
-            &mut device_base as *mut _ as PVoid,
+            device_locked.base_ref_mut() as *mut _ as PVoid,
         )?;
+        drop(device_locked);
+        device_base_locked.device_handle = device_handle;
+        drop(device_base_locked);
 
-        // Extra scope to ensure locks are released before returning the object
-        {
-            let mut device_base_locked = device_base.write().unwrap();
-            device_base_locked.device_handle = device_handle;
-            device_base_locked
-                .device
-                .write()
-                .unwrap()
-                .assign_base(device_base.clone());
-        }
-
-        Ok(device_base)
+        Ok(())
     }
 
     /// Writes the contents of the supplied buffer to guest primary memory (RAM).
