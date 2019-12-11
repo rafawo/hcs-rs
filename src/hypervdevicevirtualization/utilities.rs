@@ -40,21 +40,21 @@ pub trait HdvPciDevice {
 /// the hypervdevicevirtualization framework. When such callbacks are fired,
 /// it will redirect the function call to the stored `device` trait object.
 pub struct HdvPciDeviceBase {
-    pub device: Box<dyn HdvPciDevice>,
+    pub device: std::sync::Arc<std::sync::RwLock<dyn HdvPciDevice>>,
     device_handle: HdvDeviceHandle,
 }
 
 impl HdvPciDeviceBase {
     /// Creates a new `HdvPciDeviceBase` object that abstracts out setting up
     /// the C-style callbacks into the hyperdevicevirtualization framework.
-    /// It will store the supplied `device` internally, taking ownership of it.
+    /// It will store the supplied `device` internally, adding a reference count to it.
     /// When the actual C callback is fired, it will redirect the function call
     /// to the stored `device` trait object.
     pub fn new(
         device_host_handle: HdvHostHandle,
         device_class_id: &Guid,
         device_instance_id: &Guid,
-        device: Box<dyn HdvPciDevice>,
+        device: std::sync::Arc<std::sync::RwLock<dyn HdvPciDevice>>,
     ) -> HcsResult<HdvPciDeviceBase> {
         let mut device_base = HdvPciDeviceBase {
             device,
@@ -190,12 +190,18 @@ pub(crate) mod device_base_interface {
 
     unsafe extern "system" fn initialize(device_context: *mut Void) -> HResult {
         let device_base: *mut HdvPciDeviceBase = device_context as *mut HdvPciDeviceBase;
-        (*device_base).device.initialize()
+        match (*device_base).device.write() {
+            Ok(mut device) => device.initialize(),
+            Err(_) => winapi::shared::winerror::E_FAIL,
+        }
     }
 
     unsafe extern "system" fn teardown(device_context: *mut Void) {
         let device_base: *mut HdvPciDeviceBase = device_context as *mut HdvPciDeviceBase;
-        (*device_base).device.teardown();
+        match (*device_base).device.write() {
+            Ok(mut device) => device.teardown(),
+            Err(_) => {}
+        }
     }
 
     unsafe extern "system" fn set_configuration(
@@ -206,7 +212,10 @@ pub(crate) mod device_base_interface {
         let device_base: *mut HdvPciDeviceBase = device_context as *mut HdvPciDeviceBase;
         let config_values: &[PCWStr] =
             std::slice::from_raw_parts(configuration_values, configuration_value_count as usize);
-        (*device_base).device.set_configuration(config_values)
+        match (*device_base).device.write() {
+            Ok(mut device) => device.set_configuration(config_values),
+            Err(_) => winapi::shared::winerror::E_FAIL,
+        }
     }
 
     unsafe extern "system" fn get_details(
@@ -218,17 +227,26 @@ pub(crate) mod device_base_interface {
         let device_base: *const HdvPciDeviceBase = device_context as *const HdvPciDeviceBase;
         let probed_bars: &mut [u32] =
             std::slice::from_raw_parts_mut(probed_bars, probed_bars_count as usize);
-        (*device_base).device.get_details(pnp_id, probed_bars)
+        match (*device_base).device.write() {
+            Ok(device) => device.get_details(pnp_id, probed_bars),
+            Err(_) => winapi::shared::winerror::E_FAIL,
+        }
     }
 
     unsafe extern "system" fn start(device_context: *mut Void) -> HResult {
         let device_base: *mut HdvPciDeviceBase = device_context as *mut HdvPciDeviceBase;
-        (*device_base).device.start()
+        match (*device_base).device.write() {
+            Ok(mut device) => device.start(),
+            Err(_) => winapi::shared::winerror::E_FAIL,
+        }
     }
 
     unsafe extern "system" fn stop(device_context: *mut Void) {
         let device_base: *mut HdvPciDeviceBase = device_context as *mut HdvPciDeviceBase;
-        (*device_base).device.stop();
+        match (*device_base).device.write() {
+            Ok(mut device) => device.stop(),
+            Err(_) => {}
+        }
     }
 
     unsafe extern "system" fn read_config_space(
@@ -237,7 +255,10 @@ pub(crate) mod device_base_interface {
         value: *mut u32,
     ) -> HResult {
         let device_base: *const HdvPciDeviceBase = device_context as *const HdvPciDeviceBase;
-        (*device_base).device.read_config_space(offset, &mut *value)
+        match (*device_base).device.write() {
+            Ok(device) => device.read_config_space(offset, &mut *value),
+            Err(_) => winapi::shared::winerror::E_FAIL,
+        }
     }
 
     unsafe extern "system" fn write_config_space(
@@ -246,7 +267,10 @@ pub(crate) mod device_base_interface {
         value: u32,
     ) -> HResult {
         let device_base: *mut HdvPciDeviceBase = device_context as *mut HdvPciDeviceBase;
-        (*device_base).device.write_config_space(offset, value)
+        match (*device_base).device.write() {
+            Ok(mut device) => device.write_config_space(offset, value),
+            Err(_) => winapi::shared::winerror::E_FAIL,
+        }
     }
 
     unsafe extern "system" fn read_intercepted_memory(
@@ -258,9 +282,10 @@ pub(crate) mod device_base_interface {
     ) -> HResult {
         let device_base: *const HdvPciDeviceBase = device_context as *const HdvPciDeviceBase;
         let values: &mut [Byte] = std::slice::from_raw_parts_mut(value, length as usize);
-        (*device_base)
-            .device
-            .read_intercepted_memory(bar_index, offset, values)
+        match (*device_base).device.write() {
+            Ok(device) => device.read_intercepted_memory(bar_index, offset, values),
+            Err(_) => winapi::shared::winerror::E_FAIL,
+        }
     }
 
     unsafe extern "system" fn write_intercepted_memory(
@@ -272,9 +297,10 @@ pub(crate) mod device_base_interface {
     ) -> HResult {
         let device_base: *mut HdvPciDeviceBase = device_context as *mut HdvPciDeviceBase;
         let values: &[Byte] = std::slice::from_raw_parts(value, length as usize);
-        (*device_base)
-            .device
-            .write_intercepted_memory(bar_index, offset, values)
+        match (*device_base).device.write() {
+            Ok(mut device) => device.write_intercepted_memory(bar_index, offset, values),
+            Err(_) => winapi::shared::winerror::E_FAIL,
+        }
     }
 
     /// Global HDV PCI device interface object with all the necessary
