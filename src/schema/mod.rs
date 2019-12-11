@@ -135,7 +135,7 @@ pub struct ComputeSystem {
     #[serde(rename = "Owner")]
     pub owner: String,
 
-    #[serde(rename = "SchemaVersion", skip_serializing_if = "is_default")]
+    #[serde(rename = "SchemaVersion")]
     pub schema_version: Version,
 
     #[serde(
