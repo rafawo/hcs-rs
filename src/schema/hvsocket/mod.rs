@@ -6,17 +6,18 @@
 // except according to those terms.
 // THE SOURCE CODE IS AVAILABLE UNDER THE ABOVE CHOSEN LICENSE "AS IS", WITH NO WARRANTIES.
 
+use crate::schema::utils::is_default;
 use crate::schema::utils::GuidSerde;
 use serde::{Deserialize, Serialize};
 
-#[derive(Default, Deserialize, Serialize, Debug, Clone)]
+#[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub struct HvSocketServiceConfig {
     /// SDDL string that HvSocket will check before allowing a host process to bind
     /// to this specific service.
     #[serde(
         default,
         rename = "BindSecurityDescriptor",
-        skip_serializing_if = "Option::is_none"
+        skip_serializing_if = "is_default"
     )]
     pub bind_security_descriptor: Option<String>,
 
@@ -25,25 +26,29 @@ pub struct HvSocketServiceConfig {
     #[serde(
         default,
         rename = "ConnectSecurityDescriptor",
-        skip_serializing_if = "Option::is_none"
+        skip_serializing_if = "is_default"
     )]
     pub connect_security_descriptor: Option<String>,
 
     // If true, HvSocket will process wildcard binds for this service/system combination.
     // Wildcard binds are secured in the registry at
     // **SOFTWARE/Microsoft/Windows NT/CurrentVersion/Virtualization/HvSocket/WildcardDescriptors**
-    #[serde(default, rename = "AllowWildcardBinds")]
+    #[serde(
+        default,
+        rename = "AllowWildcardBinds",
+        skip_serializing_if = "is_default"
+    )]
     pub allow_wildcard_binds: bool,
 }
 
-#[derive(Default, Deserialize, Serialize, Debug, Clone)]
+#[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub struct HvSocketSystemConfig {
     /// SDDL string that HvSocket will check before allowing a host process to bind
     /// to an unlisted service for this specific container/VM (not wildcard binds).
     #[serde(
         default,
         rename = "DefaultBindSecurityDescriptor",
-        skip_serializing_if = "Option::is_none"
+        skip_serializing_if = "is_default"
     )]
     pub default_bind_security_descriptor: Option<String>,
 
@@ -52,7 +57,7 @@ pub struct HvSocketSystemConfig {
     #[serde(
         default,
         rename = "DefaultConnectSecurityDescriptor",
-        skip_serializing_if = "Option::is_none"
+        skip_serializing_if = "is_default"
     )]
     pub default_connect_security_descriptor: Option<String>,
 

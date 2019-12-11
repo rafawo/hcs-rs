@@ -15,7 +15,7 @@ impl std::default::Default for ModifyResourceType {
     }
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone)]
+#[derive(Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub enum ModifyResourceType {
     Memory,
     MappedDirectory,
@@ -25,7 +25,7 @@ pub enum ModifyResourceType {
     NetworkNamespace,
 }
 
-#[derive(Default, Deserialize, Serialize, Debug, Clone)]
+#[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub struct GuestModifySettingRequest {
     #[serde(rename = "ResourceType")]
     pub resource_type: ModifyResourceType,
@@ -47,7 +47,7 @@ impl std::default::Default for NetworkModifyRequestType {
     }
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone)]
+#[derive(Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub enum NetworkModifyRequestType {
     PreAdd,
     Add,
@@ -60,14 +60,14 @@ impl std::default::Default for NetworkAdapterId {
     }
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone)]
+#[derive(Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub enum NetworkAdapterId {
     AdapterId(String),
     /// Used for RS4 guests
     AdapterInstanceID(schema::utils::GuidSerde),
 }
 
-#[derive(Default, Deserialize, Serialize, Debug, Clone)]
+#[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub struct NetworkModifySettingRequest {
     #[serde(rename = "RequestType")]
     pub request_type: NetworkModifyRequestType,

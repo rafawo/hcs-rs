@@ -7,10 +7,11 @@
 // THE SOURCE CODE IS AVAILABLE UNDER THE ABOVE CHOSEN LICENSE "AS IS", WITH NO WARRANTIES.
 
 pub mod resources {
+    use crate::schema::utils::is_default;
     use crate::schema::utils::GuidSerde;
     use serde::{Deserialize, Serialize};
 
-    #[derive(Default, Deserialize, Serialize, Debug, Clone)]
+    #[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq)]
     pub struct StorageQoS {
         #[serde(rename = "IopsMaximum")]
         pub iops_maximum: u64,
@@ -25,7 +26,7 @@ pub mod resources {
         }
     }
 
-    #[derive(Deserialize, Serialize, Debug, Clone)]
+    #[derive(Deserialize, Serialize, Debug, Clone, PartialEq)]
     pub enum CacheMode {
         Disabled,
         Enabled,
@@ -39,13 +40,13 @@ pub mod resources {
         }
     }
 
-    #[derive(Deserialize, Serialize, Debug, Clone)]
+    #[derive(Deserialize, Serialize, Debug, Clone, PartialEq)]
     pub enum PathType {
         AbsolutePath,
         VirtualSmbShareName,
     }
 
-    #[derive(Default, Deserialize, Serialize, Debug, Clone)]
+    #[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq)]
     pub struct Layer {
         #[serde(rename = "Id")]
         pub id: GuidSerde,
@@ -56,7 +57,7 @@ pub mod resources {
         #[serde(rename = "PathType")]
         pub path_type: PathType,
 
-        #[serde(default, rename = "Cache", skip_serializing_if = "Option::is_none")]
+        #[serde(default, rename = "Cache", skip_serializing_if = "is_default")]
         pub cache: Option<CacheMode>,
     }
 

@@ -7,6 +7,7 @@
 // THE SOURCE CODE IS AVAILABLE UNDER THE ABOVE CHOSEN LICENSE "AS IS", WITH NO WARRANTIES.
 
 use crate::schema;
+use crate::schema::utils::is_default;
 use serde::{Deserialize, Serialize};
 
 impl std::default::Default for CcgTransport {
@@ -15,13 +16,13 @@ impl std::default::Default for CcgTransport {
     }
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone)]
+#[derive(Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub enum CcgTransport {
     LRPC,
     HvSocket,
 }
 
-#[derive(Default, Deserialize, Serialize, Debug, Clone)]
+#[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub struct CcgState {
     #[serde(
         rename = "Cookie",
@@ -40,20 +41,16 @@ pub struct CcgState {
     pub credential_spec: String,
 }
 
-#[derive(Default, Deserialize, Serialize, Debug, Clone)]
+#[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub struct CcgHvSocketServiceConfig {
     #[serde(rename = "ServiceId")]
     pub service_id: schema::utils::GuidSerde,
 
-    #[serde(
-        default,
-        rename = "ServiceConfig",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(default, rename = "ServiceConfig", skip_serializing_if = "is_default")]
     pub service_config: Option<schema::hvsocket::HvSocketServiceConfig>,
 }
 
-#[derive(Default, Deserialize, Serialize, Debug, Clone)]
+#[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub struct CcgInstance {
     #[serde(rename = "Id")]
     pub id: String,
@@ -61,21 +58,17 @@ pub struct CcgInstance {
     #[serde(rename = "CredentialGuard")]
     pub credential_guard: CcgState,
 
-    #[serde(
-        default,
-        rename = "HvSocketConfig",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(default, rename = "HvSocketConfig", skip_serializing_if = "is_default")]
     pub hvsocket_config: Option<CcgHvSocketServiceConfig>,
 }
 
-#[derive(Default, Deserialize, Serialize, Debug, Clone)]
+#[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub struct CcgSystemInfo {
     #[serde(rename = "Instances")]
     pub instances: Vec<CcgInstance>,
 }
 
-#[derive(Default, Deserialize, Serialize, Debug, Clone)]
+#[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub struct CcgAddInstanceRequest {
     #[serde(rename = "Id")]
     pub id: String,
@@ -87,7 +80,7 @@ pub struct CcgAddInstanceRequest {
     pub transport: CcgTransport,
 }
 
-#[derive(Default, Deserialize, Serialize, Debug, Clone)]
+#[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub struct CcgRemoveInstanceRequest {
     #[serde(rename = "Id")]
     pub id: String,
@@ -99,7 +92,7 @@ impl std::default::Default for CcgModifyOperationType {
     }
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone)]
+#[derive(Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub enum CcgModifyOperationType {
     AddInstance,
     RemoveInstance,
@@ -111,14 +104,14 @@ impl std::default::Default for CcgModifyOperation {
     }
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone)]
+#[derive(Deserialize, Serialize, Debug, Clone, PartialEq)]
 #[serde(untagged)]
 pub enum CcgModifyOperation {
     AddInstance(CcgAddInstanceRequest),
     RemoveInstance(CcgRemoveInstanceRequest),
 }
 
-#[derive(Default, Deserialize, Serialize, Debug, Clone)]
+#[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub struct CcgOperationRequest {
     #[serde(rename = "Operation")]
     pub operation: CcgModifyOperationType,

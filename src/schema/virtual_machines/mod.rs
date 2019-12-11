@@ -9,113 +9,106 @@
 pub mod resources;
 
 use crate::schema;
+use crate::schema::utils::is_default;
 use serde::{Deserialize, Serialize};
 
-#[derive(Default, Deserialize, Serialize, Debug, Clone)]
+#[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub struct Devices {
-    #[serde(default, rename = "ComPorts")]
+    #[serde(default, rename = "ComPorts", skip_serializing_if = "is_default")]
     pub com_ports: std::collections::HashMap<u32, schema::virtual_machines::resources::ComPort>,
 
     #[cfg(feature = "19h1")]
-    #[serde(
-        default,
-        rename = "VirtioSerial",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(default, rename = "VirtioSerial", skip_serializing_if = "is_default")]
     pub virtio_serial: Option<schema::virtual_machines::resources::VirtioSerial>,
 
-    #[serde(default, rename = "Scsi")]
+    #[serde(default, rename = "Scsi", skip_serializing_if = "is_default")]
     pub scsi: std::collections::HashMap<String, schema::virtual_machines::resources::storage::Scsi>,
+
+    #[serde(default, rename = "VirtualPMem", skip_serializing_if = "is_default")]
+    pub virtual_pmem: Option<schema::virtual_machines::resources::storage::VirtualPMemController>,
 
     #[serde(
         default,
-        rename = "VirtualPMem",
-        skip_serializing_if = "Option::is_none"
+        rename = "NetworkAdapters",
+        skip_serializing_if = "is_default"
     )]
-    pub virtual_pmem: Option<schema::virtual_machines::resources::storage::VirtualPMemController>,
-
-    #[serde(default, rename = "NetworkAdapters")]
     pub network_adapters: std::collections::HashMap<
         String,
         schema::virtual_machines::resources::network::NetworkAdapter,
     >,
 
-    #[serde(
-        default,
-        rename = "VideoMonitor",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(default, rename = "VideoMonitor", skip_serializing_if = "is_default")]
     pub video_monitor: Option<schema::virtual_machines::resources::VideoMonitor>,
 
-    #[serde(default, rename = "Keyboard", skip_serializing_if = "Option::is_none")]
+    #[serde(default, rename = "Keyboard", skip_serializing_if = "is_default")]
     pub keyboard: Option<schema::virtual_machines::resources::Keyboard>,
 
-    #[serde(default, rename = "Mouse", skip_serializing_if = "Option::is_none")]
+    #[serde(default, rename = "Mouse", skip_serializing_if = "is_default")]
     pub mouse: Option<schema::virtual_machines::resources::Mouse>,
 
-    #[serde(default, rename = "HvSocket", skip_serializing_if = "Option::is_none")]
+    #[serde(default, rename = "HvSocket", skip_serializing_if = "is_default")]
     pub hvsocket: Option<schema::virtual_machines::resources::HvSocket>,
 
     #[serde(
         default,
         rename = "EnhancedModeVideo",
-        skip_serializing_if = "Option::is_none"
+        skip_serializing_if = "is_default"
     )]
     pub enhanced_mode_video: Option<schema::virtual_machines::resources::EnhancedModeVideo>,
 
     #[serde(
         default,
         rename = "GuestCrashReporting",
-        skip_serializing_if = "Option::is_none"
+        skip_serializing_if = "is_default"
     )]
     pub guest_crash_reporting: Option<schema::virtual_machines::resources::GuestCrashReporting>,
 
-    #[serde(
-        default,
-        rename = "VirtualSmb",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(default, rename = "VirtualSmb", skip_serializing_if = "is_default")]
     pub virtual_smb: Option<schema::virtual_machines::resources::storage::VirtualSmb>,
 
-    #[serde(default, rename = "Plan9", skip_serializing_if = "Option::is_none")]
+    #[serde(default, rename = "Plan9", skip_serializing_if = "is_default")]
     pub plan9: Option<schema::virtual_machines::resources::storage::Plan9>,
 
-    #[serde(default, rename = "Battery", skip_serializing_if = "Option::is_none")]
+    #[serde(default, rename = "Battery", skip_serializing_if = "is_default")]
     pub battery: Option<schema::virtual_machines::resources::Battery>,
 
-    #[serde(default, rename = "FlexibleIov")]
+    #[serde(default, rename = "FlexibleIov", skip_serializing_if = "is_default")]
     pub flexible_iov: std::collections::HashMap<
         String,
         schema::virtual_machines::resources::vpci::FlexibleIoDevice,
     >,
 
-    #[serde(
-        default,
-        rename = "SharedMemory",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(default, rename = "SharedMemory", skip_serializing_if = "is_default")]
     pub shared_memory: Option<schema::virtual_machines::resources::SharedMemoryConfiguration>,
 
     #[serde(
         default,
         rename = "KernelIntegration",
-        skip_serializing_if = "Option::is_none"
+        skip_serializing_if = "is_default"
     )]
     pub kernel_integration: Option<schema::virtual_machines::resources::KernelIntegration>,
 }
 
-#[derive(Default, Deserialize, Serialize, Debug, Clone)]
+#[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub struct SiloSettings {
     /// If running this virtual machine inside a silo, the base OS path to use for the silo.
-    #[serde(default, rename = "SiloBaseOsPath")]
+    #[serde(default, rename = "SiloBaseOsPath", skip_serializing_if = "is_default")]
     pub silo_base_os_path: String,
 
     /// Request a notification when the job object for the silo is available.
-    #[serde(default, rename = "NotifySiloJobCreated")]
+    #[serde(
+        default,
+        rename = "NotifySiloJobCreated",
+        skip_serializing_if = "is_default"
+    )]
     pub notify_silo_job_created: bool,
 
     /// The filesystem layers to use for the silo.
-    #[serde(default, rename = "FileSystemLayers")]
+    #[serde(
+        default,
+        rename = "FileSystemLayers",
+        skip_serializing_if = "is_default"
+    )]
     pub file_system_layers: Vec<schema::common::resources::Layer>,
 }
 
@@ -125,7 +118,7 @@ impl std::default::Default for AppContainerLaunchType {
     }
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone)]
+#[derive(Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub enum AppContainerLaunchType {
     /// Use None or global setting.
     Default,
@@ -137,9 +130,9 @@ pub enum AppContainerLaunchType {
     AppContainer,
 }
 
-#[derive(Default, Deserialize, Serialize, Debug, Clone)]
+#[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub struct LaunchOptions {
-    #[serde(default, rename = "Type")]
+    #[serde(default, rename = "Type", skip_serializing_if = "is_default")]
     pub launch_type: AppContainerLaunchType,
 }
 
@@ -149,7 +142,7 @@ impl std::default::Default for ProcessDumpType {
     }
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone)]
+#[derive(Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub enum ProcessDumpType {
     None,
     Heap,
@@ -158,13 +151,17 @@ pub enum ProcessDumpType {
 }
 
 /// Configuration for a process dump
-#[derive(Default, Deserialize, Serialize, Debug, Clone)]
+#[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub struct ProcessDump {
-    #[serde(default, rename = "Type")]
+    #[serde(default, rename = "Type", skip_serializing_if = "is_default")]
     pub dump_type: ProcessDumpType,
 
     /// Custom MINIDUMP_TYPE flags used if Type is ProcessDumpType::Custom
-    #[serde(default, rename = "CustomDumpFlags")]
+    #[serde(
+        default,
+        rename = "CustomDumpFlags",
+        skip_serializing_if = "is_default"
+    )]
     pub custom_dump_flags: u32,
 
     /// Path to create the dump file. The file must not exists.
@@ -172,50 +169,78 @@ pub struct ProcessDump {
     pub dump_filename: String,
 }
 
-#[derive(Default, Deserialize, Serialize, Debug, Clone)]
+#[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub struct DebugOptions {
     /// Capture a save state to the given file if the guest crashes.
-    #[serde(default, rename = "BugcheckSavedStateFileName")]
+    #[serde(
+        default,
+        rename = "BugcheckSavedStateFileName",
+        skip_serializing_if = "is_default"
+    )]
     pub bugcheck_saved_state_file_name: String,
 }
 
-#[derive(Default, Deserialize, Serialize, Debug, Clone)]
+#[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub struct GuestState {
     /// The path to an existing file uses for persistent guest state storage.
     /// An empty string indicates the system should initialize new transient, in-memory guest state.
-    #[serde(default, rename = "GuestStateFilePath")]
+    #[serde(
+        default,
+        rename = "GuestStateFilePath",
+        skip_serializing_if = "is_default"
+    )]
     pub guest_state_file_path: String,
 
     /// The path to an existing file for persistent runtime state storage.
     /// An empty string indicates the system should initialize new transient, in-memory runtime state.
-    #[serde(default, rename = "RuntimeStateFilePath")]
+    #[serde(
+        default,
+        rename = "RuntimeStateFilePath",
+        skip_serializing_if = "is_default"
+    )]
     pub runtime_state_file_path: String,
 
     /// If true, the guest state and runtime state files will be used as templates
     /// to populate transient, in-memory state instead of using the files as persistent backing store.
-    #[serde(default, rename = "ForceTransientState")]
+    #[serde(
+        default,
+        rename = "ForceTransientState",
+        skip_serializing_if = "is_default"
+    )]
     pub force_transient_state: bool,
 }
 
-#[derive(Default, Deserialize, Serialize, Debug, Clone)]
+#[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub struct RestoreState {
     /// The path to the save state file to restore the system from.
-    #[serde(default, rename = "SaveStateFilePath")]
+    #[serde(
+        default,
+        rename = "SaveStateFilePath",
+        skip_serializing_if = "is_default"
+    )]
     pub save_state_file_path: String,
 
     /// The ID of the template system to clone this new system off of. An empty
     /// string indicates the system should not be cloned from a template.
-    #[serde(default, rename = "TemplateSystemId")]
+    #[serde(
+        default,
+        rename = "TemplateSystemId",
+        skip_serializing_if = "is_default"
+    )]
     pub template_system_id: String,
 }
 
-#[derive(Default, Deserialize, Serialize, Debug, Clone)]
+#[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub struct GuestConnection {
     /// Use Vsock rather than Hyper-V sockets to communicate with the guest service.
-    #[serde(default, rename = "UseVsock")]
+    #[serde(default, rename = "UseVsock", skip_serializing_if = "is_default")]
     pub use_vsock: bool,
 
     /// Don't disconnect the guest connection when pausing the virtual machine.
-    #[serde(default, rename = "UseConnectedSuspend")]
+    #[serde(
+        default,
+        rename = "UseConnectedSuspend",
+        skip_serializing_if = "is_default"
+    )]
     pub use_connected_suspend: bool,
 }

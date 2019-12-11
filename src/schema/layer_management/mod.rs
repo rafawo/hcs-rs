@@ -7,13 +7,14 @@
 // THE SOURCE CODE IS AVAILABLE UNDER THE ABOVE CHOSEN LICENSE "AS IS", WITH NO WARRANTIES.
 
 use crate::schema;
+use crate::schema::utils::is_default;
 use serde::{Deserialize, Serialize};
 
-#[derive(Default, Deserialize, Serialize, Debug, Clone)]
+#[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub struct LayerData {
-    #[serde(default, rename = "SchemaVersion")]
+    #[serde(default, rename = "SchemaVersion", skip_serializing_if = "is_default")]
     pub schema_version: schema::Version,
 
-    #[serde(default, rename = "Layers")]
+    #[serde(default, rename = "Layers", skip_serializing_if = "is_default")]
     pub layers: Vec<schema::common::resources::Layer>,
 }

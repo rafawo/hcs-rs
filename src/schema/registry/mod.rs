@@ -7,6 +7,7 @@
 // THE SOURCE CODE IS AVAILABLE UNDER THE ABOVE CHOSEN LICENSE "AS IS", WITH NO WARRANTIES.
 
 use crate::schema;
+use crate::schema::utils::is_default;
 use serde::{Deserialize, Serialize};
 
 impl std::default::Default for RegistryHive {
@@ -15,7 +16,7 @@ impl std::default::Default for RegistryHive {
     }
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone)]
+#[derive(Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub enum RegistryHive {
     System,
     Software,
@@ -29,7 +30,7 @@ impl std::default::Default for RegistryValueType {
     }
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone)]
+#[derive(Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub enum RegistryValueType {
     None,
     String,
@@ -47,7 +48,7 @@ impl std::default::Default for RegistryValueData {
     }
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone)]
+#[derive(Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub enum RegistryValueData {
     StringValue(String),
     #[serde(
@@ -59,7 +60,7 @@ pub enum RegistryValueData {
     QWordValue(u64),
 }
 
-#[derive(Default, Deserialize, Serialize, Debug, Clone)]
+#[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub struct RegistryKey {
     #[serde(rename = "Hive")]
     pub hive: RegistryHive,
@@ -67,11 +68,11 @@ pub struct RegistryKey {
     #[serde(rename = "Name")]
     pub name: String,
 
-    #[serde(default, rename = "Volatile")]
+    #[serde(default, rename = "Volatile", skip_serializing_if = "is_default")]
     pub volatile: bool,
 }
 
-#[derive(Default, Deserialize, Serialize, Debug, Clone)]
+#[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub struct RegistryValue {
     #[serde(rename = "Key")]
     pub key: RegistryKey,
@@ -82,20 +83,16 @@ pub struct RegistryValue {
     #[serde(rename = "Type")]
     pub value_type: RegistryValueType,
 
-    #[serde(default, flatten, skip_serializing_if = "Option::is_none")]
+    #[serde(default, flatten, skip_serializing_if = "is_default")]
     pub value_data: Option<RegistryValueData>,
 
     /// Only used if RegistryValueType is CustomType
     /// The data is in BinaryValue
-    #[serde(
-        default,
-        rename = "CustomType",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(default, rename = "CustomType", skip_serializing_if = "is_default")]
     pub custom_type: Option<u32>,
 }
 
-#[derive(Default, Deserialize, Serialize, Debug, Clone)]
+#[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub struct RegistryChanges {
     #[serde(default, rename = "AddValues", skip_serializing_if = "Vec::is_empty")]
     pub add_values: Vec<RegistryValue>,

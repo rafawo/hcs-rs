@@ -7,15 +7,16 @@
 // THE SOURCE CODE IS AVAILABLE UNDER THE ABOVE CHOSEN LICENSE "AS IS", WITH NO WARRANTIES.
 
 use crate::schema;
+use crate::schema::utils::is_default;
 use serde::{Deserialize, Serialize};
 
-#[derive(Default, Deserialize, Serialize, Debug, Clone)]
+#[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub struct ServiceProperties {
     #[serde(default, rename = "Properties", skip_serializing_if = "Vec::is_empty")]
     pub properties: Vec<serde_json::Value>,
 }
 
-#[derive(Default, Deserialize, Serialize, Debug, Clone)]
+#[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub struct BasicInformation {
     #[serde(
         default,
@@ -25,9 +26,13 @@ pub struct BasicInformation {
     pub supported_schema_versions: Vec<schema::Version>,
 }
 
-#[derive(Default, Deserialize, Serialize, Debug, Clone)]
+#[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub struct QoSCapabilities {
-    #[serde(default, rename = "ProcessorQoSSupported")]
+    #[serde(
+        default,
+        rename = "ProcessorQoSSupported",
+        skip_serializing_if = "is_default"
+    )]
     pub processor_qo_s_supported: bool,
 }
 
@@ -38,7 +43,7 @@ impl std::default::Default for EventDataType {
 }
 
 // Data types for event data elements, based on EVT_VARIANT_TYPE
-#[derive(Deserialize, Serialize, Debug, Clone)]
+#[derive(Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub enum EventDataType {
     Empty,
     String,
@@ -59,7 +64,7 @@ pub enum EventDataType {
 }
 
 // Event data element
-#[derive(Default, Deserialize, Serialize, Debug, Clone)]
+#[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub struct EventData {
     #[serde(rename = "Type")]
     pub data_type: EventDataType,
@@ -69,12 +74,12 @@ pub struct EventData {
 }
 
 // Error descriptor that provides the info of an error object
-#[derive(Default, Deserialize, Serialize, Debug, Clone)]
+#[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub struct ErrorEvent {
     #[serde(rename = "Message")]
     pub message: String,
 
-    #[serde(default, rename = "StackTrace")]
+    #[serde(default, rename = "StackTrace", skip_serializing_if = "is_default")]
     pub stack_trace: String,
 
     #[serde(rename = "Provider")]
@@ -83,10 +88,10 @@ pub struct ErrorEvent {
     #[serde(rename = "EventId")]
     pub event_id: u16,
 
-    #[serde(default, rename = "Flags")]
+    #[serde(default, rename = "Flags", skip_serializing_if = "is_default")]
     pub flags: u32,
 
-    #[serde(default, rename = "Source")]
+    #[serde(default, rename = "Source", skip_serializing_if = "is_default")]
     pub source: String,
 
     #[serde(default, rename = "Data", skip_serializing_if = "Vec::is_empty")]
@@ -94,7 +99,7 @@ pub struct ErrorEvent {
 }
 
 // Extended error information returned by the HCS
-#[derive(Default, Deserialize, Serialize, Debug, Clone)]
+#[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub struct ResultError {
     #[serde(rename = "Error")]
     pub error: i32,

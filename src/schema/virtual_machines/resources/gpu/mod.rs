@@ -6,6 +6,7 @@
 // except according to those terms.
 // THE SOURCE CODE IS AVAILABLE UNDER THE ABOVE CHOSEN LICENSE "AS IS", WITH NO WARRANTIES.
 
+use crate::schema::utils::is_default;
 use serde::{Deserialize, Serialize};
 
 impl std::default::Default for GpuAssignmentMode {
@@ -14,7 +15,7 @@ impl std::default::Default for GpuAssignmentMode {
     }
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone)]
+#[derive(Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub enum GpuAssignmentMode {
     /// Do not assign GPU to the guest.
     Disabled,
@@ -27,19 +28,27 @@ pub enum GpuAssignmentMode {
     Mirror,
 }
 
-#[derive(Default, Deserialize, Serialize, Debug, Clone)]
+#[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub struct GpuConfiguration {
     /// The mode used to assign GPUs to the guest.
-    #[serde(default, rename = "AssignmentMode")]
+    #[serde(default, rename = "AssignmentMode", skip_serializing_if = "is_default")]
     pub assignment_mode: GpuAssignmentMode,
 
     /// This only applies to List mode, and is ignored in other modes.
     /// In GPU-P, string is GPU device interface, and unit16 is partition id. HCS simply assigns the partition with the input id.
     /// In GPU-PV, string is GPU device interface, and unit16 is 0xffff. HCS needs to find an available partition to assign.
-    #[serde(default, rename = "AssignmentRequest")]
+    #[serde(
+        default,
+        rename = "AssignmentRequest",
+        skip_serializing_if = "is_default"
+    )]
     pub assignment_request: std::collections::HashMap<String, u16>,
 
     /// Whether we allow vendor extension.
-    #[serde(default, rename = "AllowVendorExtension")]
+    #[serde(
+        default,
+        rename = "AllowVendorExtension",
+        skip_serializing_if = "is_default"
+    )]
     pub allow_vendor_extension: bool,
 }

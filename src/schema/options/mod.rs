@@ -6,6 +6,7 @@
 // except according to those terms.
 // THE SOURCE CODE IS AVAILABLE UNDER THE ABOVE CHOSEN LICENSE "AS IS", WITH NO WARRANTIES.
 
+use crate::schema::utils::is_default;
 use serde::{Deserialize, Serialize};
 
 impl std::default::Default for SaveType {
@@ -14,7 +15,7 @@ impl std::default::Default for SaveType {
     }
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone)]
+#[derive(Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub enum SaveType {
     /// The system's memory and device states are saved to the runtime state file.
     ToFile,
@@ -23,10 +24,10 @@ pub enum SaveType {
     AsTemplate,
 }
 
-#[derive(Default, Deserialize, Serialize, Debug, Clone)]
+#[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub struct SaveOptions {
     /// The type of save operation to be performed.
-    #[serde(default, rename = "SaveType", skip_serializing_if = "Option::is_none")]
+    #[serde(default, rename = "SaveType", skip_serializing_if = "is_default")]
     pub save_type: Option<SaveType>,
 
     /// The path to the file that will contain the saved state.
@@ -40,7 +41,7 @@ impl std::default::Default for PauseSuspensionLevel {
     }
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone)]
+#[derive(Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub enum PauseSuspensionLevel {
     Suspend,
     MemoryLow,
@@ -55,7 +56,7 @@ impl std::default::Default for PauseReason {
 }
 
 // Pause reason that is indicated to components running in the Virtual Machine.
-#[derive(Deserialize, Serialize, Debug, Clone)]
+#[derive(Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub enum PauseReason {
     None,
     Save,
@@ -63,25 +64,33 @@ pub enum PauseReason {
 }
 
 // Notification data that is indicated to components running in the Virtual Machine.
-#[derive(Default, Deserialize, Serialize, Debug, Clone)]
+#[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub struct PauseNotification {
-    #[serde(default, rename = "Reason")]
+    #[serde(default, rename = "Reason", skip_serializing_if = "is_default")]
     pub reason: PauseReason,
 }
 
 // Options for HcsPauseComputeSystem
-#[derive(Default, Deserialize, Serialize, Debug, Clone)]
+#[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub struct PauseOptions {
     #[serde(rename = "PauseSuspensionLevel")]
     pub suspension_level: PauseSuspensionLevel,
 
-    #[serde(default, rename = "HostedNotification")]
+    #[serde(
+        default,
+        rename = "HostedNotification",
+        skip_serializing_if = "is_default"
+    )]
     pub hosted_notification: PauseNotification,
 }
 
-#[derive(Default, Deserialize, Serialize, Debug, Clone)]
+#[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub struct ExportLayerOptions {
-    #[serde(default, rename = "IsWritableLayer")]
+    #[serde(
+        default,
+        rename = "IsWritableLayer",
+        skip_serializing_if = "is_default"
+    )]
     pub is_writable_layer: bool,
 }
 
@@ -91,18 +100,22 @@ impl std::default::Default for OsLayerType {
     }
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone)]
+#[derive(Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub enum OsLayerType {
     Container,
     Vm,
 }
 
-#[derive(Default, Deserialize, Serialize, Debug, Clone)]
+#[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub struct OsLayerOptions {
-    #[serde(default, rename = "Type")]
+    #[serde(default, rename = "Type", skip_serializing_if = "is_default")]
     pub oslayer_type: OsLayerType,
 
-    #[serde(default, rename = "DisableCiCacheOptimization")]
+    #[serde(
+        default,
+        rename = "DisableCiCacheOptimization",
+        skip_serializing_if = "is_default"
+    )]
     pub disable_ci_cache_optimization: bool,
 }
 
@@ -112,7 +125,7 @@ impl std::default::Default for ProcessSignal {
     }
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone)]
+#[derive(Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub enum ProcessSignal {
     CtrlC,
     CtrlBreak,
@@ -121,8 +134,8 @@ pub enum ProcessSignal {
     CtrlShutdown,
 }
 
-#[derive(Default, Deserialize, Serialize, Debug, Clone)]
+#[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub struct SignalProcessOptions {
-    #[serde(default, rename = "ProcessSignal")]
+    #[serde(default, rename = "ProcessSignal", skip_serializing_if = "is_default")]
     pub signal: ProcessSignal,
 }
