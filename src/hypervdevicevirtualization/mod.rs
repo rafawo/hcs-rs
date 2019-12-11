@@ -106,8 +106,6 @@ pub fn create_device_instance(
 
 /// Reads guest primary memory (RAM) contents into the supplied buffer.
 ///
-/// Returns an array of bytes with the read memory.
-///
 /// # Arguments
 /// * `requestor` - Handle to the device requesting memory access.
 /// * `guest_physical_address` - Guest physical address at which the read operation starts.
@@ -248,8 +246,7 @@ pub fn register_doorbell_page(
 }
 
 #[cfg(any(feature = "19h1"))]
-/// Registers a guest PFN to trigger an event on writes. The value of the write
-/// will be discarded.
+/// Unregisters a guest physical page registered via `register_doorbell_page`.
 ///
 /// # Arguments
 /// * `requestor` - Handle to the device requesting the interrupt.

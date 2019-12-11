@@ -120,6 +120,69 @@ impl HdvPciDeviceBase {
             std::slice::from_raw_parts_mut(data as *mut _ as *mut u8, std::mem::size_of::<T>())
         })
     }
+
+    /// Creates a guest RAM aperture into the address space of the calling process.
+    pub fn create_guest_memory_aperture(
+        &self,
+        guest_physical_address: u64,
+        byte_count: u32,
+        write_protected: bool,
+    ) -> HcsResult<PVoid> {
+        hypervdevicevirtualization::create_guest_memory_aperture(
+            self.device_handle,
+            guest_physical_address,
+            byte_count,
+            write_protected,
+        )
+    }
+
+    /// Destroys the guest RAM aperture mapped at the supplied process address.
+    pub fn destroy_guest_memory_aperture(&self, mapped_address: PVoid) -> HcsResult<()> {
+        hypervdevicevirtualization::destroy_guest_memory_aperture(
+            self.device_handle,
+            mapped_address,
+        )
+    }
+
+    /// Delivers a message signalled interrupt (MSI) to the guest partition.
+    pub fn deliver_guest_interrupt(&self, msi_address: u64, msi_data: u32) -> HcsResult<()> {
+        hypervdevicevirtualization::deliver_guest_interrupt(
+            self.device_handle,
+            msi_address,
+            msi_data,
+        )
+    }
+
+    #[cfg(any(feature = "19h1"))]
+    /// Registers a guest PFN to trigger an event on writes. The value of the write
+    /// will be discarded.
+    pub fn register_doorbell_page(
+        &self,
+        bar_index: HdvPciBarSelector,
+        page_index: u64,
+        doorbell_event: Handle,
+    ) -> HcsResult<()> {
+        hypervdevicevirtualization::register_doorbell_page(
+            self.device_handle,
+            bar_index,
+            page_index,
+            doorbell_event,
+        )
+    }
+
+    #[cfg(any(feature = "19h1"))]
+    /// Unregisters a guest physical page registered via `register_doorbell_page`.
+    pub fn unregister_doorbell_page(
+        &self,
+        bar_index: HdvPciBarSelector,
+        page_index: u64,
+    ) -> HcsResult<()> {
+        hypervdevicevirtualization::unregister_doorbell_page(
+            self.device_handle,
+            bar_index,
+            page_index,
+        )
+    }
 }
 
 pub(crate) mod device_base_interface {
