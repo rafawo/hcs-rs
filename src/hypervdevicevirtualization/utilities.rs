@@ -114,7 +114,7 @@ impl HdvPciDeviceBase {
 
     /// Reads guest primary memory (RAM) contents into the supplied buffer.
     pub fn read_guest_memory_buffer(
-        &mut self,
+        &self,
         guest_physical_address: u64,
         buffer: &mut [u8],
     ) -> HcsResult<()> {
@@ -126,11 +126,7 @@ impl HdvPciDeviceBase {
     }
 
     /// Reads guest primary memory (RAM) contents into the supplied object, treating it as a byte buffer.
-    pub fn read_guest_memory<T>(
-        &mut self,
-        guest_physical_address: u64,
-        data: &mut T,
-    ) -> HcsResult<()>
+    pub fn read_guest_memory<T>(&self, guest_physical_address: u64, data: &mut T) -> HcsResult<()>
     where
         T: Sized,
     {
