@@ -164,6 +164,7 @@ impl HcsOperation {
     pub fn create<T>(callback: &mut &mut T) -> HcsResult<HcsOperation>
     where
         T: 'static,
+        T: ?Sized,
         T: FnMut(&HcsOperation),
     {
         Ok(HcsOperation {
@@ -237,6 +238,7 @@ impl HcsOperation {
     pub fn set_callback<T>(&self, callback: &mut &mut T) -> HcsResult<()>
     where
         T: 'static,
+        T: ?Sized,
         T: FnMut(&HcsOperation),
     {
         computecore::set_operation_callback(
@@ -344,6 +346,7 @@ impl HcsSystem {
     ) -> HcsResult<()>
     where
         T: 'static,
+        T: ?Sized,
         T: FnMut(&HcsEvent),
     {
         computecore::set_compute_system_callback(
@@ -426,6 +429,7 @@ impl HcsProcess {
     ) -> HcsResult<()>
     where
         T: 'static,
+        T: ?Sized,
         T: FnMut(&HcsEvent),
     {
         computecore::set_process_callback(
