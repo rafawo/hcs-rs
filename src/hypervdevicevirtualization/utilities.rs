@@ -213,8 +213,9 @@ pub(crate) mod device_base_interface {
     use super::*;
 
     unsafe extern "system" fn initialize(device_context: *mut Void) -> HResult {
-        match (*(device_context as *mut Arc<RwLock<dyn HdvPciDevice>>)).write() {
-            Ok(mut device) => match device.initialize() {
+        let lock = (*(device_context as *mut Arc<RwLock<dyn HdvPciDevice>>)).write();
+        match lock {
+            Ok(mut device) => match (*device).initialize() {
                 Ok(_) => winapi::shared::winerror::S_OK,
                 Err(err) => crate::compute::errorcodes::result_code_to_hresult(err),
             },
