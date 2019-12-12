@@ -8,16 +8,70 @@
 
 //! Rust types that provide convenient functionality built on top of the hypervdevicevirtualiation APIs.
 
+use crate::compute::defs::HcsSystemHandle;
+use crate::compute::errorcodes::{result_code_to_hresult, ResultCode};
 use crate::hypervdevicevirtualization;
 use crate::hypervdevicevirtualization::defs::*;
 use crate::HcsResult;
-use std::sync::{Arc, RwLock};
+use std::sync::{Arc, RwLock, RwLockReadGuard, RwLockWriteGuard};
 use winutils_rs::windefs::*;
 
 /// Trait definition that lists the functions required by an HDV PCI device
 /// to implement to properly handle the device interface callbacks.
 /// Because these are called from within C-style callbacks, do not make them panic
-/// and instead return an HRESULT.
+/// and instead return an `HcsResult<()>`.
+///
+/// Here's an example on how to utilize this trait and the rest of the utilities
+/// in this module to create/implement a HDV PCI device:
+/// ```rust,ignore
+/// use std::sync::{Arc, RwLock};
+/// use hcs_rs::hypervdevicevirtualization::utilities::*;
+///
+/// struct ExampleDevice {
+///     base_wrapper: HdvPciDeviceBaseWrapper,
+/// }
+///
+/// impl HdvPciDevice for ExampleDevice {
+///     fn new() -> ExampleDevice {
+///         ExampleDevice {
+///             base_wrapper: HdvPciDeviceBaseWrapper::new()
+///         }
+///     }
+///
+///     fn assign_base(&mut self, base: Arc<RwLock<HdvPciDeviceBase>>) {
+///         self.base_wrapper.assign_base(base);
+///     }
+///
+///     fn initialize(&mut self) -> HcsResult<()> {
+///         let data: u64 = 0;
+///         self.base_wrapper.device_base_mut()?.write_guest_memory(0, &data)?;
+///         // Do something
+///         Ok(())
+///     }
+///
+///     // The rest of the HdvPciDevice interface...
+/// }
+///
+/// fn main() {
+///     let system = create_new_system().unwrap(); // Assume code that creates an HcsSystem
+///     let hdv = system.initialize_device_host().unwrap();
+///     let device = Arc::new(RwLock::new(ExampleDevice::new()));
+///     let mut device = device as Arc<RwLock<dyn HdvPciDevice>>;
+///     HdvPciDeviceBase::hook_device_interface_callbacks(
+///         hdv.get_handle(),
+///         &some_guid, // Assume GUID object exists
+///         &some_guid, // Assume GUID object exists
+///         &mut device, // This MUST not change memory address to ensure callbacks work correctly
+///     )
+///     .unwrap();
+///
+///     // Start system
+///     // Do stuff
+///     // Stop system
+///     // hdv will get dropped here and teardown the device host
+///     // System handle is closed here after the system object gets dropped
+/// }
+/// ```
 pub trait HdvPciDevice {
     fn assign_base(&mut self, base: Arc<RwLock<HdvPciDeviceBase>>);
 
@@ -52,9 +106,47 @@ pub trait HdvPciDevice {
     ) -> HcsResult<()>;
 }
 
+/// Safe wrapper of an HDV Host handle.
+/// When dropped, the underlying handle is closed from the HCS API.
+pub struct HdvHost {
+    handle: HdvHostHandle,
+}
+
+impl std::ops::Drop for HdvHost {
+    fn drop(&mut self) {
+        if self.handle != std::ptr::null() {
+            hypervdevicevirtualization::teardown_device_host(self.handle)
+                .expect("Failed to close operation HDV host handle");
+        }
+    }
+}
+
+impl HdvHost {
+    /// Initializes the device emulator host in the caller's process and associates it
+    /// with the specified compute system. This function should be called after the compute system
+    /// has been created and before it has been started. The compute system's configuration must
+    /// indicate that an external device host for the compute system will be present, by means
+    /// of specifying the identity (SID) of the user account under which the device host will execute.
+    /// If the device host has not been initialized by the time the compute system starts,
+    /// the start operation fails.
+    pub fn new(system_handle: HcsSystemHandle) -> HcsResult<HdvHost> {
+        Ok(HdvHost {
+            handle: hypervdevicevirtualization::initialize_device_host(system_handle)?,
+        })
+    }
+
+    /// Returns the wrapped `HdvHostHandle`.
+    pub fn get_handle(&self) -> HdvHostHandle {
+        self.handle
+    }
+}
+
 /// Wrapper object that abstracts out setting up the C-style callbacks into
 /// the hypervdevicevirtualization framework. When such callbacks are fired,
-/// it will redirect the function call to the stored `device` trait object.
+/// it will redirect the function call to the specified `device` trait object
+/// supplied through `hook_device_interface_callbacks`.
+/// Stores internally a handle to the initialized device and provides convenient
+/// methods that utilize such handle under the covers.
 pub struct HdvPciDeviceBase {
     device_handle: HdvDeviceHandle,
 }
@@ -62,23 +154,21 @@ pub struct HdvPciDeviceBase {
 impl HdvPciDeviceBase {
     /// Creates a new `HdvPciDeviceBase` object that abstracts out setting up
     /// the C-style callbacks into the hyperdevicevirtualization framework.
-    /// It will store the supplied cloned `device` internally.
-    /// When the actual C callback is fired, it will redirect the function call
-    /// to the stored `device` trait object.
+    /// It will utilize the supplied `device` as the device context for the callbacks,
+    /// so that it can forward the actual function call to the implemented trait object.
+    ///
     /// This will also call the device's `assign_base` so that the object gets
     /// a chance to store a clone of this new device base and gain access
-    /// to all of its methods.
+    /// to all of its methods that utilize the initialized device handle.
+    ///
+    /// # Safety
+    /// Callers must guarantee the supplied `device` mutable reference outlives
+    /// the device base until it's tore down through the device host handle closing.
     ///
     /// # Callback context
     /// The callback context will be the supplied mutable reference to the trait
     /// object. THIS REFERENCE MUST NOT CHANGE AFTER HOOKING UP THE INTERFACE
     /// CALLBACKS TO GUARANTEE THEY'LL DO PROPER FUNCTION CALL FORWARDING.
-    ///
-    /// **NOTE: Creating objects of this type will enforce a circular
-    /// dependency between the trait object and this instance. This allows
-    /// for both instances to use each other. This is desirable behavior
-    /// since usually consumer code will implement a trait object with everything
-    /// in it, leveraging the methods exposed through the device base.**
     pub fn hook_device_interface_callbacks(
         device_host_handle: HdvHostHandle,
         device_class_id: &Guid,
@@ -95,7 +185,7 @@ impl HdvPciDeviceBase {
                 device as *mut _ as PVoid,
             )?,
         }));
-        device.write().unwrap().assign_base(device_base.clone());
+        device.write().unwrap().assign_base(device_base);
         Ok(())
     }
 
@@ -209,6 +299,47 @@ impl HdvPciDeviceBase {
     }
 }
 
+/// Wrapper object on top of an `HdvPciDeviceBase` object.
+/// This struct exists to simplify the implementation of structs that
+/// implement trait `HdvPciDevice`.
+pub struct HdvPciDeviceBaseWrapper {
+    base: Option<Arc<RwLock<HdvPciDeviceBase>>>,
+}
+
+impl HdvPciDeviceBaseWrapper {
+    /// Creates a new device base wrapper that has an unassigned device base.
+    /// Use method `assign_base` to set it to something.
+    pub fn new() -> Self {
+        Self { base: None }
+    }
+
+    /// Assigns an `HdvPciDeviceBase` object to this wrapper.
+    pub fn assign_base(&mut self, base: Arc<RwLock<HdvPciDeviceBase>>) {
+        self.base = Some(base);
+    }
+
+    /// Gets the base device with a read lock.
+    pub fn device_base(&self) -> HcsResult<RwLockReadGuard<HdvPciDeviceBase>> {
+        self.base
+            .as_ref()
+            .ok_or(ResultCode::UnknownHResult(winapi::shared::winerror::E_FAIL))
+            .map_err(|hresult| hresult)?
+            .read()
+            .map_err(|_| ResultCode::UnknownHResult(winapi::shared::winerror::E_FAIL))
+    }
+
+    /// Gets the base device with a write lock.
+    /// This is not really necessary, but useful nonetheless.
+    pub fn device_base_mut(&mut self) -> HcsResult<RwLockWriteGuard<HdvPciDeviceBase>> {
+        self.base
+            .as_mut()
+            .ok_or(ResultCode::UnknownHResult(winapi::shared::winerror::E_FAIL))
+            .map_err(|hresult| hresult)?
+            .write()
+            .map_err(|_| ResultCode::UnknownHResult(winapi::shared::winerror::E_FAIL))
+    }
+}
+
 pub(crate) mod device_base_interface {
     use super::*;
 
@@ -216,7 +347,7 @@ pub(crate) mod device_base_interface {
         match (*(device_context as *mut Arc<RwLock<dyn HdvPciDevice>>)).write() {
             Ok(mut device) => match device.initialize() {
                 Ok(_) => winapi::shared::winerror::S_OK,
-                Err(err) => crate::compute::errorcodes::result_code_to_hresult(err),
+                Err(err) => result_code_to_hresult(err),
             },
             Err(_) => winapi::shared::winerror::E_FAIL,
         }
@@ -239,7 +370,7 @@ pub(crate) mod device_base_interface {
         match (*(device_context as *mut Arc<RwLock<dyn HdvPciDevice>>)).write() {
             Ok(mut device) => match device.set_configuration(config_values) {
                 Ok(_) => winapi::shared::winerror::S_OK,
-                Err(err) => crate::compute::errorcodes::result_code_to_hresult(err),
+                Err(err) => result_code_to_hresult(err),
             },
             Err(_) => winapi::shared::winerror::E_FAIL,
         }
@@ -256,7 +387,7 @@ pub(crate) mod device_base_interface {
         match (*(device_context as *mut Arc<RwLock<dyn HdvPciDevice>>)).write() {
             Ok(device) => match device.get_details(&mut *pnp_id, probed_bars) {
                 Ok(_) => winapi::shared::winerror::S_OK,
-                Err(err) => crate::compute::errorcodes::result_code_to_hresult(err),
+                Err(err) => result_code_to_hresult(err),
             },
             Err(_) => winapi::shared::winerror::E_FAIL,
         }
@@ -266,7 +397,7 @@ pub(crate) mod device_base_interface {
         match (*(device_context as *mut Arc<RwLock<dyn HdvPciDevice>>)).write() {
             Ok(mut device) => match device.start() {
                 Ok(_) => winapi::shared::winerror::S_OK,
-                Err(err) => crate::compute::errorcodes::result_code_to_hresult(err),
+                Err(err) => result_code_to_hresult(err),
             },
             Err(_) => winapi::shared::winerror::E_FAIL,
         }
@@ -287,7 +418,7 @@ pub(crate) mod device_base_interface {
         match (*(device_context as *mut Arc<RwLock<dyn HdvPciDevice>>)).write() {
             Ok(device) => match device.read_config_space(offset, &mut *value) {
                 Ok(_) => winapi::shared::winerror::S_OK,
-                Err(err) => crate::compute::errorcodes::result_code_to_hresult(err),
+                Err(err) => result_code_to_hresult(err),
             },
             Err(_) => winapi::shared::winerror::E_FAIL,
         }
@@ -301,7 +432,7 @@ pub(crate) mod device_base_interface {
         match (*(device_context as *mut Arc<RwLock<dyn HdvPciDevice>>)).write() {
             Ok(mut device) => match device.write_config_space(offset, value) {
                 Ok(_) => winapi::shared::winerror::S_OK,
-                Err(err) => crate::compute::errorcodes::result_code_to_hresult(err),
+                Err(err) => result_code_to_hresult(err),
             },
             Err(_) => winapi::shared::winerror::E_FAIL,
         }
@@ -318,7 +449,7 @@ pub(crate) mod device_base_interface {
         match (*(device_context as *mut Arc<RwLock<dyn HdvPciDevice>>)).write() {
             Ok(device) => match device.read_intercepted_memory(bar_index, offset, values) {
                 Ok(_) => winapi::shared::winerror::S_OK,
-                Err(err) => crate::compute::errorcodes::result_code_to_hresult(err),
+                Err(err) => result_code_to_hresult(err),
             },
             Err(_) => winapi::shared::winerror::E_FAIL,
         }
@@ -335,7 +466,7 @@ pub(crate) mod device_base_interface {
         match (*(device_context as *mut Arc<RwLock<dyn HdvPciDevice>>)).write() {
             Ok(mut device) => match device.write_intercepted_memory(bar_index, offset, values) {
                 Ok(_) => winapi::shared::winerror::S_OK,
-                Err(err) => crate::compute::errorcodes::result_code_to_hresult(err),
+                Err(err) => result_code_to_hresult(err),
             },
             Err(_) => winapi::shared::winerror::E_FAIL,
         }

@@ -14,13 +14,14 @@
 use crate::compute::defs::*;
 use crate::compute::{HcsSafeHandle, HcsWrappedHandleDropPolicy};
 use crate::computecore;
+use crate::hypervdevicevirtualization::utilities::HdvHost;
 use crate::HcsResult;
 use winutils_rs::windefs::*;
 
 pub const INFINITE: DWord = winapi::um::winbase::INFINITE;
 pub const GENERIC_ALL: DWord = winapi::um::winnt::GENERIC_ALL;
 
-/// Safe wrapper of a HCS Operation handle.
+/// Safe wrapper of an HCS Operation handle.
 /// When dropped, the underlying handle is closed from the HCS API.
 pub struct HcsOperation {
     handle: HcsOperationHandle,
@@ -151,7 +152,7 @@ unsafe extern "system" fn operation_callback(operation: HcsOperationHandle, cont
 /// Thin wrapper of an HCS Operation that interfaces to all HCS APIs that inherently
 /// depend on an HCS Operation handle as input and/or output.
 impl HcsOperation {
-    /// Creates a new HCS Operation with no callback and context, and returns a safe wrapper to the handle.
+    /// Creates a new HCS Operation, and returns a safe wrapper to the handle.
     pub fn new() -> HcsResult<HcsOperation> {
         Ok(HcsOperation {
             handle: computecore::create_operation(std::ptr::null_mut(), None)?,
@@ -159,8 +160,16 @@ impl HcsOperation {
         })
     }
 
-    /// Creates a new HCS Operation with callback and context, and returns a safe wrapper to the handle.
+    /// Creates a new HCS Operation with callback, and returns a safe wrapper to the handle.
     /// Callback is expected to be a reference to the trait object of the closure.
+    ///
+    /// Example:
+    /// ```rust,ignore
+    /// let mut closure = move |operation: &HcsOperation| {};
+    /// let mut trait_obj = &mut dyn FnMut(&HcsOperation) = &mut closure;
+    /// let trait_obj_ref = &mut trait_obj;
+    /// HcsOperation::create(trait_obj_ref);
+    /// ```
     pub fn create<T>(callback: &mut &mut T) -> HcsResult<HcsOperation>
     where
         T: 'static,
@@ -235,6 +244,14 @@ impl HcsOperation {
 
     /// Sets the operation completion callback.
     /// Callback is expected to be a reference to the trait object of the closure.
+    ///
+    /// Example:
+    /// ```rust,ignore
+    /// let mut closure = move |operation: &HcsOperation| {};
+    /// let mut trait_obj = &mut dyn FnMut(&HcsOperation) = &mut closure;
+    /// let trait_obj_ref = &mut trait_obj;
+    /// operation.set_callback(trait_obj_ref);
+    /// ```
     pub fn set_callback<T>(&self, callback: &mut &mut T) -> HcsResult<()>
     where
         T: 'static,
@@ -339,6 +356,14 @@ impl HcsSystem {
 
     /// Sets a callback for this specific compute system, called on key events.
     /// Callback is expected to be a reference to the trait object of the closure.
+    ///
+    /// Example:
+    /// ```rust,ignore
+    /// let mut closure = move |operation: &HcsEvent| {};
+    /// let mut trait_obj = &mut dyn FnMut(&HcsEvent) = &mut closure;
+    /// let trait_obj_ref = &mut trait_obj;
+    /// system.set_callback(trait_obj_ref);
+    /// ```
     pub fn set_callback<T>(
         &self,
         callback_options: HcsEventOptions,
@@ -386,6 +411,17 @@ impl HcsSystem {
             handle_policy: HcsWrappedHandleDropPolicy::Close,
         })
     }
+
+    /// Initializes the device emulator host in the caller's process and associates it
+    /// with the specified compute system. This function should be called after the compute system
+    /// has been created and before it has been started. The compute system's configuration must
+    /// indicate that an external device host for the compute system will be present, by means
+    /// of specifying the identity (SID) of the user account under which the device host will execute.
+    /// If the device host has not been initialized by the time the compute system starts,
+    /// the start operation fails.
+    pub fn initialize_device_host(&self) -> HcsResult<HdvHost> {
+        HdvHost::new(self.handle)
+    }
 }
 
 /// Thin wrapper of an HCS Compute System Process that interfaces to all HCS APIs that inherently
@@ -422,6 +458,14 @@ impl HcsProcess {
 
     /// Sets a callback to the compute system process, called on key events.
     /// Callback is expected to be a reference to the trait object of the closure.
+    ///
+    /// Example:
+    /// ```rust,ignore
+    /// let mut closure = move |operation: &HcsEvent| {};
+    /// let mut trait_obj = &mut dyn FnMut(&HcsEvent) = &mut closure;
+    /// let trait_obj_ref = &mut trait_obj;
+    /// system_process.set_callback(trait_obj_ref);
+    /// ```
     pub fn set_callback<T>(
         &self,
         callback_options: HcsEventOptions,

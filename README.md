@@ -68,6 +68,8 @@ This section briefly describes all published crates.io [versions](https://crates
 
 - [**0.3.1 Dec 12, 2019**](https://crates.io/crates/hcs-rs/0.3.1)
   - Fixed up callback on utilities to expect a reference to a closure's trait object
+  - Fixed documentation of utilities
+  - Added a few more utilities to hypervdevicevirtualization
 - [**0.3.0 Dec 11, 2019**](https://crates.io/crates/hcs-rs/0.3.0)
   - Breaking changes
     - hypervdevicevirtualization safe wrappers for reading and writing guest memory now use slices instead of vectors directly
