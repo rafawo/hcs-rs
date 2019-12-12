@@ -160,17 +160,15 @@ impl HcsOperation {
     }
 
     /// Creates a new HCS Operation with callback and context, and returns a safe wrapper to the handle.
-    pub fn create<T>(callback: &mut T) -> HcsResult<HcsOperation>
+    /// Callback is expected to be a reference to the trait object of the closure.
+    pub fn create<T>(callback: &mut &mut T) -> HcsResult<HcsOperation>
     where
         T: 'static,
         T: FnMut(&HcsOperation),
     {
-        let mut trait_obj: &mut dyn FnMut(&HcsOperation) = callback;
-        let trait_obj_ref = &mut trait_obj;
-        let closure_pointer_pointer = trait_obj_ref as *mut _ as PVoid;
         Ok(HcsOperation {
             handle: computecore::create_operation(
-                closure_pointer_pointer,
+                callback as *mut _ as PVoid,
                 Some(operation_callback),
             )?,
             handle_policy: HcsWrappedHandleDropPolicy::Close,
@@ -235,17 +233,15 @@ impl HcsOperation {
     }
 
     /// Sets the operation completion callback.
-    pub fn set_callback<T>(&self, callback: &mut T) -> HcsResult<()>
+    /// Callback is expected to be a reference to the trait object of the closure.
+    pub fn set_callback<T>(&self, callback: &mut &mut T) -> HcsResult<()>
     where
         T: 'static,
         T: FnMut(&HcsOperation),
     {
-        let mut trait_obj: &mut dyn FnMut(&HcsOperation) = callback;
-        let trait_obj_ref = &mut trait_obj;
-        let closure_pointer_pointer = trait_obj_ref as *mut _ as PVoid;
         computecore::set_operation_callback(
             self.handle,
-            closure_pointer_pointer,
+            callback as *mut _ as PVoid,
             Some(operation_callback),
         )
     }
@@ -340,23 +336,20 @@ impl HcsSystem {
     }
 
     /// Sets a callback for this specific compute system, called on key events.
+    /// Callback is expected to be a reference to the trait object of the closure.
     pub fn set_callback<T>(
         &self,
         callback_options: HcsEventOptions,
-        callback: &mut T,
+        callback: &mut &mut T,
     ) -> HcsResult<()>
     where
         T: 'static,
         T: FnMut(&HcsEvent),
     {
-        let mut trait_obj: &mut dyn FnMut(&HcsEvent) = callback;
-        let trait_obj_ref = &mut trait_obj;
-        let closure_pointer_pointer = trait_obj_ref as *mut _ as PVoid;
-
         computecore::set_compute_system_callback(
             self.handle,
             callback_options,
-            closure_pointer_pointer,
+            callback as *mut _ as PVoid,
             Some(hcs_system_and_proces_callback),
         )
     }
@@ -425,23 +418,20 @@ impl HcsProcess {
     }
 
     /// Sets a callback to the compute system process, called on key events.
+    /// Callback is expected to be a reference to the trait object of the closure.
     pub fn set_callback<T>(
         &self,
         callback_options: HcsEventOptions,
-        callback: &mut T,
+        callback: &mut &mut T,
     ) -> HcsResult<()>
     where
         T: 'static,
         T: FnMut(&HcsEvent),
     {
-        let mut trait_obj: &mut dyn FnMut(&HcsEvent) = callback;
-        let trait_obj_ref = &mut trait_obj;
-        let closure_pointer_pointer = trait_obj_ref as *mut _ as PVoid;
-
         computecore::set_process_callback(
             self.handle,
             callback_options,
-            closure_pointer_pointer,
+            callback as *mut _ as PVoid,
             Some(hcs_system_and_proces_callback),
         )
     }
