@@ -45,7 +45,7 @@ pub struct UefiBootEntry {
     #[serde(default, rename = "OptionalData", skip_serializing_if = "is_default")]
     pub optional_data: String,
 
-    #[serde(default, rename = "VmbFsrootPath", skip_serializing_if = "is_default")]
+    #[serde(default, rename = "VmbFsRootPath", skip_serializing_if = "is_default")]
     pub vmbfs_root_path: String,
 }
 

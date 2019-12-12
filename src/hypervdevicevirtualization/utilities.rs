@@ -57,12 +57,16 @@ use winutils_rs::windefs::*;
 ///     let hdv = system.initialize_device_host().unwrap();
 ///     let device = Arc::new(RwLock::new(ExampleDevice::new()));
 ///     let mut device = device as Arc<RwLock<dyn HdvPciDevice>>;
-///     HdvPciDeviceBase::hook_device_interface_callbacks(
-///         hdv.handle(),
-///         &some_guid, // Assume GUID object exists
-///         &some_guid, // Assume GUID object exists
-///         &mut device, // This MUST not change memory address to ensure callbacks work correctly
-///     )
+///     unsafe {
+///         // By ensuring that &mut device outlives the device's lifetime the C callbacks
+///         // will work correctly.
+///         HdvPciDeviceBase::hook_device_interface_callbacks(
+///             hdv.handle(),
+///             &some_guid, // Assume GUID object exists
+///             &some_guid, // Assume GUID object exists
+///             &mut device,
+///         )
+///     }
 ///     .unwrap();
 ///
 ///     // Start system
@@ -161,15 +165,15 @@ impl HdvPciDeviceBase {
     /// a chance to store a clone of this new device base and gain access
     /// to all of its methods that utilize the initialized device handle.
     ///
-    /// # Safety
-    /// Callers must guarantee the supplied `device` mutable reference outlives
-    /// the device base until it's tore down through the device host handle closing.
-    ///
     /// # Callback context
     /// The callback context will be the supplied mutable reference to the trait
     /// object. THIS REFERENCE MUST NOT CHANGE AFTER HOOKING UP THE INTERFACE
     /// CALLBACKS TO GUARANTEE THEY'LL DO PROPER FUNCTION CALL FORWARDING.
-    pub fn hook_device_interface_callbacks(
+    ///
+    /// # Safety
+    /// Callers must guarantee the supplied `device` mutable reference outlives
+    /// the device base until it's tore down through the device host handle closing.
+    pub unsafe fn hook_device_interface_callbacks(
         device_host_handle: HdvHostHandle,
         device_class_id: &Guid,
         device_instance_id: &Guid,

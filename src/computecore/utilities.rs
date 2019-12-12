@@ -170,7 +170,11 @@ impl HcsOperation {
     /// let trait_obj_ref = &mut trait_obj;
     /// HcsOperation::create(trait_obj_ref);
     /// ```
-    pub fn create<T>(callback: &mut &mut T) -> HcsResult<HcsOperation>
+    ///
+    /// # Safety
+    /// Ensure that the supplied callback's closure trait object mutable reference
+    /// doesn't change and outlives the HCS operation's lifetime.
+    pub unsafe fn create<T>(callback: &mut &mut T) -> HcsResult<HcsOperation>
     where
         T: 'static,
         T: ?Sized,
@@ -252,7 +256,11 @@ impl HcsOperation {
     /// let trait_obj_ref = &mut trait_obj;
     /// operation.set_callback(trait_obj_ref);
     /// ```
-    pub fn set_callback<T>(&self, callback: &mut &mut T) -> HcsResult<()>
+    ///
+    /// # Safety
+    /// Ensure that the supplied callback's closure trait object mutable reference
+    /// doesn't change and outlives the HCS operation's lifetime.
+    pub unsafe fn set_callback<T>(&self, callback: &mut &mut T) -> HcsResult<()>
     where
         T: 'static,
         T: ?Sized,
@@ -364,7 +372,11 @@ impl HcsSystem {
     /// let trait_obj_ref = &mut trait_obj;
     /// system.set_callback(trait_obj_ref);
     /// ```
-    pub fn set_callback<T>(
+    ///
+    /// # Safety
+    /// Ensure that the supplied callback's closure trait object mutable reference
+    /// doesn't change and outlives the HCS system's lifetime.
+    pub unsafe fn set_callback<T>(
         &self,
         callback_options: HcsEventOptions,
         callback: &mut &mut T,
@@ -466,7 +478,11 @@ impl HcsProcess {
     /// let trait_obj_ref = &mut trait_obj;
     /// system_process.set_callback(trait_obj_ref);
     /// ```
-    pub fn set_callback<T>(
+    ///
+    /// # Safety
+    /// Ensure that the supplied callback's closure trait object mutable reference
+    /// doesn't change and outlives the HCS process's lifetime.
+    pub unsafe fn set_callback<T>(
         &self,
         callback_options: HcsEventOptions,
         callback: &mut &mut T,
