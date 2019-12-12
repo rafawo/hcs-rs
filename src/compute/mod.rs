@@ -34,7 +34,7 @@ pub trait HcsSafeHandle {
     /// This function is useful when the safe wrapper object must interact
     /// with the HCS API by using the handle directly, but there's no desire
     /// to 'unwrap' the handle.
-    fn get_handle(&self) -> Handle;
+    fn handle(&self) -> Handle;
 
     /// Sets the wrapped handle policy.
     ///
@@ -48,5 +48,5 @@ pub trait HcsSafeHandle {
     fn set_handle_policy(&mut self, handle_policy: HcsWrappedHandleDropPolicy);
 
     /// Returns the safe wrapped handle close policy.
-    fn get_handle_policy(&self) -> HcsWrappedHandleDropPolicy;
+    fn handle_policy(&self) -> HcsWrappedHandleDropPolicy;
 }

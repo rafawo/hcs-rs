@@ -58,7 +58,7 @@ use winutils_rs::windefs::*;
 ///     let device = Arc::new(RwLock::new(ExampleDevice::new()));
 ///     let mut device = device as Arc<RwLock<dyn HdvPciDevice>>;
 ///     HdvPciDeviceBase::hook_device_interface_callbacks(
-///         hdv.get_handle(),
+///         hdv.handle(),
 ///         &some_guid, // Assume GUID object exists
 ///         &some_guid, // Assume GUID object exists
 ///         &mut device, // This MUST not change memory address to ensure callbacks work correctly
@@ -136,7 +136,7 @@ impl HdvHost {
     }
 
     /// Returns the wrapped `HdvHostHandle`.
-    pub fn get_handle(&self) -> HdvHostHandle {
+    pub fn handle(&self) -> HdvHostHandle {
         self.handle
     }
 }

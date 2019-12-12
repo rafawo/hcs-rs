@@ -48,7 +48,7 @@ impl HcsSafeHandle for HcsOperation {
         }
     }
 
-    fn get_handle(&self) -> Handle {
+    fn handle(&self) -> Handle {
         self.handle
     }
 
@@ -56,7 +56,7 @@ impl HcsSafeHandle for HcsOperation {
         self.handle_policy = handle_policy;
     }
 
-    fn get_handle_policy(&self) -> HcsWrappedHandleDropPolicy {
+    fn handle_policy(&self) -> HcsWrappedHandleDropPolicy {
         self.handle_policy
     }
 }
@@ -89,7 +89,7 @@ impl HcsSafeHandle for HcsSystem {
         }
     }
 
-    fn get_handle(&self) -> Handle {
+    fn handle(&self) -> Handle {
         self.handle
     }
 
@@ -97,7 +97,7 @@ impl HcsSafeHandle for HcsSystem {
         self.handle_policy = handle_policy;
     }
 
-    fn get_handle_policy(&self) -> HcsWrappedHandleDropPolicy {
+    fn handle_policy(&self) -> HcsWrappedHandleDropPolicy {
         self.handle_policy
     }
 }
@@ -129,7 +129,7 @@ impl HcsSafeHandle for HcsProcess {
         }
     }
 
-    fn get_handle(&self) -> Handle {
+    fn handle(&self) -> Handle {
         self.handle
     }
 
@@ -137,7 +137,7 @@ impl HcsSafeHandle for HcsProcess {
         self.handle_policy = handle_policy;
     }
 
-    fn get_handle_policy(&self) -> HcsWrappedHandleDropPolicy {
+    fn handle_policy(&self) -> HcsWrappedHandleDropPolicy {
         self.handle_policy
     }
 }
