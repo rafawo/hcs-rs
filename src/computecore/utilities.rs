@@ -145,7 +145,7 @@ unsafe extern "system" fn operation_callback(operation: HcsOperationHandle, cont
     let mut operation = HcsOperation::wrap_handle(operation);
     operation.set_handle_policy(HcsWrappedHandleDropPolicy::Ignore);
     let context_as_closure: &mut &mut dyn FnMut(&HcsOperation) = &mut *(context as *mut _);
-    (*context_as_closure)(&operation);
+    context_as_closure(&operation);
 }
 
 /// Thin wrapper of an HCS Operation that interfaces to all HCS APIs that inherently
@@ -258,7 +258,7 @@ impl HcsOperation {
 
 unsafe extern "system" fn hcs_system_and_proces_callback(event: *const HcsEvent, context: PVoid) {
     let context_as_closure: &mut &mut dyn FnMut(&HcsEvent) = &mut *(context as *mut _);
-    (*context_as_closure)(&*event);
+    context_as_closure(&*event);
 }
 
 /// Thin wrapper of an HCS Compute System that interfaces to all HCS APIs that inherently
