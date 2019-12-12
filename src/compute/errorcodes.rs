@@ -802,6 +802,7 @@ pub(crate) fn hresult_to_result_code(hresult: &HResult) -> ResultCode {
 }
 
 #[allow(overflowing_literals)]
+#[allow(dead_code)]
 pub(crate) fn result_code_to_hresult(result_code: ResultCode) -> HResult {
     match result_code {
         ResultCode::Success => 0,
