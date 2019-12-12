@@ -66,6 +66,8 @@ The following table describes the relevant Windows 10 SDK files that this projec
 
 This section briefly describes all published crates.io [versions](https://crates.io/crates/hcs-rs/versions) of this project, ordered from latest to oldest.
 
+- [**0.3.1 Dec 12, 2019**](https://crates.io/crates/hcs-rs/0.3.1)
+  - Fixed up callback on utilities to expect a reference to a closure's trait object
 - [**0.3.0 Dec 11, 2019**](https://crates.io/crates/hcs-rs/0.3.0)
   - Breaking changes
     - hypervdevicevirtualization safe wrappers for reading and writing guest memory now use slices instead of vectors directly
