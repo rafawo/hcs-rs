@@ -108,6 +108,7 @@ pub enum HdvPciInterfaceVersion {
     Version1 = 1,
 }
 
+#[repr(C)]
 pub struct HdvPciDeviceInterface {
     pub version: HdvPciInterfaceVersion,
     pub initialize: HdvPciDeviceInitialize,
