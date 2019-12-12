@@ -95,7 +95,7 @@ impl HdvPciDeviceBase {
                 device as *mut _ as PVoid,
             )?,
         }));
-        device.write().unwrap().assign_base(device_base.clone());
+        (*device).write().unwrap().assign_base(device_base.clone());
         Ok(())
     }
 
@@ -215,7 +215,7 @@ pub(crate) mod device_base_interface {
     unsafe extern "system" fn initialize(device_context: *mut Void) -> HResult {
         let lock = (*(device_context as *mut Arc<RwLock<dyn HdvPciDevice>>)).write();
         match lock {
-            Ok(mut device) => match device.initialize() {
+            Ok(mut device) => match (*device).initialize() {
                 Ok(_) => winapi::shared::winerror::S_OK,
                 Err(err) => crate::compute::errorcodes::result_code_to_hresult(err),
             },
@@ -226,7 +226,7 @@ pub(crate) mod device_base_interface {
     unsafe extern "system" fn teardown(device_context: *mut Void) {
         let lock = (*(device_context as *mut Arc<RwLock<dyn HdvPciDevice>>)).write();
         match lock {
-            Ok(mut device) => device.teardown(),
+            Ok(mut device) => (*device).teardown(),
             Err(_) => {}
         }
     }
@@ -240,7 +240,7 @@ pub(crate) mod device_base_interface {
             std::slice::from_raw_parts(configuration_values, configuration_value_count as usize);
         let lock = (*(device_context as *mut Arc<RwLock<dyn HdvPciDevice>>)).write();
         match lock {
-            Ok(mut device) => match device.set_configuration(config_values) {
+            Ok(mut device) => match (*device).set_configuration(config_values) {
                 Ok(_) => winapi::shared::winerror::S_OK,
                 Err(err) => crate::compute::errorcodes::result_code_to_hresult(err),
             },
@@ -258,7 +258,7 @@ pub(crate) mod device_base_interface {
             std::slice::from_raw_parts_mut(probed_bars, probed_bars_count as usize);
         let lock = (*(device_context as *mut Arc<RwLock<dyn HdvPciDevice>>)).write();
         match lock {
-            Ok(device) => match device.get_details(&mut *pnp_id, probed_bars) {
+            Ok(device) => match (*device).get_details(&mut *pnp_id, probed_bars) {
                 Ok(_) => winapi::shared::winerror::S_OK,
                 Err(err) => crate::compute::errorcodes::result_code_to_hresult(err),
             },
@@ -269,7 +269,7 @@ pub(crate) mod device_base_interface {
     unsafe extern "system" fn start(device_context: *mut Void) -> HResult {
         let lock = (*(device_context as *mut Arc<RwLock<dyn HdvPciDevice>>)).write();
         match lock {
-            Ok(mut device) => match device.start() {
+            Ok(mut device) => match (*device).start() {
                 Ok(_) => winapi::shared::winerror::S_OK,
                 Err(err) => crate::compute::errorcodes::result_code_to_hresult(err),
             },
@@ -280,7 +280,7 @@ pub(crate) mod device_base_interface {
     unsafe extern "system" fn stop(device_context: *mut Void) {
         let lock = (*(device_context as *mut Arc<RwLock<dyn HdvPciDevice>>)).write();
         match lock {
-            Ok(mut device) => device.stop(),
+            Ok(mut device) => (*device).stop(),
             Err(_) => {}
         }
     }
@@ -292,7 +292,7 @@ pub(crate) mod device_base_interface {
     ) -> HResult {
         let lock = (*(device_context as *mut Arc<RwLock<dyn HdvPciDevice>>)).write();
         match lock {
-            Ok(device) => match device.read_config_space(offset, &mut *value) {
+            Ok(device) => match (*device).read_config_space(offset, &mut *value) {
                 Ok(_) => winapi::shared::winerror::S_OK,
                 Err(err) => crate::compute::errorcodes::result_code_to_hresult(err),
             },
@@ -307,7 +307,7 @@ pub(crate) mod device_base_interface {
     ) -> HResult {
         let lock = (*(device_context as *mut Arc<RwLock<dyn HdvPciDevice>>)).write();
         match lock {
-            Ok(mut device) => match device.write_config_space(offset, value) {
+            Ok(mut device) => match (*device).write_config_space(offset, value) {
                 Ok(_) => winapi::shared::winerror::S_OK,
                 Err(err) => crate::compute::errorcodes::result_code_to_hresult(err),
             },
@@ -325,7 +325,7 @@ pub(crate) mod device_base_interface {
         let values: &mut [Byte] = std::slice::from_raw_parts_mut(value, length as usize);
         let lock = (*(device_context as *mut Arc<RwLock<dyn HdvPciDevice>>)).write();
         match lock {
-            Ok(device) => match device.read_intercepted_memory(bar_index, offset, values) {
+            Ok(device) => match (*device).read_intercepted_memory(bar_index, offset, values) {
                 Ok(_) => winapi::shared::winerror::S_OK,
                 Err(err) => crate::compute::errorcodes::result_code_to_hresult(err),
             },
@@ -343,7 +343,7 @@ pub(crate) mod device_base_interface {
         let values: &[Byte] = std::slice::from_raw_parts(value, length as usize);
         let lock = (*(device_context as *mut Arc<RwLock<dyn HdvPciDevice>>)).write();
         match lock {
-            Ok(mut device) => match device.write_intercepted_memory(bar_index, offset, values) {
+            Ok(mut device) => match (*device).write_intercepted_memory(bar_index, offset, values) {
                 Ok(_) => winapi::shared::winerror::S_OK,
                 Err(err) => crate::compute::errorcodes::result_code_to_hresult(err),
             },
