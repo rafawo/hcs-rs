@@ -72,6 +72,7 @@ This section briefly describes all published crates.io [versions](https://crates
       - In particular, read used to return a newly allocated buffer with the read memory. Now, it reads it directly into the supplied byte slice
     - Introduction of feature `utilities` to separate all the higher abstract Rust abstraction on top of the basic safe wrappers
     - Safe wrapper `enumerate_compute_systems` now supports an optional query parameter
+  - Added utilities around `hypervdevicevirtualization` APIs
 - [**0.2.2 Dec 10, 2019**](https://crates.io/crates/hcs-rs/0.2.2)
   - Removes unnecessary ispresent bindings
   - Gets a functional schema JSON object model finalized
