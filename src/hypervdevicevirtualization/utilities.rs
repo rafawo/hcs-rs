@@ -14,6 +14,10 @@ use crate::HcsResult;
 use std::sync::{Arc, RwLock};
 use winutils_rs::windefs::*;
 
+/// Trait definition that lists the functions required by an HDV PCI device
+/// to implement to properly handle the device interface callbacks.
+/// Because these are called from within C-style callbacks, do not make them panic
+/// and instead return an HRESULT.
 pub trait HdvPciDevice {
     fn assign_base(&mut self, base: Arc<RwLock<HdvPciDeviceBase>>);
     fn initialize(&mut self) -> HResult;
