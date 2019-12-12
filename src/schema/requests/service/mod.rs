@@ -6,6 +6,7 @@
 // except according to those terms.
 // THE SOURCE CODE IS AVAILABLE UNDER THE ABOVE CHOSEN LICENSE "AS IS", WITH NO WARRANTIES.
 
+use crate::schema::utils::is_default;
 use serde::{Deserialize, Serialize};
 
 impl std::default::Default for PropertyType {
@@ -14,7 +15,7 @@ impl std::default::Default for PropertyType {
     }
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone)]
+#[derive(Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub enum PropertyType {
     Basic,
     Memory,
@@ -28,7 +29,7 @@ pub enum PropertyType {
     Undefined,
 }
 
-#[derive(Default, Deserialize, Serialize, Debug, Clone)]
+#[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub struct FilteredPropertyQuery {
     #[serde(rename = "PropertyType")]
     pub property_type: PropertyType,
@@ -41,9 +42,9 @@ pub struct FilteredPropertyQuery {
     pub filter: serde_json::Value,
 }
 
-#[derive(Default, Deserialize, Serialize, Debug, Clone)]
+#[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub struct PropertyQuery {
-    #[serde(default, rename = "PropertyTypes")]
+    #[serde(default, rename = "PropertyTypes", skip_serializing_if = "is_default")]
     pub property_types: Vec<PropertyType>,
 
     #[serde(
@@ -54,7 +55,7 @@ pub struct PropertyQuery {
     pub filtered_queries: Vec<FilteredPropertyQuery>,
 }
 
-#[derive(Default, Deserialize, Serialize, Debug, Clone)]
+#[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub struct ModificationRequest {
     #[serde(rename = "PropertyType")]
     pub property_type: PropertyType,

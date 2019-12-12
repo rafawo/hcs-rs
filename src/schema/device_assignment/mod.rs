@@ -17,7 +17,7 @@ impl std::default::Default for DeviceType {
 }
 
 #[cfg(feature = "19h1")]
-#[derive(Deserialize, Serialize, Debug, Clone)]
+#[derive(Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub enum DeviceType {
     ClassGuid,
     DeviceInstance,
@@ -25,7 +25,7 @@ pub enum DeviceType {
     GpuMirror,
 }
 
-#[derive(Default, Deserialize, Serialize, Debug, Clone)]
+#[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub struct Device {
     /// The type of device to assign to the container.
     #[cfg(feature = "19h1")]

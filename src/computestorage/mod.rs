@@ -178,9 +178,9 @@ pub fn format_writable_layer_vhd(vhd_handle: Handle) -> HcsResult<()> {
 /// Returns the volume path for a virtual disk of a writable container layer.
 pub fn get_layer_vhd_mount_path(vhd_handle: Handle) -> HcsResult<String> {
     unsafe {
-        let mount_path = CoTaskMemWString::new();
+        let mut mount_path = CoTaskMemWString::new();
 
-        match HcsGetLayerVhdMountPath(vhd_handle, mount_path.ptr) {
+        match HcsGetLayerVhdMountPath(vhd_handle, mount_path.ptr_mut()) {
             0 => Ok(mount_path.to_string()),
             hresult => Err(hresult_to_result_code(&hresult)),
         }

@@ -50,6 +50,7 @@ pub const HDV_PCI_BAR_COUNT: u32 = 6;
 
 pub type HdvPciDeviceInitialize =
     Option<unsafe extern "system" fn(deviceContext: *mut Void) -> HResult>;
+
 pub type HdvPciDeviceTeardown = Option<unsafe extern "system" fn(deviceContext: *mut Void)>;
 
 pub type HdvPciDeviceSetConfiguration = Option<
@@ -107,6 +108,7 @@ pub enum HdvPciInterfaceVersion {
     Version1 = 1,
 }
 
+#[repr(C)]
 pub struct HdvPciDeviceInterface {
     pub version: HdvPciInterfaceVersion,
     pub initialize: HdvPciDeviceInitialize,

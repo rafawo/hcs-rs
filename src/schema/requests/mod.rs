@@ -18,7 +18,7 @@ impl std::default::Default for ModifyRequestType {
     }
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone)]
+#[derive(Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub enum ModifyRequestType {
     Add,
     Remove,

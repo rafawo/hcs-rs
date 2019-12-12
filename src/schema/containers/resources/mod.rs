@@ -7,52 +7,61 @@
 // THE SOURCE CODE IS AVAILABLE UNDER THE ABOVE CHOSEN LICENSE "AS IS", WITH NO WARRANTIES.
 
 use crate::schema;
+use crate::schema::utils::is_default;
 use serde::{Deserialize, Serialize};
 
 /// Specifies CPU limits for a container.
 /// Count, Maximum and Weight are all mutually exclusive.
-#[derive(Default, Deserialize, Serialize, Debug, Clone)]
+#[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub struct Processor {
     /// Optional property that represents the fraction of the configured processor
     /// count in a container in relation to the processors available in the host.
     /// The fraction ultimately determines the portion of processor cycles that the
     /// threads in a container can use during each scheduling interval,
     /// as the number of cycles per 10,000 cycles.
-    #[serde(default, rename = "Count", skip_serializing_if = "Option::is_none")]
+    #[serde(default, rename = "Count", skip_serializing_if = "is_default")]
     pub count: Option<u32>,
 
     // Optional property that limits the share of processor time given to the container
     // relative to other workloads on the processor.
     // The processor weight is a value between 0 and 10000.
-    #[serde(default, rename = "Weight", skip_serializing_if = "Option::is_none")]
+    #[serde(default, rename = "Weight", skip_serializing_if = "is_default")]
     pub weight: Option<u64>,
 
     // Optional property that determines the portion of processor cycles
     // that the threads in a container can use during each scheduling interval,
     // as the number of cycles per 10,000 cycles.
     // Set processor maximum to a percentage times 100.
-    #[serde(default, rename = "Maximum", skip_serializing_if = "Option::is_none")]
+    #[serde(default, rename = "Maximum", skip_serializing_if = "is_default")]
     maximum: Option<u64>,
 }
 
-#[derive(Default, Deserialize, Serialize, Debug, Clone)]
+#[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub struct Memory {
     #[serde(rename = "SizeInMB")]
     pub size_in_mb: u64,
 }
 
-#[derive(Default, Deserialize, Serialize, Debug, Clone)]
+#[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub struct HvSocket {
-    #[serde(default, rename = "Config", skip_serializing_if = "Option::is_none")]
+    #[serde(default, rename = "Config", skip_serializing_if = "is_default")]
     pub config: Option<schema::hvsocket::HvSocketSystemConfig>,
 
-    #[serde(default, rename = "EnablePowerShellDirect")]
+    #[serde(
+        default,
+        rename = "EnablePowerShellDirect",
+        skip_serializing_if = "is_default"
+    )]
     pub enable_powershell_direct: bool,
 }
 
-#[derive(Default, Deserialize, Serialize, Debug, Clone)]
+#[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub struct Networking {
-    #[serde(default, rename = "AllowUnqualifiedDnsQuery")]
+    #[serde(
+        default,
+        rename = "AllowUnqualifiedDnsQuery",
+        skip_serializing_if = "is_default"
+    )]
     pub allow_unqualified_dns_query: bool,
 
     #[serde(
@@ -92,7 +101,7 @@ pub struct Networking {
 /// since the container path is already the scratch path.
 /// For linux, the GCS unions the specified layers and ScratchPath together, placing
 /// the resulting union filesystem at ContainerRootPath.
-#[derive(Default, Deserialize, Serialize, Debug, Clone)]
+#[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub struct CombinedLayers {
     #[serde(default, rename = "Layers", skip_serializing_if = "Vec::is_empty")]
     pub layers: Vec<schema::common::resources::Layer>,
@@ -108,7 +117,7 @@ pub struct CombinedLayers {
     pub container_root_path: String,
 }
 
-#[derive(Default, Deserialize, Serialize, Debug, Clone)]
+#[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub struct Storage {
     /// List of layers that describe the parent hierarchy for a container's
     /// storage. These layers combined together, presented as a disposable
@@ -123,11 +132,11 @@ pub struct Storage {
     #[serde(rename = "Path")]
     pub path: String,
 
-    #[serde(default, rename = "QoS", skip_serializing_if = "Option::is_none")]
+    #[serde(default, rename = "QoS", skip_serializing_if = "is_default")]
     pub qos: Option<schema::common::resources::StorageQoS>,
 }
 
-#[derive(Default, Deserialize, Serialize, Debug, Clone)]
+#[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub struct MappedDirectory {
     #[serde(rename = "HostPath")]
     pub host_path: String,
@@ -138,7 +147,7 @@ pub struct MappedDirectory {
     #[serde(rename = "ContainerPath")]
     pub container_path: String,
 
-    #[serde(default, rename = "ReadOnly")]
+    #[serde(default, rename = "ReadOnly", skip_serializing_if = "is_default")]
     pub read_only: bool,
 }
 
@@ -148,13 +157,13 @@ impl std::default::Default for MappedPipePathType {
     }
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone)]
+#[derive(Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub enum MappedPipePathType {
     AbsolutePath,
     VirtualSmbPipeName,
 }
 
-#[derive(Default, Deserialize, Serialize, Debug, Clone)]
+#[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub struct MappedPipe {
     #[serde(rename = "ContainerPipeName")]
     pub container_pipe_name: String,
@@ -168,7 +177,7 @@ pub struct MappedPipe {
 
 /// Represents the flush state of the registry hive
 /// for a windows container's job object.
-#[derive(Default, Deserialize, Serialize, Debug, Clone)]
+#[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub struct RegistryFlushState {
     /// Determines whether the flush state of the registry hive
     /// is enabled or not.

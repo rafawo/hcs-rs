@@ -58,15 +58,28 @@ The following table describes the relevant Windows 10 SDK files that this projec
 | `bindings` | By default, the raw C bindings to the SDK APIs are private to the crate. Using feature `bindings` makes them public for consumption on client code |
 | `schema` | Includes all HCS/HCN schema JSON object model |
 | `19h1` | By default, the project has compatibility with RS5. Using feature `19h1` adds 19H1 specific updates to the APIs |
+| `utilities` | Includes utility code that provides more Rust abstractions on top of the basic safe wrappers of the C bindings. By default, this crate only exposes the safe wrappers |
 
 ## Crates.io version notes
 
-**NOTE: All versions have been yanked from this project. For now, please use the git repo directly as a dependency. The next update to this crate will be published once it has been fully tested. Version 0.2.2 will be the bug fixing version for a while; once it's ready, version 0.2.2 will be pushed to crates.io**
+**NOTE: All versions from 0.2.1 and below have been yanked on purpose. Please use the git repo directly for latest active changes, or 0.2.2 as the oldest "stable" version.**
 
 This section briefly describes all published crates.io [versions](https://crates.io/crates/hcs-rs/versions) of this project, ordered from latest to oldest.
 
+- [**0.3.0 Dec 11, 2019**](https://crates.io/crates/hcs-rs/0.3.0)
+  - Breaking changes
+    - hypervdevicevirtualization safe wrappers for reading and writing guest memory now use slices instead of vectors directly
+      - In particular, read used to return a newly allocated buffer with the read memory. Now, it reads it directly into the supplied byte slice
+    - Introduction of feature `utilities` to separate all the higher abstract Rust abstraction on top of the basic safe wrappers
+    - Safe wrapper `enumerate_compute_systems` now supports an optional query parameter
 - [**0.2.2 Dec 10, 2019**](https://crates.io/crates/hcs-rs/0.2.2)
   - Removes unnecessary ispresent bindings
+  - Gets a functional schema JSON object model finalized
+  - Proper use of features for conditionally compiling support for different windows releases (as of now, only 19h1)
+  - Guard schema model behind a `schema` feature
+  - Enable feature `bindings` that exposes the raw bindings to the APIs (by default they are private to the crate)
+  - Updated dependency to `winutils_rs` to get a fix for WideString CoTaskMemFree/LocalFree wrappers
+  - This is the "oldest" version with a somewhat stable state, as well as cleaned up from unnecessary stuff
 - [**0.2.1 Dec 10, 2019**](https://crates.io/crates/hcs-rs/0.2.1)
   - Use extern "system" instead of extern "C"
   - Make sure function pointers are wrapped on an Option, to allow for null function pointers

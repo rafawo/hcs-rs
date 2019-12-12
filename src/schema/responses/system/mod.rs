@@ -7,6 +7,7 @@
 // THE SOURCE CODE IS AVAILABLE UNDER THE ABOVE CHOSEN LICENSE "AS IS", WITH NO WARRANTIES.
 
 use crate::schema;
+use crate::schema::utils::is_default;
 use serde::{Deserialize, Serialize};
 
 impl std::default::Default for State {
@@ -15,7 +16,7 @@ impl std::default::Default for State {
     }
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone)]
+#[derive(Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub enum State {
     Created,
     Running,
@@ -30,7 +31,7 @@ impl std::default::Default for OsType {
     }
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone)]
+#[derive(Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub enum OsType {
     Windows,
     Linux,
@@ -42,7 +43,7 @@ impl std::default::Default for SystemType {
     }
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone)]
+#[derive(Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub enum SystemType {
     Container,
     VirtualMachine,
@@ -55,7 +56,7 @@ impl std::default::Default for NotificationType {
     }
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone)]
+#[derive(Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub enum NotificationType {
     None,
     GracefulExit,
@@ -64,7 +65,7 @@ pub enum NotificationType {
     Unknown,
 }
 
-#[derive(Default, Deserialize, Serialize, Debug, Clone)]
+#[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub struct VirtualNodeInfo {
     #[serde(rename = "VirtualNodeIndex")]
     pub virtual_node_index: u8,
@@ -79,7 +80,7 @@ pub struct VirtualNodeInfo {
     pub memory_usage_in_pages: u64,
 }
 
-#[derive(Default, Deserialize, Serialize, Debug, Clone)]
+#[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub struct VmMemory {
     #[serde(rename = "AvailableMemory")]
     pub available_memory: i32,
@@ -103,7 +104,7 @@ pub struct VmMemory {
     pub dm_operation_in_progress: bool,
 }
 
-#[derive(Default, Deserialize, Serialize, Debug, Clone)]
+#[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub struct MemoryInformationForVm {
     #[serde(rename = "VirtualNodeCount")]
     pub virtual_node_count: u8,
@@ -111,25 +112,33 @@ pub struct MemoryInformationForVm {
     #[serde(rename = "VirtualMachineMemory")]
     pub virtual_machine_memory: VmMemory,
 
-    #[serde(default, rename = "VirtualNodes")]
+    #[serde(default, rename = "VirtualNodes", skip_serializing_if = "is_default")]
     pub virtual_nodes: Vec<VirtualNodeInfo>,
 }
 
 /// CPU runtime statistics
-#[derive(Default, Deserialize, Serialize, Debug, Clone)]
+#[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub struct ProcessorStats {
     #[serde(rename = "TotalRuntime100ns")]
     pub total_runtime100ns: u64,
 
-    #[serde(default, rename = "RuntimeUser100ns")]
+    #[serde(
+        default,
+        rename = "RuntimeUser100ns",
+        skip_serializing_if = "is_default"
+    )]
     pub runtime_user100ns: u64,
 
-    #[serde(default, rename = "RuntimeKernel100ns")]
+    #[serde(
+        default,
+        rename = "RuntimeKernel100ns",
+        skip_serializing_if = "is_default"
+    )]
     pub runtime_kernel100ns: u64,
 }
 
 /// Memory runtime statistics
-#[derive(Default, Deserialize, Serialize, Debug, Clone)]
+#[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub struct MemoryStats {
     #[serde(rename = "MemoryUsageCommitBytes")]
     pub memory_usage_commit_bytes: u64,
@@ -142,7 +151,7 @@ pub struct MemoryStats {
 }
 
 /// Storage runtime statistics
-#[derive(Default, Deserialize, Serialize, Debug, Clone)]
+#[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub struct StorageStats {
     #[serde(rename = "ReadCountNormalized")]
     pub read_count_normalized: u64,
@@ -158,7 +167,7 @@ pub struct StorageStats {
 }
 
 /// Runtime statistics for a container
-#[derive(Default, Deserialize, Serialize, Debug, Clone)]
+#[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub struct Statistics {
     #[serde(rename = "Timestamp")]
     pub timestamp: Option<chrono::DateTime<chrono::Utc>>,
@@ -180,7 +189,7 @@ pub struct Statistics {
 }
 
 /// Information about a process running in a container
-#[derive(Default, Deserialize, Serialize, Debug, Clone)]
+#[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub struct ProcessDetails {
     #[serde(rename = "ProcessId")]
     pub process_id: u32,
@@ -207,7 +216,7 @@ pub struct ProcessDetails {
     pub memory_working_set_shared_bytes: u64,
 }
 
-#[derive(Default, Deserialize, Serialize, Debug, Clone)]
+#[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub struct SharedMemoryRegionInfo {
     #[serde(rename = "SectionName")]
     pub section_name: String,
@@ -216,14 +225,22 @@ pub struct SharedMemoryRegionInfo {
     pub guest_physical_address: u64,
 }
 
-#[derive(Default, Deserialize, Serialize, Debug, Clone)]
+#[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub struct GuestConnectionInfo {
     /// Each schema version x.y stands for the range of versions a.b where a==x
     /// and b<=y. This list comes from the SupportedSchemaVersions field in GcsCapabilities.
-    #[serde(default, rename = "SupportedSchemaVersions")]
+    #[serde(
+        default,
+        rename = "SupportedSchemaVersions",
+        skip_serializing_if = "is_default"
+    )]
     pub supported_schema_versions: Vec<schema::Version>,
 
-    #[serde(default, rename = "ProtocolVersion")]
+    #[serde(
+        default,
+        rename = "ProtocolVersion",
+        skip_serializing_if = "is_default"
+    )]
     pub protocol_version: u32,
 
     #[serde(
@@ -234,7 +251,7 @@ pub struct GuestConnectionInfo {
     pub guest_defined_capabilities: serde_json::Value,
 }
 
-#[derive(Default, Deserialize, Serialize, Debug, Clone)]
+#[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub struct CacheQueryStatsResponse {
     #[serde(rename = "L3OccupancyBytes")]
     pub l3_occupancy_bytes: u64,
@@ -246,7 +263,7 @@ pub struct CacheQueryStatsResponse {
     pub l3_local_bw_bytes: u64,
 }
 
-#[derive(Default, Deserialize, Serialize, Debug, Clone)]
+#[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub struct Properties {
     #[serde(rename = "Id")]
     pub id: String,
@@ -254,63 +271,83 @@ pub struct Properties {
     #[serde(rename = "SystemType")]
     pub system_type: SystemType,
 
-    #[serde(default, rename = "RuntimeOsType")]
+    #[serde(default, rename = "RuntimeOsType", skip_serializing_if = "is_default")]
     pub runtime_os_type: OsType,
 
-    #[serde(default, rename = "Name")]
+    #[serde(default, rename = "Name", skip_serializing_if = "is_default")]
     pub name: String,
 
-    #[serde(default, rename = "Owner")]
+    #[serde(default, rename = "Owner", skip_serializing_if = "is_default")]
     pub owner: String,
 
-    #[serde(default, rename = "RuntimeId")]
+    #[serde(default, rename = "RuntimeId", skip_serializing_if = "is_default")]
     pub runtime_id: schema::utils::GuidSerde,
 
-    #[serde(default, rename = "RuntimeTemplateId")]
+    #[serde(
+        default,
+        rename = "RuntimeTemplateId",
+        skip_serializing_if = "is_default"
+    )]
     pub runtime_template_id: String,
 
-    #[serde(default, rename = "State")]
+    #[serde(default, rename = "State", skip_serializing_if = "is_default")]
     pub state: State,
 
-    #[serde(default, rename = "Stopped")]
+    #[serde(default, rename = "Stopped", skip_serializing_if = "is_default")]
     pub stopped: bool,
 
-    #[serde(default, rename = "ExitType")]
+    #[serde(default, rename = "ExitType", skip_serializing_if = "is_default")]
     pub exit_type: NotificationType,
 
-    #[serde(default, rename = "Memory")]
+    #[serde(default, rename = "Memory", skip_serializing_if = "is_default")]
     pub memory: MemoryInformationForVm,
 
-    #[serde(default, rename = "Statistics")]
+    #[serde(default, rename = "Statistics", skip_serializing_if = "is_default")]
     pub statistics: Statistics,
 
-    #[serde(default, rename = "ProcessList")]
+    #[serde(default, rename = "ProcessList", skip_serializing_if = "is_default")]
     pub process_list: Vec<ProcessDetails>,
 
-    #[serde(default, rename = "TerminateOnLastHandleClosed")]
+    #[serde(
+        default,
+        rename = "TerminateOnLastHandleClosed",
+        skip_serializing_if = "is_default"
+    )]
     pub terminate_on_last_handle_closed: bool,
 
-    #[serde(default, rename = "HostingSystemId")]
+    #[serde(
+        default,
+        rename = "HostingSystemId",
+        skip_serializing_if = "is_default"
+    )]
     pub hosting_system_id: String,
 
-    #[serde(default, rename = "SharedMemoryRegionInfo")]
+    #[serde(
+        default,
+        rename = "SharedMemoryRegionInfo",
+        skip_serializing_if = "is_default"
+    )]
     pub shared_memory_region_info: Vec<SharedMemoryRegionInfo>,
 
-    #[serde(default, rename = "GuestConnectionInfo")]
+    #[serde(
+        default,
+        rename = "GuestConnectionInfo",
+        skip_serializing_if = "is_default"
+    )]
     pub guest_connection_info: Option<GuestConnectionInfo>,
 }
 
-#[derive(Default, Deserialize, Serialize, Debug, Clone)]
+#[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub struct SystemExitStatus {
     #[serde(rename = "Status")]
     pub status: i32,
 
     #[cfg(feature = "19h1")]
-    #[serde(default, rename = "ExitType")]
+    #[serde(default, rename = "ExitType", skip_serializing_if = "is_default")]
     pub exit_type: NotificationType,
 }
 
-#[derive(Default, Deserialize, Serialize, Debug, Clone)]
+#[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub struct ProcessStatus {
     #[serde(rename = "ProcessId")]
     pub process_id: u32,
@@ -331,7 +368,7 @@ impl std::default::Default for WindowsCrashPhase {
     }
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone)]
+#[derive(Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub enum WindowsCrashPhase {
     Inactive,
     CrashValues,
@@ -342,54 +379,70 @@ pub enum WindowsCrashPhase {
 }
 
 /// Windows specific crash information
-#[derive(Default, Deserialize, Serialize, Debug, Clone)]
+#[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub struct WindowsCrashReport {
-    #[serde(default, rename = "DumpFile")]
+    #[serde(default, rename = "DumpFile", skip_serializing_if = "is_default")]
     pub dump_file: String,
 
-    #[serde(default, rename = "OsMajorVersion")]
+    #[serde(default, rename = "OsMajorVersion", skip_serializing_if = "is_default")]
     pub os_major_version: u32,
 
-    #[serde(default, rename = "OsMinorVersion")]
+    #[serde(default, rename = "OsMinorVersion", skip_serializing_if = "is_default")]
     pub os_minor_version: u32,
 
-    #[serde(default, rename = "OsBuildNumber")]
+    #[serde(default, rename = "OsBuildNumber", skip_serializing_if = "is_default")]
     pub os_build_number: u32,
 
-    #[serde(default, rename = "OsServicePackMajorVersion")]
+    #[serde(
+        default,
+        rename = "OsServicePackMajorVersion",
+        skip_serializing_if = "is_default"
+    )]
     pub os_service_pack_major_version: u32,
 
-    #[serde(default, rename = "OsServicePackMinorVersion")]
+    #[serde(
+        default,
+        rename = "OsServicePackMinorVersion",
+        skip_serializing_if = "is_default"
+    )]
     pub os_service_pack_minor_version: u32,
 
-    #[serde(default, rename = "OsSuiteMask")]
+    #[serde(default, rename = "OsSuiteMask", skip_serializing_if = "is_default")]
     pub os_suite_mask: u32,
 
-    #[serde(default, rename = "OsProductType")]
+    #[serde(default, rename = "OsProductType", skip_serializing_if = "is_default")]
     pub os_product_type: u32,
 
-    #[serde(default, rename = "Status")]
+    #[serde(default, rename = "Status", skip_serializing_if = "is_default")]
     pub status: i32,
 
-    #[serde(default, rename = "FinalPhase")]
+    #[serde(default, rename = "FinalPhase", skip_serializing_if = "is_default")]
     pub final_phase: WindowsCrashPhase,
 }
 
 /// crash information reported through CrashReport notifications
-#[derive(Default, Deserialize, Serialize, Debug, Clone)]
+#[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub struct CrashReport {
     #[serde(rename = "SystemId")]
     pub system_id: String,
 
-    #[serde(default, rename = "ActivityId")]
+    #[serde(default, rename = "ActivityId", skip_serializing_if = "is_default")]
     pub activity_id: schema::utils::GuidSerde,
 
-    #[serde(default, rename = "WindowsCrashInfo")]
+    #[serde(
+        default,
+        rename = "WindowsCrashInfo",
+        skip_serializing_if = "is_default"
+    )]
     pub windows_crash_info: Option<WindowsCrashReport>,
 
-    #[serde(default, rename = "CrashParameters")]
+    #[serde(
+        default,
+        rename = "CrashParameters",
+        skip_serializing_if = "is_default"
+    )]
     pub crash_parameters: Vec<u64>,
 
-    #[serde(default, rename = "CrashLog")]
+    #[serde(default, rename = "CrashLog", skip_serializing_if = "is_default")]
     pub crash_log: String,
 }

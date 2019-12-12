@@ -14,6 +14,9 @@ pub(crate) mod bindings;
 #[cfg(feature = "bindings")]
 pub mod bindings;
 
+#[cfg(feature = "utilities")]
+pub mod utilities;
+
 pub mod defs;
 
 use crate::compute::defs::*;
@@ -103,28 +106,23 @@ pub fn create_device_instance(
 
 /// Reads guest primary memory (RAM) contents into the supplied buffer.
 ///
-/// Returns an array of bytes with the read memory.
-///
 /// # Arguments
 /// * `requestor` - Handle to the device requesting memory access.
 /// * `guest_physical_address` - Guest physical address at which the read operation starts.
-/// * `byte_count` - Number of bytes to read.
+/// * `byte_array` - Byte array where the memory will be read to.
 pub fn read_guest_memory(
     requestor: HdvDeviceHandle,
     guest_physical_address: u64,
-    byte_count: u32,
-) -> HcsResult<Vec<Byte>> {
-    let mut byte_array: Vec<Byte> = Vec::new();
-    byte_array.resize(byte_count as usize, 0);
-
+    byte_array: &mut [Byte],
+) -> HcsResult<()> {
     unsafe {
         match HdvReadGuestMemory(
             requestor,
             guest_physical_address,
-            byte_count,
+            byte_array.len() as u32,
             byte_array.as_mut_ptr(),
         ) {
-            0 => Ok(byte_array),
+            0 => Ok(()),
             hresult => Err(hresult_to_result_code(&hresult)),
         }
     }
@@ -139,7 +137,7 @@ pub fn read_guest_memory(
 pub fn write_guest_memory(
     requestor: HdvDeviceHandle,
     guest_physical_address: u64,
-    byte_array: &Vec<Byte>,
+    byte_array: &[Byte],
 ) -> HcsResult<()> {
     unsafe {
         match HdvWriteGuestMemory(
@@ -248,8 +246,7 @@ pub fn register_doorbell_page(
 }
 
 #[cfg(any(feature = "19h1"))]
-/// Registers a guest PFN to trigger an event on writes. The value of the write
-/// will be discarded.
+/// Unregisters a guest physical page registered via `register_doorbell_page`.
 ///
 /// # Arguments
 /// * `requestor` - Handle to the device requesting the interrupt.

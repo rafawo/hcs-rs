@@ -6,6 +6,7 @@
 // except according to those terms.
 // THE SOURCE CODE IS AVAILABLE UNDER THE ABOVE CHOSEN LICENSE "AS IS", WITH NO WARRANTIES.
 
+use crate::schema::utils::is_default;
 use crate::schema::utils::*;
 use serde::{Deserialize, Serialize};
 
@@ -15,20 +16,20 @@ impl std::default::Default for FlexibleIoDeviceHostingModel {
     }
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone)]
+#[derive(Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub enum FlexibleIoDeviceHostingModel {
     Internal,
     External,
 }
 
-#[derive(Default, Deserialize, Serialize, Debug, Clone)]
+#[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub struct FlexibleIoDevice {
-    #[serde(default, rename = "EmulatorId")]
+    #[serde(default, rename = "EmulatorId", skip_serializing_if = "is_default")]
     pub emulator_id: GuidSerde,
 
-    #[serde(default, rename = "HostingModel")]
+    #[serde(default, rename = "HostingModel", skip_serializing_if = "is_default")]
     pub hosting_model: FlexibleIoDeviceHostingModel,
 
-    #[serde(default, rename = "Configuration")]
+    #[serde(default, rename = "Configuration", skip_serializing_if = "is_default")]
     pub configuration: Vec<String>,
 }

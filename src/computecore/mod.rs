@@ -14,6 +14,7 @@ pub(crate) mod bindings;
 #[cfg(feature = "bindings")]
 pub mod bindings;
 
+#[cfg(feature = "utilities")]
 pub mod utilities;
 
 use crate::compute::defs::*;
@@ -25,10 +26,20 @@ use winutils_rs::utilities::LocalWString;
 use winutils_rs::windefs::*;
 
 /// Enumerates all compute systems visible to the caller.
-pub fn enumerate_compute_systems(query: &str, operation: HcsOperationHandle) -> HcsResult<()> {
+pub fn enumerate_compute_systems(
+    operation: HcsOperationHandle,
+    query: Option<&str>,
+) -> HcsResult<()> {
+    let query_str = match query {
+        Some(query) => query,
+        None => "{}",
+    };
+
     unsafe {
-        match HcsEnumerateComputeSystems(WideCString::from_str(query).unwrap().as_ptr(), operation)
-        {
+        match HcsEnumerateComputeSystems(
+            WideCString::from_str(query_str).unwrap().as_ptr(),
+            operation,
+        ) {
             0 => Ok(()),
             hresult => Err(hresult_to_result_code(&hresult)),
         }
@@ -106,10 +117,10 @@ pub fn get_operation_id(operation: HcsOperationHandle) -> HcsResult<u64> {
 
 /// Returns the operation result as a JSON document.
 pub fn get_operation_result(operation: HcsOperationHandle) -> (String, HcsResult<()>) {
-    let result_document = LocalWString::new();
+    let mut result_document = LocalWString::new();
 
     unsafe {
-        match HcsGetOperationResult(operation, result_document.ptr) {
+        match HcsGetOperationResult(operation, result_document.ptr_mut()) {
             0 => (result_document.to_string(), Ok(())),
             hresult => (
                 result_document.to_string(),
@@ -124,13 +135,16 @@ pub fn get_operation_result(operation: HcsOperationHandle) -> (String, HcsResult
 pub fn get_operation_result_and_process_info(
     operation: HcsOperationHandle,
 ) -> (String, HcsResult<HcsProcessInformation>) {
-    let result_document = LocalWString::new();
+    let mut result_document = LocalWString::new();
 
     unsafe {
         let mut process_info = std::mem::zeroed::<HcsProcessInformation>();
 
-        match HcsGetOperationResultAndProcessInfo(operation, &mut process_info, result_document.ptr)
-        {
+        match HcsGetOperationResultAndProcessInfo(
+            operation,
+            &mut process_info,
+            result_document.ptr_mut(),
+        ) {
             0 => (result_document.to_string(), Ok(process_info)),
             hresult => (
                 result_document.to_string(),
@@ -145,10 +159,10 @@ pub fn wait_for_operation_result(
     operation: HcsOperationHandle,
     timeout_ms: DWord,
 ) -> (String, HcsResult<()>) {
-    let result_document = LocalWString::new();
+    let mut result_document = LocalWString::new();
 
     unsafe {
-        match HcsWaitForOperationResult(operation, timeout_ms, result_document.ptr) {
+        match HcsWaitForOperationResult(operation, timeout_ms, result_document.ptr_mut()) {
             0 => (result_document.to_string(), Ok(())),
             hresult => (
                 result_document.to_string(),
@@ -164,7 +178,7 @@ pub fn wait_for_operation_result_and_process_info(
     operation: HcsOperationHandle,
     timeout_ms: DWord,
 ) -> (String, HcsResult<HcsProcessInformation>) {
-    let result_document = LocalWString::new();
+    let mut result_document = LocalWString::new();
 
     unsafe {
         let mut process_info = std::mem::zeroed::<HcsProcessInformation>();
@@ -173,7 +187,7 @@ pub fn wait_for_operation_result_and_process_info(
             operation,
             timeout_ms,
             &mut process_info,
-            result_document.ptr,
+            result_document.ptr_mut(),
         ) {
             0 => (result_document.to_string(), Ok(process_info)),
             hresult => (
@@ -279,7 +293,7 @@ pub fn start_compute_system(
 ) -> HcsResult<()> {
     let options_str = match options {
         Some(options) => options,
-        None => "",
+        None => "{}",
     };
 
     unsafe {
@@ -308,7 +322,7 @@ pub fn shutdown_compute_system(
 ) -> HcsResult<()> {
     let options_str = match options {
         Some(options) => options,
-        None => "",
+        None => "{}",
     };
 
     unsafe {
@@ -338,7 +352,7 @@ pub fn terminate_compute_system(
 ) -> HcsResult<()> {
     let options_str = match options {
         Some(options) => options,
-        None => "",
+        None => "{}",
     };
 
     unsafe {
@@ -365,7 +379,7 @@ pub fn pause_compute_system(
 ) -> HcsResult<()> {
     let options_str = match options {
         Some(options) => options,
-        None => "",
+        None => "{}",
     };
 
     unsafe {
@@ -392,7 +406,7 @@ pub fn resume_compute_system(
 ) -> HcsResult<()> {
     let options_str = match options {
         Some(options) => options,
-        None => "",
+        None => "{}",
     };
 
     unsafe {
@@ -419,7 +433,7 @@ pub fn save_compute_system(
 ) -> HcsResult<()> {
     let options_str = match options {
         Some(options) => options,
-        None => "",
+        None => "{}",
     };
 
     unsafe {
@@ -443,7 +457,7 @@ pub fn get_compute_system_properties(
 ) -> HcsResult<()> {
     let property_query_str = match property_query {
         Some(property_query) => property_query,
-        None => "",
+        None => "{}",
     };
 
     unsafe {
@@ -579,7 +593,7 @@ pub fn terminate_process(
 ) -> HcsResult<()> {
     let options_str = match options {
         Some(options) => options,
-        None => "",
+        None => "{}",
     };
 
     unsafe {
@@ -603,7 +617,7 @@ pub fn signal_process(
 ) -> HcsResult<()> {
     let options_str = match options {
         Some(options) => options,
-        None => "",
+        None => "{}",
     };
 
     unsafe {
@@ -637,7 +651,7 @@ pub fn get_process_properties(
 ) -> HcsResult<()> {
     let property_query_str = match property_query {
         Some(property_query) => property_query,
-        None => "",
+        None => "{}",
     };
 
     unsafe {
@@ -661,7 +675,7 @@ pub fn modify_process(
 ) -> HcsResult<()> {
     let settings_str = match settings {
         Some(settings) => settings,
-        None => "",
+        None => "{}",
     };
 
     unsafe {
@@ -697,11 +711,11 @@ pub fn set_process_callback(
 /// Determine what to query through a JSON document.
 pub fn get_service_properties(property_query: &str) -> HcsResult<String> {
     unsafe {
-        let result = LocalWString::new();
+        let mut result = LocalWString::new();
 
         match HcsGetServiceProperties(
             WideCString::from_str(property_query).unwrap().as_ptr(),
-            result.ptr,
+            result.ptr_mut(),
         ) {
             0 => Ok(result.to_string()),
             hresult => Err(hresult_to_result_code(&hresult)),
@@ -712,11 +726,11 @@ pub fn get_service_properties(property_query: &str) -> HcsResult<String> {
 /// Modifies Host Compute Service - wide settings, described by the supplied JSON document.
 pub fn modify_service_settings(settings: &str) -> HcsResult<String> {
     unsafe {
-        let result = LocalWString::new();
+        let mut result = LocalWString::new();
 
         match HcsModifyServiceSettings(
             WideCString::from_str(settings).unwrap().as_ptr(),
-            result.ptr,
+            result.ptr_mut(),
         ) {
             0 => Ok(result.to_string()),
             hresult => Err(hresult_to_result_code(&hresult)),

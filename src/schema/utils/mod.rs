@@ -10,6 +10,13 @@ use hex::{FromHex, ToHex};
 use serde::Deserialize;
 use winutils_rs::windefs::Guid;
 
+pub fn is_default<T>(obj: &T) -> bool
+where
+    T: std::default::Default + std::cmp::PartialEq,
+{
+    *obj == T::default()
+}
+
 /// Serializes `buffer` to a lowercase hex string.
 pub fn buffer_to_hex<T: AsRef<[u8]>, S>(buffer: &T, serializer: S) -> Result<S::Ok, S::Error>
 where

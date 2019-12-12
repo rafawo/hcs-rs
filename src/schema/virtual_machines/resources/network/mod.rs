@@ -7,14 +7,15 @@
 // THE SOURCE CODE IS AVAILABLE UNDER THE ABOVE CHOSEN LICENSE "AS IS", WITH NO WARRANTIES.
 
 use crate::schema;
+use crate::schema::utils::is_default;
 use serde::{Deserialize, Serialize};
 
-#[derive(Default, Deserialize, Serialize, Debug, Clone)]
+#[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub struct NetworkAdapter {
     #[serde(rename = "EndpointId")]
     pub endpoint_id: schema::utils::GuidSerde,
 
-    #[serde(default, rename = "MacAddress")]
+    #[serde(default, rename = "MacAddress", skip_serializing_if = "is_default")]
     pub mac_address: Option<String>,
 
     #[serde(rename = "InstanceId")]

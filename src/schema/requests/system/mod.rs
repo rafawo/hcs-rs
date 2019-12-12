@@ -7,11 +7,12 @@
 // THE SOURCE CODE IS AVAILABLE UNDER THE ABOVE CHOSEN LICENSE "AS IS", WITH NO WARRANTIES.
 
 use crate::schema;
+use crate::schema::utils::is_default;
 use serde::{Deserialize, Serialize};
 
-#[derive(Default, Deserialize, Serialize, Debug, Clone)]
+#[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub struct ModifySettingRequest {
-    #[serde(default, rename = "ResourcePath")]
+    #[serde(default, rename = "ResourcePath", skip_serializing_if = "is_default")]
     pub resource_path: String,
 
     #[serde(rename = "RequestType")]
@@ -38,7 +39,7 @@ impl std::default::Default for PropertyType {
     }
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone)]
+#[derive(Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub enum PropertyType {
     Memory,
     GuestMemory,
@@ -49,7 +50,7 @@ pub enum PropertyType {
     GuestConnection,
 }
 
-#[derive(Default, Deserialize, Serialize, Debug, Clone)]
+#[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub struct PropertyQuery {
     #[serde(
         default,
@@ -59,7 +60,7 @@ pub struct PropertyQuery {
     pub property_types: Vec<PropertyType>,
 }
 
-#[derive(Default, Deserialize, Serialize, Debug, Clone)]
+#[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub struct SystemQuery {
     #[serde(default, rename = "Ids", skip_serializing_if = "Vec::is_empty")]
     pub ids: Vec<String>,

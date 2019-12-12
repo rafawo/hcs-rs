@@ -6,10 +6,11 @@
 // except according to those terms.
 // THE SOURCE CODE IS AVAILABLE UNDER THE ABOVE CHOSEN LICENSE "AS IS", WITH NO WARRANTIES.
 
+use crate::schema::utils::is_default;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
-#[derive(Default, Deserialize, Serialize, Debug, Clone)]
+#[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub struct ProcessParameters {
     #[serde(
         default,
@@ -47,32 +48,56 @@ pub struct ProcessParameters {
     pub environment: HashMap<String, String>,
 
     /// if set, will run as low-privilege process
-    #[serde(default, rename = "RestrictedToken")]
+    #[serde(
+        default,
+        rename = "RestrictedToken",
+        skip_serializing_if = "is_default"
+    )]
     pub restricted_token: bool,
 
     /// if set, ignore StdErrPipe
-    #[serde(default, rename = "EmulateConsole")]
+    #[serde(default, rename = "EmulateConsole", skip_serializing_if = "is_default")]
     pub emulate_console: bool,
 
-    #[serde(default, rename = "CreateStdInPipe")]
+    #[serde(
+        default,
+        rename = "CreateStdInPipe",
+        skip_serializing_if = "is_default"
+    )]
     pub create_std_in_pipe: bool,
 
-    #[serde(default, rename = "CreateStdOutPipe")]
+    #[serde(
+        default,
+        rename = "CreateStdOutPipe",
+        skip_serializing_if = "is_default"
+    )]
     pub create_std_out_pipe: bool,
 
-    #[serde(default, rename = "CreateStdErrPipe")]
+    #[serde(
+        default,
+        rename = "CreateStdErrPipe",
+        skip_serializing_if = "is_default"
+    )]
     pub create_std_err_pipe: bool,
 
     /// height then width
-    #[serde(default, rename = "ConsoleSize")]
+    #[serde(default, rename = "ConsoleSize", skip_serializing_if = "is_default")]
     pub console_size: [u16; 2],
 
     /// if set, find an existing session for the user and create the process in it
-    #[serde(default, rename = "UseExistingLogin")]
+    #[serde(
+        default,
+        rename = "UseExistingLogin",
+        skip_serializing_if = "is_default"
+    )]
     pub use_existing_login: bool,
 
     /// if set, use the legacy console instead of conhost
-    #[serde(default, rename = "UseLegacyConsole")]
+    #[serde(
+        default,
+        rename = "UseLegacyConsole",
+        skip_serializing_if = "is_default"
+    )]
     pub use_legacy_console: bool,
 }
 
@@ -125,17 +150,9 @@ pub struct ProcessModifyRequest {
     #[serde(rename = "Operation")]
     pub operation: ModifyOperation,
 
-    #[serde(
-        default,
-        rename = "ConsoleSize",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(default, rename = "ConsoleSize", skip_serializing_if = "is_default")]
     pub console_size: Option<ConsoleSize>,
 
-    #[serde(
-        default,
-        rename = "CloseHandle",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(default, rename = "CloseHandle", skip_serializing_if = "is_default")]
     pub close_handle: Option<CloseHandle>,
 }
