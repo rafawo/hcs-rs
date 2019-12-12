@@ -20,26 +20,36 @@ use winutils_rs::windefs::*;
 /// and instead return an HRESULT.
 pub trait HdvPciDevice {
     fn assign_base(&mut self, base: Arc<RwLock<HdvPciDeviceBase>>);
-    fn initialize(&mut self) -> HResult;
+
+    fn initialize(&mut self) -> HcsResult<()>;
+
     fn teardown(&mut self);
-    fn set_configuration(&mut self, values: &[PCWStr]) -> HResult;
-    fn get_details(&self, pnp_id: &mut HdvPciPnpId, probed_bars: &mut [u32]) -> HResult;
-    fn start(&mut self) -> HResult;
+
+    fn set_configuration(&mut self, values: &[PCWStr]) -> HcsResult<()>;
+
+    fn get_details(&self, pnp_id: &mut HdvPciPnpId, probed_bars: &mut [u32]) -> HcsResult<()>;
+
+    fn start(&mut self) -> HcsResult<()>;
+
     fn stop(&mut self);
-    fn read_config_space(&self, offset: u32, value: &mut u32) -> HResult;
-    fn write_config_space(&mut self, offset: u32, value: u32) -> HResult;
+
+    fn read_config_space(&self, offset: u32, value: &mut u32) -> HcsResult<()>;
+
+    fn write_config_space(&mut self, offset: u32, value: u32) -> HcsResult<()>;
+
     fn read_intercepted_memory(
         &self,
         bar_index: HdvPciBarSelector,
         offset: u64,
         value: &mut [Byte],
-    ) -> HResult;
+    ) -> HcsResult<()>;
+
     fn write_intercepted_memory(
         &mut self,
         bar_index: HdvPciBarSelector,
         offset: u64,
         value: &[Byte],
-    ) -> HResult;
+    ) -> HcsResult<()>;
 }
 
 /// Wrapper object that abstracts out setting up the C-style callbacks into
@@ -204,7 +214,10 @@ pub(crate) mod device_base_interface {
 
     unsafe extern "system" fn initialize(device_context: *mut Void) -> HResult {
         match (*(device_context as *mut Arc<RwLock<dyn HdvPciDevice>>)).write() {
-            Ok(mut device) => device.initialize(),
+            Ok(mut device) => match device.initialize() {
+                Ok(_) => winapi::shared::winerror::S_OK,
+                Err(err) => crate::compute::errorcodes::result_code_to_hresult(err),
+            },
             Err(_) => winapi::shared::winerror::E_FAIL,
         }
     }
@@ -224,7 +237,10 @@ pub(crate) mod device_base_interface {
         let config_values: &[PCWStr] =
             std::slice::from_raw_parts(configuration_values, configuration_value_count as usize);
         match (*(device_context as *mut Arc<RwLock<dyn HdvPciDevice>>)).write() {
-            Ok(mut device) => device.set_configuration(config_values),
+            Ok(mut device) => match device.set_configuration(config_values) {
+                Ok(_) => winapi::shared::winerror::S_OK,
+                Err(err) => crate::compute::errorcodes::result_code_to_hresult(err),
+            },
             Err(_) => winapi::shared::winerror::E_FAIL,
         }
     }
@@ -238,14 +254,20 @@ pub(crate) mod device_base_interface {
         let probed_bars: &mut [u32] =
             std::slice::from_raw_parts_mut(probed_bars, probed_bars_count as usize);
         match (*(device_context as *mut Arc<RwLock<dyn HdvPciDevice>>)).write() {
-            Ok(device) => device.get_details(&mut *pnp_id, probed_bars),
+            Ok(device) => match device.get_details(&mut *pnp_id, probed_bars) {
+                Ok(_) => winapi::shared::winerror::S_OK,
+                Err(err) => crate::compute::errorcodes::result_code_to_hresult(err),
+            },
             Err(_) => winapi::shared::winerror::E_FAIL,
         }
     }
 
     unsafe extern "system" fn start(device_context: *mut Void) -> HResult {
         match (*(device_context as *mut Arc<RwLock<dyn HdvPciDevice>>)).write() {
-            Ok(mut device) => device.start(),
+            Ok(mut device) => match device.start() {
+                Ok(_) => winapi::shared::winerror::S_OK,
+                Err(err) => crate::compute::errorcodes::result_code_to_hresult(err),
+            },
             Err(_) => winapi::shared::winerror::E_FAIL,
         }
     }
@@ -263,7 +285,10 @@ pub(crate) mod device_base_interface {
         value: *mut u32,
     ) -> HResult {
         match (*(device_context as *mut Arc<RwLock<dyn HdvPciDevice>>)).write() {
-            Ok(device) => device.read_config_space(offset, &mut *value),
+            Ok(device) => match device.read_config_space(offset, &mut *value) {
+                Ok(_) => winapi::shared::winerror::S_OK,
+                Err(err) => crate::compute::errorcodes::result_code_to_hresult(err),
+            },
             Err(_) => winapi::shared::winerror::E_FAIL,
         }
     }
@@ -274,7 +299,10 @@ pub(crate) mod device_base_interface {
         value: u32,
     ) -> HResult {
         match (*(device_context as *mut Arc<RwLock<dyn HdvPciDevice>>)).write() {
-            Ok(mut device) => device.write_config_space(offset, value),
+            Ok(mut device) => match device.write_config_space(offset, value) {
+                Ok(_) => winapi::shared::winerror::S_OK,
+                Err(err) => crate::compute::errorcodes::result_code_to_hresult(err),
+            },
             Err(_) => winapi::shared::winerror::E_FAIL,
         }
     }
@@ -288,7 +316,10 @@ pub(crate) mod device_base_interface {
     ) -> HResult {
         let values: &mut [Byte] = std::slice::from_raw_parts_mut(value, length as usize);
         match (*(device_context as *mut Arc<RwLock<dyn HdvPciDevice>>)).write() {
-            Ok(device) => device.read_intercepted_memory(bar_index, offset, values),
+            Ok(device) => match device.read_intercepted_memory(bar_index, offset, values) {
+                Ok(_) => winapi::shared::winerror::S_OK,
+                Err(err) => crate::compute::errorcodes::result_code_to_hresult(err),
+            },
             Err(_) => winapi::shared::winerror::E_FAIL,
         }
     }
@@ -302,7 +333,10 @@ pub(crate) mod device_base_interface {
     ) -> HResult {
         let values: &[Byte] = std::slice::from_raw_parts(value, length as usize);
         match (*(device_context as *mut Arc<RwLock<dyn HdvPciDevice>>)).write() {
-            Ok(mut device) => device.write_intercepted_memory(bar_index, offset, values),
+            Ok(mut device) => match device.write_intercepted_memory(bar_index, offset, values) {
+                Ok(_) => winapi::shared::winerror::S_OK,
+                Err(err) => crate::compute::errorcodes::result_code_to_hresult(err),
+            },
             Err(_) => winapi::shared::winerror::E_FAIL,
         }
     }
