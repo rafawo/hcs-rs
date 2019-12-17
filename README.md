@@ -66,6 +66,8 @@ The following table describes the relevant Windows 10 SDK files that this projec
 
 This section briefly describes all published crates.io [versions](https://crates.io/crates/hcs-rs/versions) of this project, ordered from latest to oldest.
 
+- [**0.5.1 Dec 12, 2019**](https://crates.io/crates/hcs-rs/0.5.1)
+  - Added `#[derive(Clone)]` to `HdvPciDeviceBase` and `HdvPciDeviceBaseWrapper`.
 - [**0.5.0 Dec 12, 2019**](https://crates.io/crates/hcs-rs/0.5.0)
   - Breaking changes
     - Added `unsafe` to the functions that expect a callback or some kind of assumption that the provided reference outlives the internal details. It used to not be marked as unsafe, but after seeing several bugs due to getting wrong the lifetime (and Rust compiler not being able to understand it correctly)
