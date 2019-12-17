@@ -22,7 +22,7 @@ use winutils_rs::windefs::*;
 /// and instead return an `HcsResult<()>`.
 ///
 /// Here's an example on how to utilize this trait and the rest of the utilities
-/// in this module to create/implement a HDV PCI device:
+/// in this module to create/implement an HDV PCI device:
 /// ```rust,ignore
 /// use std::sync::{Arc, RwLock};
 /// use hcs_rs::hypervdevicevirtualization::utilities::*;
@@ -42,7 +42,7 @@ use winutils_rs::windefs::*;
 ///         self.base_wrapper.assign_base(base);
 ///     }
 ///
-///     fn initialize(&mut self) -> HcsResult<()> {
+///     unsafe fn initialize(&mut self) -> HcsResult<()> {
 ///         let data: u64 = 0;
 ///         self.base_wrapper.device_base_mut()?.write_guest_memory(0, &data)?;
 ///         // Do something
@@ -79,30 +79,34 @@ use winutils_rs::windefs::*;
 pub trait HdvPciDevice {
     fn assign_base(&mut self, base: Arc<RwLock<HdvPciDeviceBase>>);
 
-    fn initialize(&mut self) -> HcsResult<()>;
+    unsafe fn initialize(&mut self) -> HcsResult<()>;
 
-    fn teardown(&mut self);
+    unsafe fn teardown(&mut self);
 
-    fn set_configuration(&mut self, values: &[PCWStr]) -> HcsResult<()>;
+    unsafe fn set_configuration(&mut self, values: &[PCWStr]) -> HcsResult<()>;
 
-    fn get_details(&self, pnp_id: &mut HdvPciPnpId, probed_bars: &mut [u32]) -> HcsResult<()>;
+    unsafe fn get_details(
+        &self,
+        pnp_id: &mut HdvPciPnpId,
+        probed_bars: &mut [u32],
+    ) -> HcsResult<()>;
 
-    fn start(&mut self) -> HcsResult<()>;
+    unsafe fn start(&mut self) -> HcsResult<()>;
 
-    fn stop(&mut self);
+    unsafe fn stop(&mut self);
 
-    fn read_config_space(&self, offset: u32, value: &mut u32) -> HcsResult<()>;
+    unsafe fn read_config_space(&self, offset: u32, value: &mut u32) -> HcsResult<()>;
 
-    fn write_config_space(&mut self, offset: u32, value: u32) -> HcsResult<()>;
+    unsafe fn write_config_space(&mut self, offset: u32, value: u32) -> HcsResult<()>;
 
-    fn read_intercepted_memory(
+    unsafe fn read_intercepted_memory(
         &self,
         bar_index: HdvPciBarSelector,
         offset: u64,
         value: &mut [Byte],
     ) -> HcsResult<()>;
 
-    fn write_intercepted_memory(
+    unsafe fn write_intercepted_memory(
         &mut self,
         bar_index: HdvPciBarSelector,
         offset: u64,
