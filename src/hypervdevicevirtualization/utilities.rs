@@ -151,6 +151,7 @@ impl HdvHost {
 /// supplied through `hook_device_interface_callbacks`.
 /// Stores internally a handle to the initialized device and provides convenient
 /// methods that utilize such handle under the covers.
+#[derive(Clone)]
 pub struct HdvPciDeviceBase {
     device_handle: HdvDeviceHandle,
 }
@@ -306,6 +307,7 @@ impl HdvPciDeviceBase {
 /// Wrapper object on top of an `HdvPciDeviceBase` object.
 /// This struct exists to simplify the implementation of structs that
 /// implement trait `HdvPciDevice`.
+#[derive(Clone)]
 pub struct HdvPciDeviceBaseWrapper {
     base: Option<Arc<RwLock<HdvPciDeviceBase>>>,
 }
