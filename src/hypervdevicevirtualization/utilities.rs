@@ -18,9 +18,12 @@ use winutils_rs::windefs::*;
 
 /// Trait definition that lists the functions required by an HDV PCI device
 /// to implement to properly handle the device interface callbacks.
+///
+/// # Safety
 /// Because these are called from within C-style callbacks, do not make them panic
 /// and instead return an `HcsResult<()>`.
 ///
+/// # Example
 /// Here's an example on how to utilize this trait and the rest of the utilities
 /// in this module to create/implement an HDV PCI device:
 /// ```rust,ignore
