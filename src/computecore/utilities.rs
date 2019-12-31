@@ -26,6 +26,7 @@ pub const GENERIC_ALL: DWord = winapi::um::winnt::GENERIC_ALL;
 pub struct HcsOperation {
     handle: HcsOperationHandle,
     handle_policy: HcsWrappedHandleDropPolicy,
+    callback: Option<Box<dyn FnMut(&HcsOperation)>>,
 }
 
 impl std::ops::Drop for HcsOperation {
@@ -45,6 +46,7 @@ impl HcsSafeHandle for HcsOperation {
         HcsOperation {
             handle,
             handle_policy: HcsWrappedHandleDropPolicy::Close,
+            callback: None,
         }
     }
 
@@ -66,6 +68,7 @@ impl HcsSafeHandle for HcsOperation {
 pub struct HcsSystem {
     handle: HcsSystemHandle,
     handle_policy: HcsWrappedHandleDropPolicy,
+    callback: Option<Box<dyn FnMut(&HcsEvent)>>,
 }
 
 impl std::ops::Drop for HcsSystem {
@@ -86,6 +89,7 @@ impl HcsSafeHandle for HcsSystem {
         HcsSystem {
             handle,
             handle_policy: HcsWrappedHandleDropPolicy::Close,
+            callback: None,
         }
     }
 
@@ -107,6 +111,7 @@ impl HcsSafeHandle for HcsSystem {
 pub struct HcsProcess {
     handle: HcsProcessHandle,
     handle_policy: HcsWrappedHandleDropPolicy,
+    callback: Option<Box<dyn FnMut(&HcsEvent)>>,
 }
 
 impl std::ops::Drop for HcsProcess {
@@ -126,6 +131,7 @@ impl HcsSafeHandle for HcsProcess {
         HcsProcess {
             handle,
             handle_policy: HcsWrappedHandleDropPolicy::Close,
+            callback: None,
         }
     }
 
@@ -145,8 +151,13 @@ impl HcsSafeHandle for HcsProcess {
 unsafe extern "system" fn operation_callback(operation: HcsOperationHandle, context: PVoid) {
     let mut operation = HcsOperation::wrap_handle(operation);
     operation.set_handle_policy(HcsWrappedHandleDropPolicy::Ignore);
-    let context_as_closure: &mut &mut dyn FnMut(&HcsOperation) = &mut *(context as *mut _);
-    context_as_closure(&operation);
+
+    if context != std::ptr::null_mut() {
+        let operation_wrapper = context as *mut HcsOperation;
+        if let Some(callback) = (*operation_wrapper).callback.as_mut() {
+            (callback)(&operation);
+        }
+    }
 }
 
 /// Thin wrapper of an HCS Operation that interfaces to all HCS APIs that inherently
@@ -157,35 +168,7 @@ impl HcsOperation {
         Ok(HcsOperation {
             handle: computecore::create_operation(std::ptr::null_mut(), None)?,
             handle_policy: HcsWrappedHandleDropPolicy::Close,
-        })
-    }
-
-    /// Creates a new HCS Operation with callback, and returns a safe wrapper to the handle.
-    /// Callback is expected to be a reference to the trait object of the closure.
-    ///
-    /// Example:
-    /// ```rust,ignore
-    /// let mut closure = move |operation: &HcsOperation| {};
-    /// let mut trait_obj = &mut dyn FnMut(&HcsOperation) = &mut closure;
-    /// let trait_obj_ref = &mut trait_obj;
-    /// HcsOperation::create(trait_obj_ref);
-    /// ```
-    ///
-    /// # Safety
-    /// Ensure that the supplied callback's closure trait object mutable reference
-    /// doesn't change and outlives the HCS operation's lifetime.
-    pub unsafe fn create<T>(callback: &mut &mut T) -> HcsResult<HcsOperation>
-    where
-        T: 'static,
-        T: ?Sized,
-        T: FnMut(&HcsOperation),
-    {
-        Ok(HcsOperation {
-            handle: computecore::create_operation(
-                callback as *mut _ as PVoid,
-                Some(operation_callback),
-            )?,
-            handle_policy: HcsWrappedHandleDropPolicy::Close,
+            callback: None,
         })
     }
 
@@ -195,6 +178,7 @@ impl HcsOperation {
         Ok(HcsSystem {
             handle: computecore::get_compute_system_from_operation(self.handle)?,
             handle_policy: HcsWrappedHandleDropPolicy::Ignore,
+            callback: None,
         })
     }
 
@@ -204,6 +188,7 @@ impl HcsOperation {
         Ok(HcsProcess {
             handle: computecore::get_process_from_operation(self.handle)?,
             handle_policy: HcsWrappedHandleDropPolicy::Ignore,
+            callback: None,
         })
     }
 
@@ -247,28 +232,20 @@ impl HcsOperation {
     }
 
     /// Sets the operation completion callback.
-    /// Callback is expected to be a reference to the trait object of the closure.
-    ///
-    /// Example:
-    /// ```rust,ignore
-    /// let mut closure = move |operation: &HcsOperation| {};
-    /// let mut trait_obj = &mut dyn FnMut(&HcsOperation) = &mut closure;
-    /// let trait_obj_ref = &mut trait_obj;
-    /// operation.set_callback(trait_obj_ref);
-    /// ```
     ///
     /// # Safety
-    /// Ensure that the supplied callback's closure trait object mutable reference
-    /// doesn't change and outlives the HCS operation's lifetime.
-    pub unsafe fn set_callback<T>(&self, callback: &mut &mut T) -> HcsResult<()>
+    /// Once the callback is set, do not move the object because its
+    /// memory address is used as the C-style callback context to trigger the
+    /// function call.
+    pub unsafe fn set_callback<F>(&mut self, callback: F) -> HcsResult<()>
     where
-        T: 'static,
-        T: ?Sized,
-        T: FnMut(&HcsOperation),
+        F: 'static,
+        F: FnMut(&HcsOperation),
     {
+        self.callback = Some(Box::new(callback));
         computecore::set_operation_callback(
             self.handle,
-            callback as *mut _ as PVoid,
+            self as *mut _ as PVoid,
             Some(operation_callback),
         )
     }
@@ -279,9 +256,22 @@ impl HcsOperation {
     }
 }
 
-unsafe extern "system" fn hcs_system_and_proces_callback(event: *const HcsEvent, context: PVoid) {
-    let context_as_closure: &mut &mut dyn FnMut(&HcsEvent) = &mut *(context as *mut _);
-    context_as_closure(&*event);
+unsafe extern "system" fn hcs_system_callback(event: *const HcsEvent, context: PVoid) {
+    if context != std::ptr::null_mut() {
+        let system_wrapper = context as *mut HcsSystem;
+        if let Some(callback) = (*system_wrapper).callback.as_mut() {
+            (callback)(&*event);
+        }
+    }
+}
+
+unsafe extern "system" fn hcs_process_callback(event: *const HcsEvent, context: PVoid) {
+    if context != std::ptr::null_mut() {
+        let process_wrapper = context as *mut HcsProcess;
+        if let Some(callback) = (*process_wrapper).callback.as_mut() {
+            (callback)(&*event);
+        }
+    }
 }
 
 /// Thin wrapper of an HCS Compute System that interfaces to all HCS APIs that inherently
@@ -302,6 +292,7 @@ impl HcsSystem {
                 security_descriptor,
             )?,
             handle_policy: HcsWrappedHandleDropPolicy::Close,
+            callback: None,
         })
     }
 
@@ -310,6 +301,7 @@ impl HcsSystem {
         Ok(HcsSystem {
             handle: computecore::open_compute_system(id, requested_access)?,
             handle_policy: HcsWrappedHandleDropPolicy::Close,
+            callback: None,
         })
     }
 
@@ -363,34 +355,26 @@ impl HcsSystem {
     }
 
     /// Sets a callback for this specific compute system, called on key events.
-    /// Callback is expected to be a reference to the trait object of the closure.
-    ///
-    /// Example:
-    /// ```rust,ignore
-    /// let mut closure = move |operation: &HcsEvent| {};
-    /// let mut trait_obj = &mut dyn FnMut(&HcsEvent) = &mut closure;
-    /// let trait_obj_ref = &mut trait_obj;
-    /// system.set_callback(trait_obj_ref);
-    /// ```
     ///
     /// # Safety
-    /// Ensure that the supplied callback's closure trait object mutable reference
-    /// doesn't change and outlives the HCS system's lifetime.
-    pub unsafe fn set_callback<T>(
-        &self,
+    /// Once the callback is set, do not move the object because its
+    /// memory address is used as the C-style callback context to trigger the
+    /// function call.
+    pub unsafe fn set_callback<F>(
+        &mut self,
         callback_options: HcsEventOptions,
-        callback: &mut &mut T,
+        callback: F,
     ) -> HcsResult<()>
     where
-        T: 'static,
-        T: ?Sized,
-        T: FnMut(&HcsEvent),
+        F: 'static,
+        F: FnMut(&HcsEvent),
     {
+        self.callback = Some(Box::new(callback));
         computecore::set_compute_system_callback(
             self.handle,
             callback_options,
-            callback as *mut _ as PVoid,
-            Some(hcs_system_and_proces_callback),
+            self as *mut _ as PVoid,
+            Some(hcs_system_callback),
         )
     }
 
@@ -409,6 +393,7 @@ impl HcsSystem {
                 security_descriptor,
             )?,
             handle_policy: HcsWrappedHandleDropPolicy::Close,
+            callback: None,
         })
     }
 
@@ -421,6 +406,7 @@ impl HcsSystem {
         Ok(HcsProcess {
             handle: computecore::open_process(self.handle, process_id, requested_access)?,
             handle_policy: HcsWrappedHandleDropPolicy::Close,
+            callback: None,
         })
     }
 
@@ -471,32 +457,25 @@ impl HcsProcess {
     /// Sets a callback to the compute system process, called on key events.
     /// Callback is expected to be a reference to the trait object of the closure.
     ///
-    /// Example:
-    /// ```rust,ignore
-    /// let mut closure = move |operation: &HcsEvent| {};
-    /// let mut trait_obj = &mut dyn FnMut(&HcsEvent) = &mut closure;
-    /// let trait_obj_ref = &mut trait_obj;
-    /// system_process.set_callback(trait_obj_ref);
-    /// ```
-    ///
     /// # Safety
-    /// Ensure that the supplied callback's closure trait object mutable reference
-    /// doesn't change and outlives the HCS process's lifetime.
-    pub unsafe fn set_callback<T>(
-        &self,
+    /// Once the callback is set, do not move the object because its
+    /// memory address is used as the C-style callback context to trigger the
+    /// function call.
+    pub unsafe fn set_callback<F>(
+        &mut self,
         callback_options: HcsEventOptions,
-        callback: &mut &mut T,
+        callback: F,
     ) -> HcsResult<()>
     where
-        T: 'static,
-        T: ?Sized,
-        T: FnMut(&HcsEvent),
+        F: 'static,
+        F: FnMut(&HcsEvent),
     {
+        self.callback = Some(Box::new(callback));
         computecore::set_process_callback(
             self.handle,
             callback_options,
-            callback as *mut _ as PVoid,
-            Some(hcs_system_and_proces_callback),
+            self as *mut _ as PVoid,
+            Some(hcs_process_callback),
         )
     }
 }

@@ -68,7 +68,8 @@ This section briefly describes all published crates.io [versions](https://crates
 
 - [**0.7.0 Dec 17, 2019**](https://crates.io/crates/hcs-rs/0.7.0)
   - Breaking changes
-    - Removed `HdvPciDevice` callback trait functions `unsafe` attribute. Even though it assumes it should not panic, it lead to confusion when the whole function was marked as `unsafe`.
+    - Removed `HdvPciDevice` callback trait functions `unsafe` attribute. Even though it assumes it should not panic, it lead to confusion when the whole function was marked as `unsafe`
+    - Reworked the way callbacks are done in the computecore utilities to make it simpler, and do not require a trait object of the closure
 - [**0.6.0 Dec 17, 2019**](https://crates.io/crates/hcs-rs/0.6.0)
   - Breaking changes
     - Mark `HdvPciDevice` callback trait functions as `unsafe`, due to its assumption that they should not panic
