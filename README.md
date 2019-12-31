@@ -66,6 +66,9 @@ The following table describes the relevant Windows 10 SDK files that this projec
 
 This section briefly describes all published crates.io [versions](https://crates.io/crates/hcs-rs/versions) of this project, ordered from latest to oldest.
 
+- [**0.7.0 Dec 17, 2019**](https://crates.io/crates/hcs-rs/0.7.0)
+  - Breaking changes
+    - Removed `HdvPciDevice` callback trait functions `unsafe` attribute. Even though it assumes it should not panic, it lead to confusion when the whole function was marked as `unsafe`.
 - [**0.6.0 Dec 17, 2019**](https://crates.io/crates/hcs-rs/0.6.0)
   - Breaking changes
     - Mark `HdvPciDevice` callback trait functions as `unsafe`, due to its assumption that they should not panic

@@ -45,7 +45,7 @@ use winutils_rs::windefs::*;
 ///         self.base_wrapper.assign_base(base);
 ///     }
 ///
-///     unsafe fn initialize(&mut self) -> HcsResult<()> {
+///     fn initialize(&mut self) -> HcsResult<()> {
 ///         let data: u64 = 0;
 ///         self.base_wrapper.device_base_mut()?.write_guest_memory(0, &data)?;
 ///         // Do something
@@ -82,34 +82,30 @@ use winutils_rs::windefs::*;
 pub trait HdvPciDevice {
     fn assign_base(&mut self, base: Arc<RwLock<HdvPciDeviceBase>>);
 
-    unsafe fn initialize(&mut self) -> HcsResult<()>;
+    fn initialize(&mut self) -> HcsResult<()>;
 
-    unsafe fn teardown(&mut self);
+    fn teardown(&mut self);
 
-    unsafe fn set_configuration(&mut self, values: &[PCWStr]) -> HcsResult<()>;
+    fn set_configuration(&mut self, values: &[PCWStr]) -> HcsResult<()>;
 
-    unsafe fn get_details(
-        &self,
-        pnp_id: &mut HdvPciPnpId,
-        probed_bars: &mut [u32],
-    ) -> HcsResult<()>;
+    fn get_details(&self, pnp_id: &mut HdvPciPnpId, probed_bars: &mut [u32]) -> HcsResult<()>;
 
-    unsafe fn start(&mut self) -> HcsResult<()>;
+    fn start(&mut self) -> HcsResult<()>;
 
-    unsafe fn stop(&mut self);
+    fn stop(&mut self);
 
-    unsafe fn read_config_space(&self, offset: u32, value: &mut u32) -> HcsResult<()>;
+    fn read_config_space(&self, offset: u32, value: &mut u32) -> HcsResult<()>;
 
-    unsafe fn write_config_space(&mut self, offset: u32, value: u32) -> HcsResult<()>;
+    fn write_config_space(&mut self, offset: u32, value: u32) -> HcsResult<()>;
 
-    unsafe fn read_intercepted_memory(
+    fn read_intercepted_memory(
         &self,
         bar_index: HdvPciBarSelector,
         offset: u64,
         value: &mut [Byte],
     ) -> HcsResult<()>;
 
-    unsafe fn write_intercepted_memory(
+    fn write_intercepted_memory(
         &mut self,
         bar_index: HdvPciBarSelector,
         offset: u64,
@@ -181,7 +177,7 @@ impl HdvPciDeviceBase {
     /// # Safety
     /// Callers must guarantee the supplied `device` mutable reference outlives
     /// the device base until it's tore down through the device host handle closing.
-    pub unsafe fn hook_device_interface_callbacks(
+    pub fn hook_device_interface_callbacks(
         device_host_handle: HdvHostHandle,
         device_class_id: &Guid,
         device_instance_id: &Guid,
