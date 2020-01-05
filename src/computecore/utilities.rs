@@ -30,7 +30,7 @@ struct HcsEventCallback {
 }
 
 unsafe extern "system" fn hcs_operation_callback(operation: HcsOperationHandle, context: PVoid) {
-    let _ = std::panic::catch_unwind(||{
+    let _ = std::panic::catch_unwind(|| {
         let mut operation = HcsOperation::wrap_handle(operation);
         operation.set_handle_policy(HcsWrappedHandleDropPolicy::Ignore);
 
@@ -43,7 +43,7 @@ unsafe extern "system" fn hcs_operation_callback(operation: HcsOperationHandle, 
 }
 
 unsafe extern "system" fn hcs_event_callback(event: *const HcsEvent, context: PVoid) {
-    let _ = std::panic::catch_unwind(||{
+    let _ = std::panic::catch_unwind(|| {
         if context != std::ptr::null_mut() {
             if let Some(callback) = (*(context as *mut HcsEventCallback)).callback.as_mut() {
                 (callback)(&*event);
@@ -197,7 +197,9 @@ impl HcsOperation {
         F: 'static,
         F: FnMut(&HcsOperation),
     {
-        let mut callback = Box::new(HcsOperationCallback { callback: Some(Box::new(callback)) });
+        let mut callback = Box::new(HcsOperationCallback {
+            callback: Some(Box::new(callback)),
+        });
         Ok(HcsOperation {
             handle: computecore::create_operation(
                 &mut *callback as *mut _ as PVoid,
@@ -278,7 +280,9 @@ impl HcsOperation {
         F: 'static,
         F: FnMut(&HcsOperation),
     {
-        self.callback = Box::new(HcsOperationCallback{ callback: Some(Box::new(callback)) });
+        self.callback = Box::new(HcsOperationCallback {
+            callback: Some(Box::new(callback)),
+        });
         computecore::set_operation_callback(
             self.handle,
             &mut *self.callback as *mut _ as PVoid,
@@ -378,7 +382,7 @@ impl HcsSystem {
     /// Once the callback is set, do not move the object because its
     /// memory address is used as the C-style callback context to trigger the
     /// function call.
-    pub unsafe fn set_callback<F>(
+    pub fn set_callback<F>(
         &mut self,
         callback_options: HcsEventOptions,
         callback: F,
@@ -387,7 +391,9 @@ impl HcsSystem {
         F: 'static,
         F: FnMut(&HcsEvent),
     {
-        self.callback = Box::new(HcsEventCallback{ callback: Some(Box::new(callback)) });
+        self.callback = Box::new(HcsEventCallback {
+            callback: Some(Box::new(callback)),
+        });
         computecore::set_compute_system_callback(
             self.handle,
             callback_options,
@@ -479,7 +485,7 @@ impl HcsProcess {
     /// Once the callback is set, do not move the object because its
     /// memory address is used as the C-style callback context to trigger the
     /// function call.
-    pub unsafe fn set_callback<F>(
+    pub fn set_callback<F>(
         &mut self,
         callback_options: HcsEventOptions,
         callback: F,
@@ -488,7 +494,9 @@ impl HcsProcess {
         F: 'static,
         F: FnMut(&HcsEvent),
     {
-        self.callback = Box::new(HcsEventCallback{callback: Some(Box::new(callback))});
+        self.callback = Box::new(HcsEventCallback {
+            callback: Some(Box::new(callback)),
+        });
         computecore::set_process_callback(
             self.handle,
             callback_options,
