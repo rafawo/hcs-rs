@@ -166,10 +166,9 @@ impl HdvPciDeviceBase {
         device_host_handle: HdvHostHandle,
         device_class_id: &Guid,
         device_instance_id: &Guid,
-        device: Arc<RwLock<dyn HdvPciDevice>>,
+        device: &Arc<RwLock<dyn HdvPciDevice>>,
     ) -> HcsResult<()> {
-        let device_clone = device.clone();
-        let mut device = Box::new(device);
+        let mut device_clone = Box::new(device.clone());
         let device_base = Arc::new(RwLock::new(HdvPciDeviceBase {
             device_handle: hypervdevicevirtualization::create_device_instance(
                 device_host_handle,
@@ -177,11 +176,11 @@ impl HdvPciDeviceBase {
                 device_class_id,
                 device_instance_id,
                 &device_base_interface::DEVICE_INTERFACE as *const _ as *const Void,
-                &mut *device as *mut _ as PVoid,
+                &mut *device_clone as *mut _ as PVoid,
             )?,
-            device,
+            device: device_clone,
         }));
-        device_clone.write().unwrap().assign_base(device_base);
+        device.write().unwrap().assign_base(device_base);
         Ok(())
     }
 
