@@ -128,7 +128,7 @@ mod tests {
                 custom_type: None,
             })
             .unwrap(),
-            r#"{"Key":{"Hive":"Software","Name":"RegistryName","Volatile":false},"Name":"OtherRegistryName","Type":"None"}"#
+            r#"{"Key":{"Hive":"Software","Name":"RegistryName"},"Name":"OtherRegistryName","Type":"None"}"#
         )
     }
 
@@ -143,7 +143,7 @@ mod tests {
                 custom_type: None,
             })
             .unwrap(),
-            r#"{"Key":{"Hive":"Software","Name":"RegistryName","Volatile":false},"Name":"OtherRegistryName","Type":"String","StringValue":"string_val"}"#
+            r#"{"Key":{"Hive":"Software","Name":"RegistryName"},"Name":"OtherRegistryName","Type":"String","StringValue":"string_val"}"#
         )
     }
 
@@ -158,7 +158,7 @@ mod tests {
                 custom_type: None,
             })
             .unwrap(),
-            r#"{"Key":{"Hive":"Software","Name":"RegistryName","Volatile":false},"Name":"OtherRegistryName","Type":"ExpandedString","StringValue":"string_val"}"#
+            r#"{"Key":{"Hive":"Software","Name":"RegistryName"},"Name":"OtherRegistryName","Type":"ExpandedString","StringValue":"string_val"}"#
         )
     }
 
@@ -173,7 +173,7 @@ mod tests {
                 custom_type: None,
             })
             .unwrap(),
-            r#"{"Key":{"Hive":"Software","Name":"RegistryName","Volatile":false},"Name":"OtherRegistryName","Type":"ExpandedString","StringValue":"string_val1\u0000string_val2"}"#
+            r#"{"Key":{"Hive":"Software","Name":"RegistryName"},"Name":"OtherRegistryName","Type":"ExpandedString","StringValue":"string_val1\u0000string_val2"}"#
         )
     }
 
@@ -188,7 +188,7 @@ mod tests {
                 custom_type: None,
             })
             .unwrap(),
-            r#"{"Key":{"Hive":"Software","Name":"RegistryName","Volatile":false},"Name":"OtherRegistryName","Type":"Binary","BinaryValue":"AQIDBA=="}"#
+            r#"{"Key":{"Hive":"Software","Name":"RegistryName"},"Name":"OtherRegistryName","Type":"Binary","BinaryValue":"AQIDBA=="}"#
         )
     }
 
@@ -203,7 +203,7 @@ mod tests {
                 custom_type: None,
             })
             .unwrap(),
-            r#"{"Key":{"Hive":"Software","Name":"RegistryName","Volatile":false},"Name":"OtherRegistryName","Type":"DWord","DWordValue":56}"#
+            r#"{"Key":{"Hive":"Software","Name":"RegistryName"},"Name":"OtherRegistryName","Type":"DWord","DWordValue":56}"#
         )
     }
 
@@ -218,7 +218,7 @@ mod tests {
                 custom_type: None,
             })
             .unwrap(),
-            r#"{"Key":{"Hive":"Software","Name":"RegistryName","Volatile":false},"Name":"OtherRegistryName","Type":"QWord","QWordValue":5665}"#
+            r#"{"Key":{"Hive":"Software","Name":"RegistryName"},"Name":"OtherRegistryName","Type":"QWord","QWordValue":5665}"#
         )
     }
 
@@ -233,7 +233,7 @@ mod tests {
                 custom_type: Some(5),
             })
             .unwrap(),
-            r#"{"Key":{"Hive":"Software","Name":"RegistryName","Volatile":false},"Name":"OtherRegistryName","Type":"CustomType","BinaryValue":"AQIDBAU=","CustomType":5}"#
+            r#"{"Key":{"Hive":"Software","Name":"RegistryName"},"Name":"OtherRegistryName","Type":"CustomType","BinaryValue":"AQIDBAU=","CustomType":5}"#
         )
     }
 }
