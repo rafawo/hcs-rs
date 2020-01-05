@@ -66,11 +66,11 @@ The following table describes the relevant Windows 10 SDK files that this projec
 
 This section briefly describes all published crates.io [versions](https://crates.io/crates/hcs-rs/versions) of this project, ordered from latest to oldest.
 
-- [**0.9.0 Jan 5, 2019**](https://crates.io/crates/hcs-rs/0.9.0)
+- [**0.9.0 Jan 5, 2020**](https://crates.io/crates/hcs-rs/0.9.0)
   - Breaking changes
     - `HdvPciDeviceBase::hook_device_interface_callbacks` now expects parameter `device` to be a immutable reference instead of it being moved. This to ensure callers do not mistakenly drop the only reference to the `device` instance they might have
   - Added convenient `HdvHost::hook_device_interface_callbacks`
-- [**0.8.0 Jan 4, 2019**](https://crates.io/crates/hcs-rs/0.8.0)
+- [**0.8.0 Jan 4, 2020**](https://crates.io/crates/hcs-rs/0.8.0)
   - Breaking changes
     - `set_callback` functions are no longer `unsafe`
     - `HdvPciDeviceBase::hook_device_interface_callbacks` now expects parameter `device` to be moved instead of a mutable reference
