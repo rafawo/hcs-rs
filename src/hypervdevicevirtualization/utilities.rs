@@ -55,13 +55,12 @@ use winutils_rs::windefs::*;
 ///
 /// fn main() {
 ///     let system = create_new_system().unwrap(); // Assume code that creates an HcsSystem
-///     let hdv = system.initialize_device_host().unwrap();
 ///     let device = Arc::new(RwLock::new(ExampleDevice::new()));
-///     HdvPciDeviceBase::hook_device_interface_callbacks(
-///         hdv.handle(),
+///     let hdv = system.initialize_device_host().unwrap();
+///     hdv.hook_device_interface_callbacks(
 ///         &some_guid, // Assume GUID object exists
 ///         &some_guid, // Assume GUID object exists
-///         device.clone() as Arc<RwLock<dyn HdvPciDevice>>,
+///         &device as &Arc<RwLock<dyn HdvPciDevice>>,
 ///     )
 ///     .unwrap();
 ///
@@ -138,6 +137,22 @@ impl HdvHost {
     /// Returns the wrapped `HdvHostHandle`.
     pub fn handle(&self) -> HdvHostHandle {
         self.handle
+    }
+
+    /// Calls the `HdvPciDeviceBase` under the covers with the handle of this `HdvHost`
+    /// to setup a device's interface callbacks.
+    pub fn hook_device_interface(
+        &self,
+        device_class_id: &Guid,
+        device_instance_id: &Guid,
+        device: &Arc<RwLock<dyn HdvPciDevice>>,
+    ) -> HcsResult<()> {
+        HdvPciDeviceBase::hook_device_interface_callbacks(
+            self.handle,
+            device_class_id,
+            device_instance_id,
+            device,
+        )
     }
 }
 
