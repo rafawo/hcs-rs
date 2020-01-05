@@ -66,6 +66,12 @@ The following table describes the relevant Windows 10 SDK files that this projec
 
 This section briefly describes all published crates.io [versions](https://crates.io/crates/hcs-rs/versions) of this project, ordered from latest to oldest.
 
+- [**0.8.0 Jan 4, 2019**](https://crates.io/crates/hcs-rs/0.8.0)
+  - Breaking changes
+    - `set_callback` functions are no longer `unsafe`
+    - `HdvPciDeviceBase::hook_device_interface_callbacks` now expects parameter `device` to be moved instead of a mutable reference
+  - Refactored callbacks to make them safe to use even if the object is moved (by using a `Box` member)
+  - Updated code to catch panic stack unwind on C-style callbacks on an attempt to make them safer
 - [**0.7.0 Dec 31, 2019**](https://crates.io/crates/hcs-rs/0.7.0)
   - Breaking changes
     - Removed `HdvPciDevice` callback trait functions `unsafe` attribute. Even though it assumes it should not panic, it lead to confusion when the whole function was marked as `unsafe`
