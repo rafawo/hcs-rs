@@ -21,12 +21,43 @@ use winutils_rs::windefs::*;
 pub const INFINITE: DWord = winapi::um::winbase::INFINITE;
 pub const GENERIC_ALL: DWord = winapi::um::winnt::GENERIC_ALL;
 
+struct HcsOperationCallback {
+    callback: Option<Box<dyn FnMut(&HcsOperation)>>,
+}
+
+struct HcsEventCallback {
+    callback: Option<Box<dyn FnMut(&HcsEvent)>>,
+}
+
+unsafe extern "system" fn hcs_operation_callback(operation: HcsOperationHandle, context: PVoid) {
+    let _ = std::panic::catch_unwind(||{
+        let mut operation = HcsOperation::wrap_handle(operation);
+        operation.set_handle_policy(HcsWrappedHandleDropPolicy::Ignore);
+
+        if context != std::ptr::null_mut() {
+            if let Some(callback) = (*(context as *mut HcsOperationCallback)).callback.as_mut() {
+                (callback)(&operation);
+            }
+        }
+    });
+}
+
+unsafe extern "system" fn hcs_event_callback(event: *const HcsEvent, context: PVoid) {
+    let _ = std::panic::catch_unwind(||{
+        if context != std::ptr::null_mut() {
+            if let Some(callback) = (*(context as *mut HcsEventCallback)).callback.as_mut() {
+                (callback)(&*event);
+            }
+        }
+    });
+}
+
 /// Safe wrapper of an HCS Operation handle.
 /// When dropped, the underlying handle is closed from the HCS API.
 pub struct HcsOperation {
     handle: HcsOperationHandle,
     handle_policy: HcsWrappedHandleDropPolicy,
-    callback: Option<Box<dyn FnMut(&HcsOperation)>>,
+    callback: Box<HcsOperationCallback>,
 }
 
 impl std::ops::Drop for HcsOperation {
@@ -46,7 +77,7 @@ impl HcsSafeHandle for HcsOperation {
         HcsOperation {
             handle,
             handle_policy: HcsWrappedHandleDropPolicy::Close,
-            callback: None,
+            callback: Box::new(HcsOperationCallback { callback: None }),
         }
     }
 
@@ -68,7 +99,7 @@ impl HcsSafeHandle for HcsOperation {
 pub struct HcsSystem {
     handle: HcsSystemHandle,
     handle_policy: HcsWrappedHandleDropPolicy,
-    callback: Option<Box<dyn FnMut(&HcsEvent)>>,
+    callback: Box<HcsEventCallback>,
 }
 
 impl std::ops::Drop for HcsSystem {
@@ -89,7 +120,7 @@ impl HcsSafeHandle for HcsSystem {
         HcsSystem {
             handle,
             handle_policy: HcsWrappedHandleDropPolicy::Close,
-            callback: None,
+            callback: Box::new(HcsEventCallback { callback: None }),
         }
     }
 
@@ -111,7 +142,7 @@ impl HcsSafeHandle for HcsSystem {
 pub struct HcsProcess {
     handle: HcsProcessHandle,
     handle_policy: HcsWrappedHandleDropPolicy,
-    callback: Option<Box<dyn FnMut(&HcsEvent)>>,
+    callback: Box<HcsEventCallback>,
 }
 
 impl std::ops::Drop for HcsProcess {
@@ -131,7 +162,7 @@ impl HcsSafeHandle for HcsProcess {
         HcsProcess {
             handle,
             handle_policy: HcsWrappedHandleDropPolicy::Close,
-            callback: None,
+            callback: Box::new(HcsEventCallback { callback: None }),
         }
     }
 
@@ -148,18 +179,6 @@ impl HcsSafeHandle for HcsProcess {
     }
 }
 
-unsafe extern "system" fn operation_callback(operation: HcsOperationHandle, context: PVoid) {
-    let mut operation = HcsOperation::wrap_handle(operation);
-    operation.set_handle_policy(HcsWrappedHandleDropPolicy::Ignore);
-
-    if context != std::ptr::null_mut() {
-        let operation_wrapper = context as *mut HcsOperation;
-        if let Some(callback) = (*operation_wrapper).callback.as_mut() {
-            (callback)(&operation);
-        }
-    }
-}
-
 /// Thin wrapper of an HCS Operation that interfaces to all HCS APIs that inherently
 /// depend on an HCS Operation handle as input and/or output.
 impl HcsOperation {
@@ -168,7 +187,24 @@ impl HcsOperation {
         Ok(HcsOperation {
             handle: computecore::create_operation(std::ptr::null_mut(), None)?,
             handle_policy: HcsWrappedHandleDropPolicy::Close,
-            callback: None,
+            callback: Box::new(HcsOperationCallback { callback: None }),
+        })
+    }
+
+    /// Creates a new HCS Operation with callback, and returns a safe wrapper to the handle.
+    pub fn create<F>(callback: F) -> HcsResult<HcsOperation>
+    where
+        F: 'static,
+        F: FnMut(&HcsOperation),
+    {
+        let mut callback = Box::new(HcsOperationCallback { callback: Some(Box::new(callback)) });
+        Ok(HcsOperation {
+            handle: computecore::create_operation(
+                &mut *callback as *mut _ as PVoid,
+                Some(hcs_operation_callback),
+            )?,
+            handle_policy: HcsWrappedHandleDropPolicy::Close,
+            callback,
         })
     }
 
@@ -178,7 +214,7 @@ impl HcsOperation {
         Ok(HcsSystem {
             handle: computecore::get_compute_system_from_operation(self.handle)?,
             handle_policy: HcsWrappedHandleDropPolicy::Ignore,
-            callback: None,
+            callback: Box::new(HcsEventCallback { callback: None }),
         })
     }
 
@@ -188,7 +224,7 @@ impl HcsOperation {
         Ok(HcsProcess {
             handle: computecore::get_process_from_operation(self.handle)?,
             handle_policy: HcsWrappedHandleDropPolicy::Ignore,
-            callback: None,
+            callback: Box::new(HcsEventCallback { callback: None }),
         })
     }
 
@@ -237,40 +273,22 @@ impl HcsOperation {
     /// Once the callback is set, do not move the object because its
     /// memory address is used as the C-style callback context to trigger the
     /// function call.
-    pub unsafe fn set_callback<F>(&mut self, callback: F) -> HcsResult<()>
+    pub fn set_callback<F>(&mut self, callback: F) -> HcsResult<()>
     where
         F: 'static,
         F: FnMut(&HcsOperation),
     {
-        self.callback = Some(Box::new(callback));
+        self.callback = Box::new(HcsOperationCallback{ callback: Some(Box::new(callback)) });
         computecore::set_operation_callback(
             self.handle,
-            self as *mut _ as PVoid,
-            Some(operation_callback),
+            &mut *self.callback as *mut _ as PVoid,
+            Some(hcs_operation_callback),
         )
     }
 
     /// Cancels an operation.
     pub fn cancel(&self) -> HcsResult<()> {
         computecore::cancel_operation(self.handle)
-    }
-}
-
-unsafe extern "system" fn hcs_system_callback(event: *const HcsEvent, context: PVoid) {
-    if context != std::ptr::null_mut() {
-        let system_wrapper = context as *mut HcsSystem;
-        if let Some(callback) = (*system_wrapper).callback.as_mut() {
-            (callback)(&*event);
-        }
-    }
-}
-
-unsafe extern "system" fn hcs_process_callback(event: *const HcsEvent, context: PVoid) {
-    if context != std::ptr::null_mut() {
-        let process_wrapper = context as *mut HcsProcess;
-        if let Some(callback) = (*process_wrapper).callback.as_mut() {
-            (callback)(&*event);
-        }
     }
 }
 
@@ -292,7 +310,7 @@ impl HcsSystem {
                 security_descriptor,
             )?,
             handle_policy: HcsWrappedHandleDropPolicy::Close,
-            callback: None,
+            callback: Box::new(HcsEventCallback { callback: None }),
         })
     }
 
@@ -301,7 +319,7 @@ impl HcsSystem {
         Ok(HcsSystem {
             handle: computecore::open_compute_system(id, requested_access)?,
             handle_policy: HcsWrappedHandleDropPolicy::Close,
-            callback: None,
+            callback: Box::new(HcsEventCallback { callback: None }),
         })
     }
 
@@ -369,12 +387,12 @@ impl HcsSystem {
         F: 'static,
         F: FnMut(&HcsEvent),
     {
-        self.callback = Some(Box::new(callback));
+        self.callback = Box::new(HcsEventCallback{ callback: Some(Box::new(callback)) });
         computecore::set_compute_system_callback(
             self.handle,
             callback_options,
-            self as *mut _ as PVoid,
-            Some(hcs_system_callback),
+            &mut *self.callback as *mut _ as PVoid,
+            Some(hcs_event_callback),
         )
     }
 
@@ -393,7 +411,7 @@ impl HcsSystem {
                 security_descriptor,
             )?,
             handle_policy: HcsWrappedHandleDropPolicy::Close,
-            callback: None,
+            callback: Box::new(HcsEventCallback { callback: None }),
         })
     }
 
@@ -406,7 +424,7 @@ impl HcsSystem {
         Ok(HcsProcess {
             handle: computecore::open_process(self.handle, process_id, requested_access)?,
             handle_policy: HcsWrappedHandleDropPolicy::Close,
-            callback: None,
+            callback: Box::new(HcsEventCallback { callback: None }),
         })
     }
 
@@ -470,12 +488,12 @@ impl HcsProcess {
         F: 'static,
         F: FnMut(&HcsEvent),
     {
-        self.callback = Some(Box::new(callback));
+        self.callback = Box::new(HcsEventCallback{callback: Some(Box::new(callback))});
         computecore::set_process_callback(
             self.handle,
             callback_options,
-            self as *mut _ as PVoid,
-            Some(hcs_process_callback),
+            &mut *self.callback as *mut _ as PVoid,
+            Some(hcs_event_callback),
         )
     }
 }
