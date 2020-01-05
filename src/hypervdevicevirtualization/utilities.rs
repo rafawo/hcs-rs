@@ -19,9 +19,7 @@ use winutils_rs::windefs::*;
 /// Trait definition that lists the functions required by an HDV PCI device
 /// to implement to properly handle the device interface callbacks.
 ///
-/// # Safety
-/// Because these are called from within C-style callbacks, do not make them panic
-/// and instead return an `HcsResult<()>`.
+/// Prefer to avoid panics and instead return an `HcsResult<()>`.
 ///
 /// # Example
 /// Here's an example on how to utilize this trait and the rest of the utilities
@@ -59,17 +57,12 @@ use winutils_rs::windefs::*;
 ///     let system = create_new_system().unwrap(); // Assume code that creates an HcsSystem
 ///     let hdv = system.initialize_device_host().unwrap();
 ///     let device = Arc::new(RwLock::new(ExampleDevice::new()));
-///     let mut device = device as Arc<RwLock<dyn HdvPciDevice>>;
-///     unsafe {
-///         // By ensuring that &mut device outlives the device's lifetime the C callbacks
-///         // will work correctly.
-///         HdvPciDeviceBase::hook_device_interface_callbacks(
-///             hdv.handle(),
-///             &some_guid, // Assume GUID object exists
-///             &some_guid, // Assume GUID object exists
-///             &mut device,
-///         )
-///     }
+///     HdvPciDeviceBase::hook_device_interface_callbacks(
+///         hdv.handle(),
+///         &some_guid, // Assume GUID object exists
+///         &some_guid, // Assume GUID object exists
+///         device.clone() as Arc<RwLock<dyn HdvPciDevice>>,
+///     )
 ///     .unwrap();
 ///
 ///     // Start system
@@ -157,6 +150,7 @@ impl HdvHost {
 #[derive(Clone)]
 pub struct HdvPciDeviceBase {
     device_handle: HdvDeviceHandle,
+    device: Box<Arc<RwLock<dyn HdvPciDevice>>>,
 }
 
 impl HdvPciDeviceBase {
@@ -168,21 +162,14 @@ impl HdvPciDeviceBase {
     /// This will also call the device's `assign_base` so that the object gets
     /// a chance to store a clone of this new device base and gain access
     /// to all of its methods that utilize the initialized device handle.
-    ///
-    /// # Callback context
-    /// The callback context will be the supplied mutable reference to the trait
-    /// object. THIS REFERENCE MUST NOT CHANGE AFTER HOOKING UP THE INTERFACE
-    /// CALLBACKS TO GUARANTEE THEY'LL DO PROPER FUNCTION CALL FORWARDING.
-    ///
-    /// # Safety
-    /// Callers must guarantee the supplied `device` mutable reference outlives
-    /// the device base until it's tore down through the device host handle closing.
     pub fn hook_device_interface_callbacks(
         device_host_handle: HdvHostHandle,
         device_class_id: &Guid,
         device_instance_id: &Guid,
-        device: &mut Arc<RwLock<dyn HdvPciDevice>>,
+        device: Arc<RwLock<dyn HdvPciDevice>>,
     ) -> HcsResult<()> {
+        let device_clone = device.clone();
+        let mut device = Box::new(device);
         let device_base = Arc::new(RwLock::new(HdvPciDeviceBase {
             device_handle: hypervdevicevirtualization::create_device_instance(
                 device_host_handle,
@@ -190,10 +177,11 @@ impl HdvPciDeviceBase {
                 device_class_id,
                 device_instance_id,
                 &device_base_interface::DEVICE_INTERFACE as *const _ as *const Void,
-                device as *mut _ as PVoid,
+                &mut *device as *mut _ as PVoid,
             )?,
+            device,
         }));
-        device.write().unwrap().assign_base(device_base);
+        device_clone.write().unwrap().assign_base(device_base);
         Ok(())
     }
 
