@@ -56,11 +56,12 @@ use winutils_rs::windefs::*;
 /// fn main() {
 ///     let system = create_new_system().unwrap(); // Assume code that creates an HcsSystem
 ///     let device = Arc::new(RwLock::new(ExampleDevice::new()));
+///     let device = device as Arc<RwLock<HdvPciDevice>>;
 ///     let hdv = system.initialize_device_host().unwrap();
 ///     hdv.hook_device_interface_callbacks(
 ///         &some_guid, // Assume GUID object exists
 ///         &some_guid, // Assume GUID object exists
-///         &device as &Arc<RwLock<dyn HdvPciDevice>>,
+///         &device,
 ///     )
 ///     .unwrap();
 ///
