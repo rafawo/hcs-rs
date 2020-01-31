@@ -8,7 +8,6 @@
 
 pub mod compute;
 pub mod gpu;
-pub mod guest_state;
 pub mod network;
 pub mod storage;
 pub mod vpci;
