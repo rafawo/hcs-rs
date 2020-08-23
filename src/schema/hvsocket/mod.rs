@@ -89,12 +89,14 @@ mod tests {
 
     #[test]
     fn hvsocket_service_config_with_strings() {
-        assert_eq!(&serde_json::to_string(&HvSocketServiceConfig {
-            bind_security_descriptor: Some(String::from("SomeBindSecurityDescriptor")),
-            connect_security_descriptor: Some(String::from("SomeConnectSecurityDescriptor")),
-            allow_wildcard_binds: true,
-        }).unwrap(),
-        r#"{"BindSecurityDescriptor":"SomeBindSecurityDescriptor","ConnectSecurityDescriptor":"SomeConnectSecurityDescriptor","AllowWildcardBinds":true}"#
+        assert_eq!(
+            &serde_json::to_string(&HvSocketServiceConfig {
+                bind_security_descriptor: Some(String::from("SomeBindSecurityDescriptor")),
+                connect_security_descriptor: Some(String::from("SomeConnectSecurityDescriptor")),
+                allow_wildcard_binds: true,
+            })
+            .unwrap(),
+            r#"{"BindSecurityDescriptor":"SomeBindSecurityDescriptor","ConnectSecurityDescriptor":"SomeConnectSecurityDescriptor","AllowWildcardBinds":true}"#
         );
     }
 
@@ -142,7 +144,11 @@ mod tests {
         .unwrap();
 
         // Unfortunately, serialization of the map is not deterministic and we should take into account both variations
-        assert!(&hvsocket_system_config_string == r#"{"DefaultBindSecurityDescriptor":"SomeBindSecurityDescriptor","DefaultConnectSecurityDescriptor":"SomeConnectSecurityDescriptor","ServiceTable":{"db20fa3e-c476-447f-94a5-51b8322c4c4f":{"BindSecurityDescriptor":"SomeBindSecurityDescriptor","ConnectSecurityDescriptor":"SomeConnectSecurityDescriptor","AllowWildcardBinds":true},"00000000-0000-0000-0000-000000000000":{"AllowWildcardBinds":true}}}"#
-        || &hvsocket_system_config_string == r#"{"DefaultBindSecurityDescriptor":"SomeBindSecurityDescriptor","DefaultConnectSecurityDescriptor":"SomeConnectSecurityDescriptor","ServiceTable":{"00000000-0000-0000-0000-000000000000":{"AllowWildcardBinds":true},"db20fa3e-c476-447f-94a5-51b8322c4c4f":{"BindSecurityDescriptor":"SomeBindSecurityDescriptor","ConnectSecurityDescriptor":"SomeConnectSecurityDescriptor","AllowWildcardBinds":true}}}"#);
+        assert!(
+            &hvsocket_system_config_string
+                == r#"{"DefaultBindSecurityDescriptor":"SomeBindSecurityDescriptor","DefaultConnectSecurityDescriptor":"SomeConnectSecurityDescriptor","ServiceTable":{"db20fa3e-c476-447f-94a5-51b8322c4c4f":{"BindSecurityDescriptor":"SomeBindSecurityDescriptor","ConnectSecurityDescriptor":"SomeConnectSecurityDescriptor","AllowWildcardBinds":true},"00000000-0000-0000-0000-000000000000":{"AllowWildcardBinds":true}}}"#
+                || &hvsocket_system_config_string
+                    == r#"{"DefaultBindSecurityDescriptor":"SomeBindSecurityDescriptor","DefaultConnectSecurityDescriptor":"SomeConnectSecurityDescriptor","ServiceTable":{"00000000-0000-0000-0000-000000000000":{"AllowWildcardBinds":true},"db20fa3e-c476-447f-94a5-51b8322c4c4f":{"BindSecurityDescriptor":"SomeBindSecurityDescriptor","ConnectSecurityDescriptor":"SomeConnectSecurityDescriptor","AllowWildcardBinds":true}}}"#
+        );
     }
 }

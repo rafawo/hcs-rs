@@ -169,7 +169,9 @@ mod tests {
                 key: get_sample_regkey(),
                 name: String::from("OtherRegistryName"),
                 value_type: RegistryValueType::ExpandedString,
-                value_data: Some(RegistryValueData::StringValue(String::from("string_val1\0string_val2"))),
+                value_data: Some(RegistryValueData::StringValue(String::from(
+                    "string_val1\0string_val2"
+                ))),
                 custom_type: None,
             })
             .unwrap(),
@@ -229,7 +231,7 @@ mod tests {
                 key: get_sample_regkey(),
                 name: String::from("OtherRegistryName"),
                 value_type: RegistryValueType::CustomType,
-                value_data: Some(RegistryValueData::BinaryValue(vec![1,2,3,4,5])),
+                value_data: Some(RegistryValueData::BinaryValue(vec![1, 2, 3, 4, 5])),
                 custom_type: Some(5),
             })
             .unwrap(),

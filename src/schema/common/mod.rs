@@ -117,7 +117,8 @@ pub mod resources {
                     path: String::from("some\\path"),
                     path_type: PathType::AbsolutePath,
                     cache: None,
-                }).unwrap(),
+                })
+                .unwrap(),
                 r#"{"Id":"00000000-0000-0000-0000-000000000000","Path":"some\\path","PathType":"AbsolutePath"}"#
             );
             assert_eq!(
@@ -126,7 +127,8 @@ pub mod resources {
                     path: String::from("some\\path"),
                     path_type: PathType::VirtualSmbShareName,
                     cache: Some(CacheMode::Enabled),
-                }).unwrap(),
+                })
+                .unwrap(),
                 r#"{"Id":"00000000-0000-0000-0000-000000000000","Path":"some\\path","PathType":"VirtualSmbShareName","Cache":"Enabled"}"#
             );
         }
