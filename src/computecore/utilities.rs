@@ -296,6 +296,23 @@ impl HcsOperation {
     }
 }
 
+/// Simple abstraction that represents an HcsOperation error.
+pub struct HcsOperationError {
+    pub result: String,
+    pub result_code: crate::compute::errorcodes::ResultCode,
+}
+
+impl HcsOperationError {
+    pub fn new(result_code: crate::compute::errorcodes::ResultCode) -> HcsOperationError {
+        HcsOperationError {
+            result: String::new(),
+            result_code
+        }
+    }
+}
+
+pub type HcsOperationResult<T> = Result<T, HcsOperationError>;
+
 /// Thin wrapper of an HCS Compute System that interfaces to all HCS APIs that inherently
 /// depend on an HCS Compute System handle as input and/or output.
 impl HcsSystem {
@@ -316,6 +333,21 @@ impl HcsSystem {
             handle_policy: HcsWrappedHandleDropPolicy::Close,
             callback: Box::new(HcsEventCallback { callback: None }),
         })
+    }
+
+    /// Synchronous version of [HcsSystem::create](struct.HcsSystem.create)
+    pub fn create_sync(id: &str, configuration: &str, security_descriptor: Option<&SecurityDescriptor>) -> HcsOperationResult<HcsSystem> {
+        let operation = HcsOperation::new().map_err(HcsOperationError::new)?;
+        let system = HcsSystem::create(id, configuration, &operation, security_descriptor).map_err(HcsOperationError::new)?;
+        match operation.wait_for_result(INFINITE) {
+            (result, Err(result_code)) => Err(HcsOperationError{ result, result_code }),
+            _ => Ok(system)
+        }
+    }
+
+    /// Asynchronous version of [HcsSystem::create](struct.HcsSystem.create)
+    pub async fn create_async(&self, id: &str, configuration: &str, security_descriptor: Option<&SecurityDescriptor>) -> HcsOperationResult<HcsSystem> {
+        HcsSystem::create_sync(id, configuration, security_descriptor)
     }
 
     /// Opens a compute system and returns a safe wrapper handle to it.
