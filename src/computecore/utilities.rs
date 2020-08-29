@@ -377,9 +377,47 @@ impl HcsSystem {
         computecore::start_compute_system(self.handle, operation.handle, options)
     }
 
+    /// Synchronous version of [HcsSystem::start](struct.HcsSystem.start)
+    pub fn start_sync(&self, options: Option<&str>) -> HcsOperationResult<()> {
+        let operation = HcsOperation::new().map_err(HcsOperationError::new)?;
+        self.start(&operation, options)
+            .map_err(HcsOperationError::new)?;
+        match operation.wait_for_result(INFINITE) {
+            (result, Err(result_code)) => Err(HcsOperationError {
+                result,
+                result_code,
+            }),
+            _ => Ok(()),
+        }
+    }
+
+    /// Asynchronous version of [HcsSystem::start](struct.HcsSystem.start)
+    pub async fn start_async(&self, options: Option<&str>) -> HcsOperationResult<()> {
+        self.start_sync(options)
+    }
+
     /// Shutdowns a compute system.
     pub fn shutdown(&self, operation: &HcsOperation, options: Option<&str>) -> HcsResult<()> {
         computecore::shutdown_compute_system(self.handle, operation.handle, options)
+    }
+
+    /// Synchronous version of [HcsSystem::shutdown](struct.HcsSystem.shutdown)
+    pub fn shutdown_sync(&self, options: Option<&str>) -> HcsOperationResult<()> {
+        let operation = HcsOperation::new().map_err(HcsOperationError::new)?;
+        self.shutdown(&operation, options)
+            .map_err(HcsOperationError::new)?;
+        match operation.wait_for_result(INFINITE) {
+            (result, Err(result_code)) => Err(HcsOperationError {
+                result,
+                result_code,
+            }),
+            _ => Ok(()),
+        }
+    }
+
+    /// Asynchronous version of [HcsSystem::shutdown](struct.HcsSystem.shutdown)
+    pub async fn shutdown_async(&self, options: Option<&str>) -> HcsOperationResult<()> {
+        self.shutdown_sync(options)
     }
 
     /// Terminates a compute system.
@@ -387,9 +425,47 @@ impl HcsSystem {
         computecore::terminate_compute_system(self.handle, operation.handle, options)
     }
 
+    /// Synchronous version of [HcsSystem::terminate](struct.HcsSystem.terminate)
+    pub fn terminate_sync(&self, options: Option<&str>) -> HcsOperationResult<()> {
+        let operation = HcsOperation::new().map_err(HcsOperationError::new)?;
+        self.terminate(&operation, options)
+            .map_err(HcsOperationError::new)?;
+        match operation.wait_for_result(INFINITE) {
+            (result, Err(result_code)) => Err(HcsOperationError {
+                result,
+                result_code,
+            }),
+            _ => Ok(()),
+        }
+    }
+
+    /// Asynchronous version of [HcsSystem::terminate](struct.HcsSystem.terminate)
+    pub async fn terminate_async(&self, options: Option<&str>) -> HcsOperationResult<()> {
+        self.terminate_sync(options)
+    }
+
     /// Pauses a compute system.
     pub fn pause(&self, operation: &HcsOperation, options: Option<&str>) -> HcsResult<()> {
         computecore::pause_compute_system(self.handle, operation.handle, options)
+    }
+
+    /// Synchronous version of [HcsSystem::pause](struct.HcsSystem.pause)
+    pub fn pause_sync(&self, options: Option<&str>) -> HcsOperationResult<()> {
+        let operation = HcsOperation::new().map_err(HcsOperationError::new)?;
+        self.pause(&operation, options)
+            .map_err(HcsOperationError::new)?;
+        match operation.wait_for_result(INFINITE) {
+            (result, Err(result_code)) => Err(HcsOperationError {
+                result,
+                result_code,
+            }),
+            _ => Ok(()),
+        }
+    }
+
+    /// Asynchronous version of [HcsSystem::pause](struct.HcsSystem.pause)
+    pub async fn pause_async(&self, options: Option<&str>) -> HcsOperationResult<()> {
+        self.pause_sync(options)
     }
 
     /// Resumes a compute system.
@@ -397,9 +473,47 @@ impl HcsSystem {
         computecore::resume_compute_system(self.handle, operation.handle, options)
     }
 
+    /// Synchronous version of [HcsSystem::resume](struct.HcsSystem.resume)
+    pub fn resume_sync(&self, options: Option<&str>) -> HcsOperationResult<()> {
+        let operation = HcsOperation::new().map_err(HcsOperationError::new)?;
+        self.resume(&operation, options)
+            .map_err(HcsOperationError::new)?;
+        match operation.wait_for_result(INFINITE) {
+            (result, Err(result_code)) => Err(HcsOperationError {
+                result,
+                result_code,
+            }),
+            _ => Ok(()),
+        }
+    }
+
+    /// Asynchronous version of [HcsSystem::resume](struct.HcsSystem.resume)
+    pub async fn resume_async(&self, options: Option<&str>) -> HcsOperationResult<()> {
+        self.resume_sync(options)
+    }
+
     /// Saves a compute system.
     pub fn save(&self, operation: &HcsOperation, options: Option<&str>) -> HcsResult<()> {
         computecore::save_compute_system(self.handle, operation.handle, options)
+    }
+
+    /// Synchronous version of [HcsSystem::save](struct.HcsSystem.save)
+    pub fn save_sync(&self, options: Option<&str>) -> HcsOperationResult<()> {
+        let operation = HcsOperation::new().map_err(HcsOperationError::new)?;
+        self.save(&operation, options)
+            .map_err(HcsOperationError::new)?;
+        match operation.wait_for_result(INFINITE) {
+            (result, Err(result_code)) => Err(HcsOperationError {
+                result,
+                result_code,
+            }),
+            _ => Ok(()),
+        }
+    }
+
+    /// Asynchronous version of [HcsSystem::save](struct.HcsSystem.save)
+    pub async fn save_async(&self, options: Option<&str>) -> HcsOperationResult<()> {
+        self.save_sync(options)
     }
 
     /// Queries for a compute system's properties.
