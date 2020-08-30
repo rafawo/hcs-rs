@@ -525,6 +525,30 @@ impl HcsSystem {
         computecore::get_compute_system_properties(self.handle, operation.handle, property_query)
     }
 
+    /// Synchronous version of [HcsSystem::get_properties](struct.HcsSystem.get_properties)
+    pub fn get_properties_sync(
+        &self,
+        property_query: Option<&str>,
+    ) -> HcsOperationResult<String> {
+        let operation = HcsOperation::new().map_err(HcsOperationError::new)?;
+        self.get_properties(&operation, property_query).map_err(HcsOperationError::new)?;
+        match operation.wait_for_result(INFINITE) {
+            (result, Err(result_code)) => Err(HcsOperationError {
+                result,
+                result_code,
+            }),
+            (result, Ok(())) => Ok(result),
+        }
+    }
+
+    /// Asynchronous version of [HcsSystem::get_properties](struct.HcsSystem.get_properties)
+    pub async fn get_properties_async(
+        &self,
+        property_query: Option<&str>,
+    ) -> HcsOperationResult<String> {
+        self.get_properties_sync(property_query)
+    }
+
     /// Modifies a compute system.
     pub fn modify(
         &self,
