@@ -313,6 +313,20 @@ impl HcsOperationError {
 
 pub type HcsOperationResult<T> = Result<T, HcsOperationError>;
 
+fn get_hcs_operation_result_doc_sync(operation: &HcsOperation) -> HcsOperationResult<String> {
+    match operation.wait_for_result(INFINITE) {
+        (result, Err(result_code)) => Err(HcsOperationError {
+            result,
+            result_code,
+        }),
+        (result, Ok(())) => Ok(result),
+    }
+}
+
+fn get_hcs_operation_result_sync(operation: &HcsOperation) -> HcsOperationResult<()> {
+    get_hcs_operation_result_doc_sync(operation).map(|_| ())
+}
+
 /// Thin wrapper of an HCS Compute System that interfaces to all HCS APIs that inherently
 /// depend on an HCS Compute System handle as input and/or output.
 impl HcsSystem {
@@ -382,13 +396,7 @@ impl HcsSystem {
         let operation = HcsOperation::new().map_err(HcsOperationError::new)?;
         self.start(&operation, options)
             .map_err(HcsOperationError::new)?;
-        match operation.wait_for_result(INFINITE) {
-            (result, Err(result_code)) => Err(HcsOperationError {
-                result,
-                result_code,
-            }),
-            _ => Ok(()),
-        }
+        get_hcs_operation_result_sync(&operation)
     }
 
     /// Asynchronous version of [HcsSystem::start](struct.HcsSystem.start)
@@ -406,13 +414,7 @@ impl HcsSystem {
         let operation = HcsOperation::new().map_err(HcsOperationError::new)?;
         self.shutdown(&operation, options)
             .map_err(HcsOperationError::new)?;
-        match operation.wait_for_result(INFINITE) {
-            (result, Err(result_code)) => Err(HcsOperationError {
-                result,
-                result_code,
-            }),
-            _ => Ok(()),
-        }
+        get_hcs_operation_result_sync(&operation)
     }
 
     /// Asynchronous version of [HcsSystem::shutdown](struct.HcsSystem.shutdown)
@@ -430,13 +432,7 @@ impl HcsSystem {
         let operation = HcsOperation::new().map_err(HcsOperationError::new)?;
         self.terminate(&operation, options)
             .map_err(HcsOperationError::new)?;
-        match operation.wait_for_result(INFINITE) {
-            (result, Err(result_code)) => Err(HcsOperationError {
-                result,
-                result_code,
-            }),
-            _ => Ok(()),
-        }
+        get_hcs_operation_result_sync(&operation)
     }
 
     /// Asynchronous version of [HcsSystem::terminate](struct.HcsSystem.terminate)
@@ -454,13 +450,7 @@ impl HcsSystem {
         let operation = HcsOperation::new().map_err(HcsOperationError::new)?;
         self.pause(&operation, options)
             .map_err(HcsOperationError::new)?;
-        match operation.wait_for_result(INFINITE) {
-            (result, Err(result_code)) => Err(HcsOperationError {
-                result,
-                result_code,
-            }),
-            _ => Ok(()),
-        }
+        get_hcs_operation_result_sync(&operation)
     }
 
     /// Asynchronous version of [HcsSystem::pause](struct.HcsSystem.pause)
@@ -478,13 +468,7 @@ impl HcsSystem {
         let operation = HcsOperation::new().map_err(HcsOperationError::new)?;
         self.resume(&operation, options)
             .map_err(HcsOperationError::new)?;
-        match operation.wait_for_result(INFINITE) {
-            (result, Err(result_code)) => Err(HcsOperationError {
-                result,
-                result_code,
-            }),
-            _ => Ok(()),
-        }
+        get_hcs_operation_result_sync(&operation)
     }
 
     /// Asynchronous version of [HcsSystem::resume](struct.HcsSystem.resume)
@@ -502,13 +486,7 @@ impl HcsSystem {
         let operation = HcsOperation::new().map_err(HcsOperationError::new)?;
         self.save(&operation, options)
             .map_err(HcsOperationError::new)?;
-        match operation.wait_for_result(INFINITE) {
-            (result, Err(result_code)) => Err(HcsOperationError {
-                result,
-                result_code,
-            }),
-            _ => Ok(()),
-        }
+        get_hcs_operation_result_sync(&operation)
     }
 
     /// Asynchronous version of [HcsSystem::save](struct.HcsSystem.save)
@@ -526,19 +504,11 @@ impl HcsSystem {
     }
 
     /// Synchronous version of [HcsSystem::get_properties](struct.HcsSystem.get_properties)
-    pub fn get_properties_sync(
-        &self,
-        property_query: Option<&str>,
-    ) -> HcsOperationResult<String> {
+    pub fn get_properties_sync(&self, property_query: Option<&str>) -> HcsOperationResult<String> {
         let operation = HcsOperation::new().map_err(HcsOperationError::new)?;
-        self.get_properties(&operation, property_query).map_err(HcsOperationError::new)?;
-        match operation.wait_for_result(INFINITE) {
-            (result, Err(result_code)) => Err(HcsOperationError {
-                result,
-                result_code,
-            }),
-            (result, Ok(())) => Ok(result),
-        }
+        self.get_properties(&operation, property_query)
+            .map_err(HcsOperationError::new)?;
+        get_hcs_operation_result_doc_sync(&operation)
     }
 
     /// Asynchronous version of [HcsSystem::get_properties](struct.HcsSystem.get_properties)
@@ -557,6 +527,23 @@ impl HcsSystem {
         identity: Handle,
     ) -> HcsResult<()> {
         computecore::modify_compute_system(self.handle, operation.handle, configuration, identity)
+    }
+
+    /// Synchronous version of [HcsSystem::modify](struct.HcsSystem.modify)
+    pub fn modify_sync(&self, configuration: &str, identity: Handle) -> HcsOperationResult<()> {
+        let operation = HcsOperation::new().map_err(HcsOperationError::new)?;
+        self.modify(&operation, configuration, identity)
+            .map_err(HcsOperationError::new)?;
+        get_hcs_operation_result_sync(&operation)
+    }
+
+    /// Asynchronous version of [HcsSystem::modify](struct.HcsSystem.modify)
+    pub async fn modify_async(
+        &self,
+        configuration: &str,
+        identity: Handle,
+    ) -> HcsOperationResult<()> {
+        self.modify_sync(configuration, identity)
     }
 
     /// Sets a callback for this specific compute system, called on key events.
