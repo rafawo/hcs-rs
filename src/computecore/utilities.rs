@@ -652,7 +652,7 @@ impl HcsProcess {
         computecore::terminate_process(self.handle, operation.handle, options)
     }
 
-    /// Synchronous version of [HcsSystem::terminate](struct.HcsSystem.terminate)
+    /// Synchronous version of [HcsProcess::terminate](struct.HcsProcess.terminate)
     pub fn terminate_sync(&self, options: Option<&str>) -> HcsOperationResult<()> {
         let operation = HcsOperation::new().map_err(HcsOperationError::new)?;
         self.terminate(&operation, options)
@@ -660,7 +660,7 @@ impl HcsProcess {
         get_hcs_operation_result_sync(&operation)
     }
 
-    /// Asynchronous version of [HcsSystem::terminate](struct.HcsSystem.terminate)
+    /// Asynchronous version of [HcsProcess::terminate](struct.HcsProcess.terminate)
     pub async fn terminate_async(&self, options: Option<&str>) -> HcsOperationResult<()> {
         self.terminate_sync(options)
     }
@@ -670,7 +670,7 @@ impl HcsProcess {
         computecore::signal_process(self.handle, operation.handle, options)
     }
 
-    /// Synchronous version of [HcsSystem::signal](struct.HcsSystem.signal)
+    /// Synchronous version of [HcsProcess::signal](struct.HcsProcess.signal)
     pub fn signal_sync(&self, options: Option<&str>) -> HcsOperationResult<()> {
         let operation = HcsOperation::new().map_err(HcsOperationError::new)?;
         self.signal(&operation, options)
@@ -678,7 +678,7 @@ impl HcsProcess {
         get_hcs_operation_result_sync(&operation)
     }
 
-    /// Asynchronous version of [HcsSystem::signal](struct.HcsSystem.signal)
+    /// Asynchronous version of [HcsProcess::signal](struct.HcsProcess.signal)
     pub async fn signal_async(&self, options: Option<&str>) -> HcsOperationResult<()> {
         self.signal_sync(options)
     }
@@ -688,7 +688,7 @@ impl HcsProcess {
         computecore::get_process_info(self.handle, operation.handle)
     }
 
-    /// Synchronous version of [HcsSystem::get_info](struct.HcsSystem.get_info)
+    /// Synchronous version of [HcsProcess::get_info](struct.HcsProcess.get_info)
     pub fn get_info_sync(&self) -> HcsOperationResult<HcsProcessInformation> {
         let operation = HcsOperation::new().map_err(HcsOperationError::new)?;
         self.get_info(&operation).map_err(HcsOperationError::new)?;
@@ -701,7 +701,7 @@ impl HcsProcess {
         }
     }
 
-    /// Asynchronous version of [HcsSystem::get_info](struct.HcsSystem.get_info)
+    /// Asynchronous version of [HcsProcess::get_info](struct.HcsProcess.get_info)
     pub fn get_info_async(&self) -> HcsOperationResult<HcsProcessInformation> {
         self.get_info_sync()
     }
@@ -715,9 +715,41 @@ impl HcsProcess {
         computecore::get_process_properties(self.handle, operation.handle, property_query)
     }
 
+    /// Synchronous version of [HcsProcess::get_properties](struct.HcsProcess.get_properties)
+    pub fn get_properties_sync(&self, property_query: Option<&str>) -> HcsOperationResult<String> {
+        let operation = HcsOperation::new().map_err(HcsOperationError::new)?;
+        self.get_properties(&operation, property_query)
+            .map_err(HcsOperationError::new)?;
+        get_hcs_operation_result_doc_sync(&operation)
+    }
+
+    /// Asynchronous version of [HcsProcess::get_properties](struct.HcsProcess.get_properties)
+    pub async fn get_properties_async(
+        &self,
+        property_query: Option<&str>,
+    ) -> HcsOperationResult<String> {
+        self.get_properties_sync(property_query)
+    }
+
     /// Modifies the compute system process.
-    pub fn modify(&self, operation: &HcsOperation, settings: Option<&str>) -> HcsResult<()> {
+    pub fn modify(&self, operation: &HcsOperation, settings: &str) -> HcsResult<()> {
         computecore::modify_process(self.handle, operation.handle, settings)
+    }
+
+    /// Synchronous version of [HcsProcess::modify](struct.HcsProcess.modify)
+    pub fn modify_sync(&self, configuration: &str) -> HcsOperationResult<()> {
+        let operation = HcsOperation::new().map_err(HcsOperationError::new)?;
+        self.modify(&operation, configuration)
+            .map_err(HcsOperationError::new)?;
+        get_hcs_operation_result_sync(&operation)
+    }
+
+    /// Asynchronous version of [HcsProcess::modify](struct.HcsProcess.modify)
+    pub async fn modify_async(
+        &self,
+        configuration: &str,
+    ) -> HcsOperationResult<()> {
+        self.modify_sync(configuration)
     }
 
     /// Sets a callback to the compute system process, called on key events.

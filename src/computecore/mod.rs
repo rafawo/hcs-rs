@@ -671,18 +671,13 @@ pub fn get_process_properties(
 pub fn modify_process(
     process: HcsProcessHandle,
     operation: HcsOperationHandle,
-    settings: Option<&str>,
+    settings: &str,
 ) -> HcsResult<()> {
-    let settings_str = match settings {
-        Some(settings) => settings,
-        None => "{}",
-    };
-
     unsafe {
         match HcsModifyProcess(
             process,
             operation,
-            WideCString::from_str(settings_str).unwrap().as_ptr(),
+            WideCString::from_str(settings).unwrap().as_ptr(),
         ) {
             0 => Ok(()),
             hresult => Err(hresult_to_result_code(&hresult)),
