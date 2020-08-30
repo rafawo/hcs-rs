@@ -596,17 +596,17 @@ impl HcsSystem {
         &self,
         process_parameters: &str,
         security_descriptor: Option<&SecurityDescriptor>,
-    ) -> HcsOperationResult<HcsProcess> {
+    ) -> HcsOperationResult<(HcsProcess, HcsProcessInformation)> {
         let operation = HcsOperation::new().map_err(HcsOperationError::new)?;
         let process = self
             .create_process(process_parameters, &operation, security_descriptor)
             .map_err(HcsOperationError::new)?;
-        match operation.wait_for_result(INFINITE) {
+        match operation.wait_for_result_and_process_info(INFINITE) {
             (result, Err(result_code)) => Err(HcsOperationError {
                 result,
                 result_code,
             }),
-            _ => Ok(process),
+            (_, Ok(process_info)) => Ok((process, process_info)),
         }
     }
 
@@ -615,7 +615,7 @@ impl HcsSystem {
         &self,
         process_parameters: &str,
         security_descriptor: Option<&SecurityDescriptor>,
-    ) -> HcsOperationResult<HcsProcess> {
+    ) -> HcsOperationResult<(HcsProcess, HcsProcessInformation)> {
         self.create_process_sync(process_parameters, security_descriptor)
     }
 
