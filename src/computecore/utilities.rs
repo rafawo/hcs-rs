@@ -652,14 +652,58 @@ impl HcsProcess {
         computecore::terminate_process(self.handle, operation.handle, options)
     }
 
+    /// Synchronous version of [HcsSystem::terminate](struct.HcsSystem.terminate)
+    pub fn terminate_sync(&self, options: Option<&str>) -> HcsOperationResult<()> {
+        let operation = HcsOperation::new().map_err(HcsOperationError::new)?;
+        self.terminate(&operation, options)
+            .map_err(HcsOperationError::new)?;
+        get_hcs_operation_result_sync(&operation)
+    }
+
+    /// Asynchronous version of [HcsSystem::terminate](struct.HcsSystem.terminate)
+    pub async fn terminate_async(&self, options: Option<&str>) -> HcsOperationResult<()> {
+        self.terminate_sync(options)
+    }
+
     /// Signals a compute system process.
     pub fn signal(&self, operation: &HcsOperation, options: Option<&str>) -> HcsResult<()> {
         computecore::signal_process(self.handle, operation.handle, options)
     }
 
+    /// Synchronous version of [HcsSystem::signal](struct.HcsSystem.signal)
+    pub fn signal_sync(&self, options: Option<&str>) -> HcsOperationResult<()> {
+        let operation = HcsOperation::new().map_err(HcsOperationError::new)?;
+        self.signal(&operation, options)
+            .map_err(HcsOperationError::new)?;
+        get_hcs_operation_result_sync(&operation)
+    }
+
+    /// Asynchronous version of [HcsSystem::signal](struct.HcsSystem.signal)
+    pub async fn signal_async(&self, options: Option<&str>) -> HcsOperationResult<()> {
+        self.signal_sync(options)
+    }
+
     /// Gets basic information of the compute system process.
     pub fn get_info(&self, operation: &HcsOperation) -> HcsResult<()> {
         computecore::get_process_info(self.handle, operation.handle)
+    }
+
+    /// Synchronous version of [HcsSystem::get_info](struct.HcsSystem.get_info)
+    pub fn get_info_sync(&self) -> HcsOperationResult<HcsProcessInformation> {
+        let operation = HcsOperation::new().map_err(HcsOperationError::new)?;
+        self.get_info(&operation).map_err(HcsOperationError::new)?;
+        match operation.wait_for_result_and_process_info(INFINITE) {
+            (result, Err(result_code)) => Err(HcsOperationError {
+                result,
+                result_code,
+            }),
+            (_, Ok(process_info)) => Ok(process_info),
+        }
+    }
+
+    /// Asynchronous version of [HcsSystem::get_info](struct.HcsSystem.get_info)
+    pub fn get_info_async(&self) -> HcsOperationResult<HcsProcessInformation> {
+        self.get_info_sync()
     }
 
     /// Gets properties of the compute system process.
@@ -671,7 +715,7 @@ impl HcsProcess {
         computecore::get_process_properties(self.handle, operation.handle, property_query)
     }
 
-    /// Modifues the compute system process.
+    /// Modifies the compute system process.
     pub fn modify(&self, operation: &HcsOperation, settings: Option<&str>) -> HcsResult<()> {
         computecore::modify_process(self.handle, operation.handle, settings)
     }
