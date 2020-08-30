@@ -591,6 +591,34 @@ impl HcsSystem {
         })
     }
 
+    /// Synchronous version of [HcsSystem::create_process](struct.HcsSystem.create_process)
+    pub fn create_process_sync(
+        &self,
+        process_parameters: &str,
+        security_descriptor: Option<&SecurityDescriptor>,
+    ) -> HcsOperationResult<HcsProcess> {
+        let operation = HcsOperation::new().map_err(HcsOperationError::new)?;
+        let process = self
+            .create_process(process_parameters, &operation, security_descriptor)
+            .map_err(HcsOperationError::new)?;
+        match operation.wait_for_result(INFINITE) {
+            (result, Err(result_code)) => Err(HcsOperationError {
+                result,
+                result_code,
+            }),
+            _ => Ok(process),
+        }
+    }
+
+    /// Asynchronous version of [HcsSystem::create_process](struct.HcsSystem.create_process)
+    pub async fn create_process_async(
+        &self,
+        process_parameters: &str,
+        security_descriptor: Option<&SecurityDescriptor>,
+    ) -> HcsOperationResult<HcsProcess> {
+        self.create_process_sync(process_parameters, security_descriptor)
+    }
+
     /// Opens a process in the compute system, that has been created through HCS APIs.
     pub fn open_process(
         &self,
