@@ -11,6 +11,7 @@ keywords = ["windows", "hcs", "host_compute_service", "hyper-v", "windows-contai
 categories = ["api-bindings", "os::windows-apis"]
 
 [features]
+default = ["bindings", "schema", "19h1", "vb", "utilities"]
 bindings = []
 schema = [ "serde", "serde_json", "chrono", "base64", "hex" ]
 19h1 = []
